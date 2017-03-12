@@ -105,7 +105,7 @@ void Initialize_Inverter(void)
 	OC5CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
 	OC5CON1bits.OCM		= 0b110;	//110 = Edge-Aligned PWM mode on OCx
 	OC5CON2bits.SYNCSEL	= 0b11111;	//11111 = This OC module
-	OC5CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+	OC5CON2bits.OCINV	= 1;		//0 = OCx output is not inverted
 	OC5CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC5CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
@@ -117,7 +117,7 @@ void Initialize_Inverter(void)
 	OC6CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
 	OC6CON1bits.OCM		= 0b110;	//110 = Edge-Aligned PWM mode on OCx
 	OC6CON2bits.SYNCSEL	= 0b00101;	//00101 = Output Compare 5
-	OC6CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+	OC6CON2bits.OCINV	= 1;		//0 = OCx output is not inverted
 	OC6CON2bits.OCTRIG	= 0;		//1 = Trigger OCx from source designated by SYNCSELx bits
 	OC6CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
