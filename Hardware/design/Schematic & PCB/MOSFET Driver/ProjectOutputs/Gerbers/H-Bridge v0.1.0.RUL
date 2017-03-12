@@ -1,0 +1,7 @@
+DRC Rules Export File for PCB: C:\Users\craigc\Dropbox\Afriji\Hardware\design\Schematic & PCB\MOSFET Driver\H-Bridge v0.1.0.PCBDOC
+RuleKind=MinimumAnnularRing|RuleName=MinimumAnnularRing|Scope=Board|Minimum=5.00
+RuleKind=SolderMaskExpansion|RuleName=Everything else|Scope=Board|Minimum=4.00
+RuleKind=SolderMaskExpansion|RuleName=Vias|Scope=Board|Minimum=-2.00
+RuleKind=Width|RuleName=Signal trace width|Scope=Board|Minimum=39.37
+RuleKind=ShortCircuit|RuleName=ShortCircuit|Scope=Board|Allowed=0
+RuleKind=Clearance|RuleName=Tracks|Scope=Board|Minimum=23.62

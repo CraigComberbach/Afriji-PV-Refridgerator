@@ -1,0 +1,20 @@
+---------------------------------------------------------------------------
+NCDrill File Report For: PV Refridgerator A0.PCBDOC   Sun 2017-02-12  13:05:48
+---------------------------------------------------------------------------
+
+Layer Pair : Top Layer to Bottom Layer
+ASCII RoundHoles File : PV Refridgerator A0.TXT
+
+Tool         Hole Size           Hole Type     Hole Count Plated       Tool Travel
+---------------------------------------------------------------------------
+T1        38mil (0.9652mm)         Round          4                0.31 Inch (7.94 mm)
+T2        42mil (1.0668mm)         Round          15               1.70 Inch (43.25 mm)
+T3        47.24mil (1.1999mm)      Round          105              46.73 Inch (1186.83 mm)
+T4        51.18mil (1.29997mm)     Round          8                7.93 Inch (201.45 mm)
+T5        40.16mil (1.02006mm)     Round          64        NPTH   10.60 Inch (269.24 mm)
+T6        118.11mil (2.99999mm)    Round          4         NPTH   16.60 Inch (421.73 mm)
+T7        157.48mil (3.99999mm)    Round          2         NPTH   5.51 Inch (140.00 mm)
+---------------------------------------------------------------------------
+Totals                                            202              89.39 Inch (2270.44 mm)
+
+Total Processing Time (hh:mm:ss) : 00:00:01

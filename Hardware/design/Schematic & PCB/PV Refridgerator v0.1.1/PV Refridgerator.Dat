@@ -1,0 +1,119 @@
+﻿Field=#~Integer~#~50|Field=Designator~String~Designator~100|Field=Footprint~String~Footprint~100|Field=Technology~String~Technology~100|Field=Center-X(mm)~String~Center-X(mm)~100|Field=Center-Y(mm)~String~Center-Y(mm)~100|Field=Layer~String~Layer~100|Field=Rotation~String~Rotation~100|ReportField=Currency~<none>|ReportField=ProductionQuantity~1|ReportField=ProjectFileName~PV Refridgerator.PrjPCB|ReportField=ProjectFullPath~C:\Users\craigc\Desktop\Afriji\Hardware\design\Schematic & PCB\PV Refridgerator v0.1.1\PV Refridgerator.PrjPCB|ReportField=Title~Engineering P'n'P For Project [PV Refridgerator.PrjPCB] (PCB Document : PV Refridgerator v0.1.1.PCBDOC)|ReportField=TotalQuantity~118|ReportField=ReportTime~17:15:02|ReportField=ReportDate~Tue 2017-02-21|ReportField=ReportDateTime~Tue 2017-02-21 17:15:02|ReportField=OutputName~Engineering P'n'P|ReportField=OutputType~BOM_PartType|ReportField=GeneratorName~BOM|ReportField=GeneratorDescription~Bill of Materials|ReportField=VariantName~None|ReportField=Designer~Craig Comberbach|ReportField=ProjectRevision~v0.1.1|ReportField=ProjectTitle~PV Refridgerator|ReportField=Address1~|ReportField=Address2~|ReportField=Address3~|ReportField=Address4~|ReportField=Application_BuildNumber~|ReportField=ApprovedBy~|ReportField=Author~|ReportField=CheckedBy~|ReportField=CompanyName~|ReportField=ConfigurationParameters~|ReportField=ConfiguratorName~|ReportField=CurrentDate~Tue 2017-02-21|ReportField=CurrentTime~17:14:47|ReportField=Date~2017-02-04|ReportField=DesignedBy~Craig Comberbach|ReportField=Details~|ReportField=DocumentFullPathAndName~C:\Users\craigc\Desktop\Afriji\Hardware\design\Schematic & PCB\PV Refridgerator v0.1.1\Overview.SchDoc|ReportField=DocumentName~Overview.SchDoc|ReportField=DocumentNumber~1|ReportField=DrawnBy~|ReportField=Engineer~|ReportField=ImagePath~|ReportField=IsUserConfigurable~|ReportField=ModifiedDate~Tue 2017-02-21|ReportField=Organization~|ReportField=ProjectName~PV Refridgerator.PrjPCB|ReportField=Revision~A|ReportField=Rule~|ReportField=SheetNumber~1|ReportField=SheetTotal~16|ReportField=Time~|ReportField=Title~Overview|ReportField=VersionControl_RevNumber~|ReportField=DataSourceFileName~PV Refridgerator.PrjPCB|ReportField=DataSourceFullPath~C:\Users\craigc\Desktop\Afriji\Hardware\design\Schematic & PCB\PV Refridgerator v0.1.1\PV Refridgerator.PrjPCB|ReportField=PCBDataSourceFileName~PV Refridgerator v0.1.1.PCBDOC|ReportField=PCBDataSourceFullPath~C:\Users\craigc\Desktop\Afriji\Hardware\design\Schematic & PCB\PV Refridgerator v0.1.1\PV Refridgerator v0.1.1.PCBDOC|ReportField=PCBConfigurationName~Default Configuration|ReportField=Item~|ReportField=ItemRevision~|ReportField=ItemAndRevision~|ReportField=ItemRevisionBase~|ReportField=ItemRevisionLevel1~|ReportField=ItemRevisionLevel2~|ReportField=ItemRevisionLevel1AndBase~|ReportField=ItemRevisionLevel2AndLevel1~
+1|C1|C2220 - Ceramic||-25.654|45.466|Top|90
+2|C2|C2220 - Ceramic||50.546|41.732|Top|0
+3|C3|C2220 - Ceramic||50.546|47.701|Top|0
+4|C4|C0805 - Ceramic||-11.684|-9.144|Top|90
+5|C5|C0603 - Ceramic||1.778|-38.1|Top|180
+6|C6|C0603 - Ceramic||-11.43|-54.864|Top|90
+7|C7|C0603 - Ceramic||4.318|-10.414|Top|90
+8|C8|C0603 - Ceramic||-11.684|-3.302|Top|90
+9|C9|C2220 - Ceramic||17.399|50.419|Top|0
+10|C10|C2220 - Ceramic||17.399|57.277|Top|0
+11|C11|Capacitor - 0603 Ceramic|SMT|-65.024|10.668|Top|0
+12|C12|Capacitor - 1210 Tantalum|SMT|-64.516|-0.254|Top|0
+13|C13A|Capacitor - 0603 Ceramic|SMT|-56.083|51.892|Top|0
+14|C13B|Capacitor - 0603 Ceramic|SMT|-55.753|42.189|Top|0
+15|C13C|Capacitor - 0603 Ceramic|SMT|54.238|13.97|Top|90
+16|C13D|Capacitor - 0603 Ceramic|SMT|39.599|13.97|Top|90
+17|C15A|C0603 - Ceramic||-63.285|46.761|Top|90
+18|C15B|C0603 - Ceramic||-62.84|37.186|Top|90
+19|C15C|C0603 - Ceramic||58.928|7.366|Top|180
+20|C15D|C0603 - Ceramic||44.679|6.858|Top|180
+21|D1|SMA - Diode||22.987|62.789|Top|0
+22|D2|SMA - Diode||22.987|66.624|Top|0
+23|D3|SMA - Diode||11.963|62.789|Top|0
+24|D4|SMA - Diode||11.963|66.624|Top|0
+25|D5|LED - 1206 Red||-15.24|-45.72|Top|180
+26|D6|LED - 1206 Green||-15.24|-43.18|Top|180
+27|D7|LED - 1206 Blue||-15.24|-40.64|Top|180
+28|D8A|SMA - Diode||-65.786|47.752|Top|270
+29|D8B|SMA - Diode||-65.278|38.1|Top|270
+30|D8C|SMA - Diode||58.302|4.318|Top|0
+31|D8D|SMA - Diode||43.663|4.318|Top|0
+32|FD1|Fiducial - Double sided|Mechanical|-71.12|63.5|Top|0
+33|FD2|Fiducial - Double sided|Mechanical|73.66|-73.66|Top|0
+34|J1|||0|0|None|0
+35|J2|||0|0|None|0
+36|J3|TE 796739-2||-50.8|68.072|Top|0
+37|J4|Connector- RJ12 Vertical SMT|SMT|41.149|-15.24|Top|270
+38|J5|Connector - MTA-100 5 Position|THT|23.368|-15.24|Top|270
+39|J6|TE 796739-2||50.8|68.072|Top|0
+40|J7|TE 796739-2||-5.588|45.984|Top|270
+41|J8|TE 796739-2||-5.588|65.024|Top|270
+42|Q1|DPAK|MOSFET (Metal Oxide)|-16.662|37.821|Top|90
+43|Q2|DPAK|MOSFET (Metal Oxide)|-16.662|53.442|Top|90
+44|Q3|DPAK|MOSFET (Metal Oxide)|-34.442|37.821|Top|90
+45|Q4|DPAK|MOSFET (Metal Oxide)|-34.442|53.442|Top|90
+46|Q5|DPAK|MOSFET (Metal Oxide)|39.497|51.664|Top|180
+47|Q6|DPAK|MOSFET (Metal Oxide)|61.087|51.664|Top|180
+48|Q7|DPAK|MOSFET (Metal Oxide)|39.497|38.71|Top|180
+49|Q8|DPAK|MOSFET (Metal Oxide)|61.087|38.71|Top|180
+50|R1|||0|0|None|0
+51|R2|R2512||-35.4|65.7|Top|270
+52|R3|R2512||30.861|35.56|Top|0
+53|R4|R0603||18.288|-15.24|Top|0
+54|R5|R0603||18.288|-10.16|Top|180
+55|R6|R0603||18.288|-20.32|Top|180
+56|R7|R0603||18.288|-17.78|Top|180
+57|R8|R0805|SMT|-20.32|-45.974|Top|0
+58|R9|R0805|SMT|-20.32|-43.18|Top|0
+59|R10|R0805|SMT|-20.32|-40.64|Top|0
+60|R11A|R0805|SMT|-2.794|18.288|Top|180
+61|R11B|R0805|SMT|-8.726|18.288|Top|180
+62|R11C|R0805|SMT|-16.764|18.796|Top|180
+63|R12A|R0603||-48.719|45.872|Top|0
+64|R12B|R0603||-48.274|36.297|Top|0
+65|R12C|R0603||60.207|21.424|Top|90
+66|R12D|R0603||45.568|21.424|Top|90
+67|R13A|R0603||-48.719|49.809|Top|0
+68|R13B|R0603||-48.274|40.107|Top|0
+69|R13C|R0603||56.27|21.424|Top|90
+70|R13D|R0603||41.631|21.424|Top|90
+71|R14A|R1210||53.848|60.718|Top|270
+72|R14B|R1210||48.493|35.294|Top|90
+73|R14C|R1210||20.574|42.152|Top|90
+74|R14D|R1210||33.032|69.596|Top|180
+75|R15A|R1210||57.912|60.694|Top|90
+76|R15B|R1210||52.599|35.318|Top|270
+77|R15C|R1210||24.892|42.176|Top|270
+78|R15D|R1210||33.032|64.059|Top|0
+79|R16A|R0603|SMT|18.542|-45.161|Top|0
+80|R16B|R0603|SMT|18.542|-50.8|Top|0
+81|R16C|R0603|SMT|18.542|-39.624|Top|0
+82|R16D|R0603|SMT|18.542|-28.194|Top|0
+83|R16E|R0603|SMT|18.542|-34.036|Top|0
+84|R17A|R0603|SMT|18.542|-47.701|Top|180
+85|R17B|R0603|SMT|18.542|-53.34|Top|180
+86|R17C|R0603|SMT|18.542|-41.91|Top|180
+87|R17D|R0603|SMT|18.542|-30.734|Top|180
+88|R17E|R0603|SMT|18.542|-36.322|Top|180
+89|R18|R0603||-11.176|-35.56|Top|180
+90|R19|R0603||-11.176|-33.02|Top|180
+91|R20A|R0805||-2.794|16.002|Top|0
+92|R20B|R0805||-8.726|16.002|Top|0
+93|R20C|R0805||-16.764|16.764|Top|0
+94|R?|||0|0|None|0
+95|RT1A|Connector - MTA-100 2 Position Friction Lock|THT|24.219|-46.431|Top|90
+96|RT1B|Connector - MTA-100 2 Position Friction Lock|THT|24.219|-52.095|Top|90
+97|RT1C|Connector - MTA-100 2 Position Friction Lock|THT|24.219|-40.767|Top|90
+98|RT1D|Connector - MTA-100 2 Position Friction Lock|THT|24.219|-29.439|Top|90
+99|RT1E|Connector - MTA-100 2 Position Friction Lock|THT|24.219|-35.103|Top|90
+100|TP1|SMT Test Clip|SMT|-14.732|-8.128|Top|90
+101|TP2|SMT Test Clip|SMT|-14.478|-35.56|Top|90
+102|TP3|SMT Test Clip|SMT|-14.478|-33.02|Top|90
+103|TP4A|SMT Test Clip|SMT|58.043|-7.7|Top|0
+104|TP4B|SMT Test Clip|SMT|-51.365|20.32|Top|0
+105|Transformer1|Transformer||-554.018|-629.945|Top|90
+106|U1|TQFP-64 0.5mm Breakout Board|SMT|0|-31.75|Top|180
+107|U2|SOIC-8 (3.9mm)||14.224|24.13|Top|270
+108|U3A|SOT23-5||55.814|-4.144|Top|0
+109|U3B|SOT23-5||-53.594|23.876|Top|0
+110|U4A|SOT23-5||58.1|-11.256|Top|0
+111|U4B|SOT23-5||-51.308|16.764|Top|0
+112|U5|SOT223|SMT|-64.287|5.969|Top|270
+113|U6A|SOIC-8||-56.173|47.777|Top|90
+114|U6B|SOIC-8||-55.728|38.202|Top|90
+115|U6C|SOIC-8||58.42|14.986|Top|180
+116|U6D|SOIC-8||43.688|14.986|Top|180
+117|U7A|SOT23-5||60.386|-4.144|Top|0
+118|U7B|SOT23-5||-49.022|23.876|Top|0

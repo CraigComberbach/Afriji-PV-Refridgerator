@@ -1,0 +1,14 @@
+Project Outputs Generation Report
+---------------------------------
+Start Output Generation At 22:21:43 On Sun 2017-02-12
+
+Output: Uploadable Digi-Key BOM
+Type  : BOM
+From  : Variant [[No Variations]] of Project [PV Refridgerator.PrjPCB]
+   Generated File[Uploadable Digi-Key BOM-PV Refridgerator.xlsx]
+
+
+Files Generated   : 1
+Documents Printed : 0
+
+Finished Output Generation At 22:22:02 On Sun 2017-02-12

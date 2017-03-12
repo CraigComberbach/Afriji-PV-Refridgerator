@@ -1,0 +1,145 @@
+*************************************************************
+FileName = Hi-V H-Bridge v0.1.0.GBR
+AutoAperture = True
+*************************************************************
+Generating : Top Layer
+      File : Hi-V H-Bridge v0.1.0.GTL
+
+    Adding Layer      : Top Layer
+
+    Adding Layer      : Multi-Layer
+
+
+Used DCodes :
+    D10
+    D11
+    D12
+    D13
+    D14
+    D15
+*************************************************************
+
+*************************************************************
+Generating : Bottom Layer
+      File : Hi-V H-Bridge v0.1.0.GBL
+
+    Adding Layer      : Bottom Layer
+
+    Adding Layer      : Multi-Layer
+
+
+Used DCodes :
+    D16
+*************************************************************
+
+*************************************************************
+Generating : Top Overlay
+      File : Hi-V H-Bridge v0.1.0.GTO
+
+    Adding Layer      : Top Overlay
+
+
+Used DCodes :
+    D16
+    D17
+    D18
+    D19
+*************************************************************
+
+*************************************************************
+Generating : Top Paste
+      File : Hi-V H-Bridge v0.1.0.GTP
+
+    Adding Layer      : Top Paste
+
+    Adding Layer      : Top Layer
+
+    Adding Layer      : Multi-Layer
+
+
+Used DCodes :
+    D10
+    D11
+    D12
+    D13
+    D14
+*************************************************************
+
+*************************************************************
+Generating : Top Solder
+      File : Hi-V H-Bridge v0.1.0.GTS
+
+    Adding Layer      : Top Solder
+
+    Adding Layer      : Top Layer
+
+    Adding Layer      : Multi-Layer
+
+
+Used DCodes :
+    D20
+    D21
+    D22
+    D23
+    D24
+*************************************************************
+
+*************************************************************
+Generating : Bottom Solder
+      File : Hi-V H-Bridge v0.1.0.GBS
+
+    Adding Layer      : Bottom Solder
+
+    Adding Layer      : Bottom Layer
+
+    Adding Layer      : Multi-Layer
+
+
+Used DCodes :
+*************************************************************
+
+*************************************************************
+Generating : Bottom Paste
+      File : Hi-V H-Bridge v0.1.0.GBP
+
+    Adding Layer      : Bottom Paste
+
+    Adding Layer      : Bottom Layer
+
+    Adding Layer      : Multi-Layer
+
+
+Used DCodes :
+*************************************************************
+
+*************************************************************
+Generating : Bottom Overlay
+      File : Hi-V H-Bridge v0.1.0.GBO
+
+    Adding Layer      : Bottom Overlay
+
+
+Used DCodes :
+*************************************************************
+
+*************************************************************
+Generating : Board Outline (M1)
+      File : Hi-V H-Bridge v0.1.0.GM1
+
+    Adding Layer      : Board Outline (M1)
+
+
+Used DCodes :
+    D25
+*************************************************************
+
+*************************************************************
+Generating : Board Info (M4)
+      File : Hi-V H-Bridge v0.1.0.GM4
+
+    Adding Layer      : Board Info (M4)
+
+
+Used DCodes :
+*************************************************************
+
