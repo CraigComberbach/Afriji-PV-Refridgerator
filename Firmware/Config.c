@@ -172,7 +172,7 @@ void Configure_For_Afriji(void)
 	Pin_Initialize(PIN_RF2,								LOW, PUSH_PULL, INPUT);	//RF2
 	Pin_Initialize(PIN_RF3,								LOW, PUSH_PULL, INPUT);	//RF3
 	Pin_Initialize(PIN_RF4_HBRIDGE_DIN,					LOW, PUSH_PULL, OUTPUT);	//RF4
-	Pin_Initialize(PIN_RF5_HBRIDGE_CIN,					HIGH, PUSH_PULL, OUTPUT);	//RF5
+	Pin_Initialize(PIN_RF5_HBRIDGE_CIN,					LOW, PUSH_PULL, OUTPUT);	//RF5
 	Pin_Initialize(PIN_RF6,								LOW, PUSH_PULL, INPUT);	//RF6
 	//PORTG
 	Pin_Initialize(PIN_RG2,								LOW, PUSH_PULL, INPUT);	//RG2
@@ -183,29 +183,22 @@ void Configure_For_Afriji(void)
 	Pin_Initialize(PIN_RG9,								LOW, PUSH_PULL, INPUT);	//RG9
 
 	/************* PeripheralPinSelect***************/
-//RPOR12bits.RP25R = 20; //Inverter CIN for Variable Transformer
-//RPOR1bits.RP3R  = 20; //CIN - Red
-//RPOR10bits.RP20R = 21; //Inverter DIN for Variable Transformer
-//RPOR6bits.RP12R = 21; //DIN - Blue
-		//Input Inverter
-		RPOR10bits.RP20R	= 18; 	//OC1 - At
-		RPOR12bits.RP25R	= 19;	//OC2 - Bt
-//		RPORbits.RPR	= 20;	//OC2 - Bt
-//		RPORbits.RPR	= 21;	//OC2 - Bb
+		//Input Inverter (Hi-I Lo-V)
+		RPOR11bits.RP22R	= 18;	//OC1 - At
+		RPOR11bits.RP23R	= 19;	//OC2 - Bt
+		RPOR10bits.RP20R	= 20; 	//OC3 - Ab
+		RPOR12bits.RP25R	= 21;	//OC4 - Bb
 
-		//Output Inverter
+		//Output Inverter (Lo-I Hi-V)
 		RPOR15bits.RP30R	= 22;	//OC5 - Ct
 		RPOR8bits.RP16R		= 23;	//OC6 - Dt 
 		RPOR8bits.RP17R		= 24;	//OC7 - Cb
 		RPOR5bits.RP10R		= 25;	//OC8 - Db
 
 		//LED indicators
-		RPOR1bits.RP3R		= 22;	//OC1 - Red LED
-		RPOR6bits.RP12R		= 23;	//OC2 - Blue LED
-//RPOR5bits.RP10R = 19; //Variable Transformer for Inverter CIN
-//RPOR1bits.RP3R  = 19; //CIN - Red
-//RPOR8bits.RP17R = 18; //Variable Transformer for Inverter DIN
-//RPOR6bits.RP12R = 18; //DIN - Blue
+		RPOR2bits.RP4R		= 23;	//Green LED (Red on schematic)
+		RPOR1bits.RP3R		= 22;	//Red LED (Green on Schematic)
+		RPOR6bits.RP12R		= 23;	//Blue LED (Blue on schematic)
 
 //		RPOR12bits.RP24R 	= 3;	//UART1 - Terminal Tx 
 	__builtin_write_OSCCONL(OSCCON | 0x40);
