@@ -172,7 +172,7 @@ void Configure_For_Afriji(void)
 	Pin_Initialize(PIN_RF2,								LOW, PUSH_PULL, INPUT);	//RF2
 	Pin_Initialize(PIN_RF3,								LOW, PUSH_PULL, INPUT);	//RF3
 	Pin_Initialize(PIN_RF4_HBRIDGE_DIN,					LOW, PUSH_PULL, OUTPUT);	//RF4
-	Pin_Initialize(PIN_RF5_HBRIDGE_CIN,					HIGH, PUSH_PULL, OUTPUT);	//RF5
+	Pin_Initialize(PIN_RF5_HBRIDGE_CIN,					LOW, PUSH_PULL, OUTPUT);	//RF5
 	Pin_Initialize(PIN_RF6,								LOW, PUSH_PULL, INPUT);	//RF6
 	//PORTG
 	Pin_Initialize(PIN_RG2,								LOW, PUSH_PULL, INPUT);	//RG2
