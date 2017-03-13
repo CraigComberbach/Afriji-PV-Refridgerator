@@ -344,16 +344,16 @@ GenerateClassCluster=0
 DocumentUniqueId=
 
 [Parameter1]
-Name=Designer
-Value=Craig Comberbach
+Name=ProjectTitle
+Value=PV Refridgerator
 
 [Parameter2]
 Name=ProjectRevision
-Value=v0.1.2
+Value=v0.1.3
 
 [Parameter3]
-Name=ProjectTitle
-Value=PV Refridgerator
+Name=Designer
+Value=Craig Comberbach
 
 [Configuration1]
 Name=Default Configuration
