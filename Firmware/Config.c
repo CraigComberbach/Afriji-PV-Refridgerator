@@ -190,13 +190,13 @@ void Configure_For_Afriji(void)
 		RPOR12bits.RP25R	= 21;	//OC4 - Bb
 
 		//Output Inverter (Lo-I Hi-V)
-		RPOR15bits.RP30R	= 22;	//OC5 - Ct
-		RPOR8bits.RP16R		= 23;	//OC6 - Dt 
+		//RPOR15bits.RP30R	= 22;	//OC5 - Ct
+		//RPOR8bits.RP16R		= 23;	//OC6 - Dt 
 		RPOR8bits.RP17R		= 24;	//OC7 - Cb
 		RPOR5bits.RP10R		= 25;	//OC8 - Db
 
 		//LED indicators
-		RPOR2bits.RP4R		= 23;	//Green LED (Red on schematic)
+		RPOR2bits.RP4R		= 24;	//Green LED (Red on schematic)
 		RPOR1bits.RP3R		= 22;	//Red LED (Green on Schematic)
 		RPOR6bits.RP12R		= 23;	//Blue LED (Blue on schematic)
 

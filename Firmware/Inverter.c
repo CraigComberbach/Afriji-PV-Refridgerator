@@ -97,29 +97,29 @@ void Negative_Wave(int currentStep);
 
 void Initialize_Inverter(void)
 {
-	//OC5 - Ct
-	OC5RS = PERIOD;
-	OC5R = 0;
-	OC5CON1				= 0;
-	OC5CON2				= 0;
-	OC5CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
-	OC5CON1bits.OCM		= 0b110;	//110 = Edge-Aligned PWM mode on OCx
-	OC5CON2bits.SYNCSEL	= 0b11111;	//11111 = This OC module
-	OC5CON2bits.OCINV	= 1;		//0 = OCx output is not inverted
-	OC5CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
-	OC5CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
-
-	//OC6 - Dt
-	OC6RS = PERIOD;
-	OC6R = 0;
-	OC6CON1				= 0;
-	OC6CON2				= 0;
-	OC6CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
-	OC6CON1bits.OCM		= 0b110;	//110 = Edge-Aligned PWM mode on OCx
-	OC6CON2bits.SYNCSEL	= 0b00101;	//00101 = Output Compare 5
-	OC6CON2bits.OCINV	= 1;		//0 = OCx output is not inverted
-	OC6CON2bits.OCTRIG	= 0;		//1 = Trigger OCx from source designated by SYNCSELx bits
-	OC6CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+//	//OC5 - Ct
+//	OC5RS = PERIOD;
+//	OC5R = 0;
+//	OC5CON1				= 0;
+//	OC5CON2				= 0;
+//	OC5CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
+//	OC5CON1bits.OCM		= 0b110;	//110 = Edge-Aligned PWM mode on OCx
+//	OC5CON2bits.SYNCSEL	= 0b11111;	//11111 = This OC module
+//	OC5CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+//	OC5CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
+//	OC5CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+//
+//	//OC6 - Dt
+//	OC6RS = PERIOD;
+//	OC6R = 0;
+//	OC6CON1				= 0;
+//	OC6CON2				= 0;
+//	OC6CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
+//	OC6CON1bits.OCM		= 0b110;	//110 = Edge-Aligned PWM mode on OCx
+//	OC6CON2bits.SYNCSEL	= 0b00101;	//00101 = Output Compare 5
+//	OC6CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+//	OC6CON2bits.OCTRIG	= 0;		//1 = Trigger OCx from source designated by SYNCSELx bits
+//	OC6CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
 	//OC7 - Cb
 	OC7RS = PERIOD;
@@ -127,8 +127,8 @@ void Initialize_Inverter(void)
 	OC7CON1				= 0;
 	OC7CON2				= 0;
 	OC7CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
-	OC7CON1bits.OCM		= 0b101;	//101= Double Compare Continuous Pulse mode: initialize OCx pin low, toggle OCx state continuously on alternate matches of OCxR and OCxRS
-	OC7CON2bits.SYNCSEL	= 0b00101;	//00101 = Output Compare 5
+	OC7CON1bits.OCM		= 0b110;	//101= Double Compare Continuous Pulse mode: initialize OCx pin low, toggle OCx state continuously on alternate matches of OCxR and OCxRS
+	OC7CON2bits.SYNCSEL	= 0b11111;	//00101 = Output Compare 5
 	OC7CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
 	OC7CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC7CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
@@ -139,8 +139,8 @@ void Initialize_Inverter(void)
 	OC8CON1				= 0;
 	OC8CON2				= 0;
 	OC8CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
-	OC8CON1bits.OCM		= 0b101;	//101= Double Compare Continuous Pulse mode: initialize OCx pin low, toggle OCx state continuously on alternate matches of OCxR and OCxRS
-	OC8CON2bits.SYNCSEL	= 0b00101;	//00101 = Output Compare 5
+	OC8CON1bits.OCM		= 0b110;	//101= Double Compare Continuous Pulse mode: initialize OCx pin low, toggle OCx state continuously on alternate matches of OCxR and OCxRS
+	OC8CON2bits.SYNCSEL	= 7;	//00101 = Output Compare 5
 	OC8CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
 	OC8CON2bits.OCTRIG	= 0;		//1 = Trigger OCx from source designated by SYNCSELx bits
 	OC8CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
@@ -153,8 +153,10 @@ void Inverter_Routine(unsigned long time_mS)
 	static int currentStep = 0;
 
 	if(currentStep < 180)
+	//	Negative_Wave(currentStep-180);
 		Positive_Wave(currentStep);
 	else
+	//	Positive_Wave(currentStep-180);
 		Negative_Wave(currentStep-180);
 
 	++currentStep;
@@ -173,23 +175,23 @@ void Inverter_Routine(unsigned long time_mS)
 void Positive_Wave(int currentStep)
 {
 	//Generate Positive Sine Wave
-	OC5R = inverterLevel[currentStep];	//OC5 - Ct
-	OC7R = inverterLevel[currentStep];	//OC7 - Cb
+	//OC5R = inverterLevel[currentStep];	//OC5 - Ct
+//	OC7R = inverterLevel[currentStep];	//OC7 - Cb
 
 	//Generate Reset
-	OC6R = 0;	//OC6 - Dt
-	OC8R = PERIOD - 6;//OC8 - Db (Start of Recharge)
-	OC8RS = PERIOD - 2;//OC8 - Db (End of Recharge)
+	//OC6R = 0;	//OC6 - Dt
+	//OC8RS = PERIOD - 1200;//OC8 - Db (Start of Recharge)
+	//OC8R = PERIOD - 600;//OC8 - Db (End of Recharge)
 }
 
 void Negative_Wave(int currentStep)
 {
 	//Generate Negative Sine Wave
-	OC6R = inverterLevel[currentStep];	//OC6 - Dt
+	//OC6R = inverterLevel[currentStep];	//OC6 - Dt
 	OC8R = inverterLevel[currentStep];	//OC8 - Db
 
 	//Generate Reset
-	OC5R = 0;	//OC5 - Ct
-	OC7R = PERIOD - 6;//OC7 - Cb (Start of Recharge)
-	OC7RS = PERIOD - 2;//OC7 - Cb (End of Recharge)
+	//OC5R = 0;	//OC5 - Ct
+	//OC7RS = PERIOD - 6;//OC7 - Cb (Start of Recharge)
+	//OC7R = PERIOD - 2;//OC7 - Cb (End of Recharge)
 }
