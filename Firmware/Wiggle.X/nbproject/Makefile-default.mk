@@ -86,49 +86,49 @@ ${OBJECTDIR}/_ext/1472/A2D.o: ../A2D.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
 	@${RM} ${OBJECTDIR}/_ext/1472/A2D.o.d 
 	@${RM} ${OBJECTDIR}/_ext/1472/A2D.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../A2D.c  -o ${OBJECTDIR}/_ext/1472/A2D.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/A2D.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../A2D.c  -o ${OBJECTDIR}/_ext/1472/A2D.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/A2D.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -Os -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/A2D.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/_ext/1472/Config.o: ../Config.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
 	@${RM} ${OBJECTDIR}/_ext/1472/Config.o.d 
 	@${RM} ${OBJECTDIR}/_ext/1472/Config.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Config.c  -o ${OBJECTDIR}/_ext/1472/Config.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Config.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Config.c  -o ${OBJECTDIR}/_ext/1472/Config.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Config.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -Os -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/Config.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/_ext/1472/Inverter.o: ../Inverter.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
 	@${RM} ${OBJECTDIR}/_ext/1472/Inverter.o.d 
 	@${RM} ${OBJECTDIR}/_ext/1472/Inverter.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Inverter.c  -o ${OBJECTDIR}/_ext/1472/Inverter.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Inverter.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Inverter.c  -o ${OBJECTDIR}/_ext/1472/Inverter.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Inverter.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -Os -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/Inverter.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/_ext/1472/main.o: ../main.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
 	@${RM} ${OBJECTDIR}/_ext/1472/main.o.d 
 	@${RM} ${OBJECTDIR}/_ext/1472/main.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../main.c  -o ${OBJECTDIR}/_ext/1472/main.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/main.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../main.c  -o ${OBJECTDIR}/_ext/1472/main.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/main.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -Os -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/main.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/_ext/1472/Pins.o: ../Pins.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
 	@${RM} ${OBJECTDIR}/_ext/1472/Pins.o.d 
 	@${RM} ${OBJECTDIR}/_ext/1472/Pins.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Pins.c  -o ${OBJECTDIR}/_ext/1472/Pins.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Pins.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Pins.c  -o ${OBJECTDIR}/_ext/1472/Pins.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Pins.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -Os -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/Pins.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/_ext/1472/Scheduler.o: ../Scheduler.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
 	@${RM} ${OBJECTDIR}/_ext/1472/Scheduler.o.d 
 	@${RM} ${OBJECTDIR}/_ext/1472/Scheduler.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Scheduler.c  -o ${OBJECTDIR}/_ext/1472/Scheduler.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Scheduler.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Scheduler.c  -o ${OBJECTDIR}/_ext/1472/Scheduler.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Scheduler.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -Os -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/Scheduler.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/_ext/1472/Analogs.o: ../Analogs.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
 	@${RM} ${OBJECTDIR}/_ext/1472/Analogs.o.d 
 	@${RM} ${OBJECTDIR}/_ext/1472/Analogs.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Analogs.c  -o ${OBJECTDIR}/_ext/1472/Analogs.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Analogs.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Analogs.c  -o ${OBJECTDIR}/_ext/1472/Analogs.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Analogs.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -Os -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/Analogs.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 else
@@ -136,49 +136,49 @@ ${OBJECTDIR}/_ext/1472/A2D.o: ../A2D.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
 	@${RM} ${OBJECTDIR}/_ext/1472/A2D.o.d 
 	@${RM} ${OBJECTDIR}/_ext/1472/A2D.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../A2D.c  -o ${OBJECTDIR}/_ext/1472/A2D.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/A2D.o.d"        -g -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../A2D.c  -o ${OBJECTDIR}/_ext/1472/A2D.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/A2D.o.d"        -g -omf=elf -Os -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/A2D.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/_ext/1472/Config.o: ../Config.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
 	@${RM} ${OBJECTDIR}/_ext/1472/Config.o.d 
 	@${RM} ${OBJECTDIR}/_ext/1472/Config.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Config.c  -o ${OBJECTDIR}/_ext/1472/Config.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Config.o.d"        -g -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Config.c  -o ${OBJECTDIR}/_ext/1472/Config.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Config.o.d"        -g -omf=elf -Os -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/Config.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/_ext/1472/Inverter.o: ../Inverter.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
 	@${RM} ${OBJECTDIR}/_ext/1472/Inverter.o.d 
 	@${RM} ${OBJECTDIR}/_ext/1472/Inverter.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Inverter.c  -o ${OBJECTDIR}/_ext/1472/Inverter.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Inverter.o.d"        -g -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Inverter.c  -o ${OBJECTDIR}/_ext/1472/Inverter.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Inverter.o.d"        -g -omf=elf -Os -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/Inverter.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/_ext/1472/main.o: ../main.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
 	@${RM} ${OBJECTDIR}/_ext/1472/main.o.d 
 	@${RM} ${OBJECTDIR}/_ext/1472/main.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../main.c  -o ${OBJECTDIR}/_ext/1472/main.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/main.o.d"        -g -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../main.c  -o ${OBJECTDIR}/_ext/1472/main.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/main.o.d"        -g -omf=elf -Os -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/main.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/_ext/1472/Pins.o: ../Pins.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
 	@${RM} ${OBJECTDIR}/_ext/1472/Pins.o.d 
 	@${RM} ${OBJECTDIR}/_ext/1472/Pins.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Pins.c  -o ${OBJECTDIR}/_ext/1472/Pins.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Pins.o.d"        -g -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Pins.c  -o ${OBJECTDIR}/_ext/1472/Pins.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Pins.o.d"        -g -omf=elf -Os -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/Pins.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/_ext/1472/Scheduler.o: ../Scheduler.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
 	@${RM} ${OBJECTDIR}/_ext/1472/Scheduler.o.d 
 	@${RM} ${OBJECTDIR}/_ext/1472/Scheduler.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Scheduler.c  -o ${OBJECTDIR}/_ext/1472/Scheduler.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Scheduler.o.d"        -g -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Scheduler.c  -o ${OBJECTDIR}/_ext/1472/Scheduler.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Scheduler.o.d"        -g -omf=elf -Os -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/Scheduler.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/_ext/1472/Analogs.o: ../Analogs.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
 	@${RM} ${OBJECTDIR}/_ext/1472/Analogs.o.d 
 	@${RM} ${OBJECTDIR}/_ext/1472/Analogs.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Analogs.c  -o ${OBJECTDIR}/_ext/1472/Analogs.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Analogs.o.d"        -g -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Analogs.c  -o ${OBJECTDIR}/_ext/1472/Analogs.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Analogs.o.d"        -g -omf=elf -Os -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/Analogs.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 endif

@@ -145,7 +145,7 @@ void Configure_For_Afriji(void)
 	Pin_Initialize(PIN_RC14,							LOW, PUSH_PULL, INPUT);	//RC14
 	Pin_Initialize(PIN_RC15,							LOW, PUSH_PULL, INPUT);	//RC15
 	//PORTD
-	Pin_Initialize(PIN_RD0,								LOW, PUSH_PULL, INPUT);	//RD0
+	Pin_Initialize(PIN_RD0,								HIGH, PUSH_PULL, OUTPUT);	//RD0
 	Pin_Initialize(PIN_RD1_TERMINAL_TX,					LOW, PUSH_PULL, INPUT);	//RD1
 	Pin_Initialize(PIN_RD2,								LOW, PUSH_PULL, INPUT);	//RD2
 	Pin_Initialize(PIN_RD3,								LOW, PUSH_PULL, INPUT);	//RD3
@@ -153,7 +153,7 @@ void Configure_For_Afriji(void)
 	Pin_Initialize(PIN_RD5_HBRIDGE_AIN,					LOW, PUSH_PULL, INPUT);	//RD5
 	Pin_Initialize(PIN_RD6,								LOW, PUSH_PULL, INPUT);	//RD6
 	Pin_Initialize(PIN_RD7,								LOW, PUSH_PULL, INPUT);	//RD7
-	Pin_Initialize(PIN_RD8,								LOW, PUSH_PULL, INPUT);	//RD8
+	Pin_Initialize(PIN_RD8,								HIGH, PUSH_PULL, OUTPUT);	//RD8
 	Pin_Initialize(PIN_RD9_GREEN_LED,					LOW, PUSH_PULL, OUTPUT);	//RD9
 	Pin_Initialize(PIN_RD10_RED_LED,					LOW, PUSH_PULL, INPUT);	//RD10
 	Pin_Initialize(PIN_RD11_BLUE_LED,					LOW, PUSH_PULL, INPUT);	//RD11
@@ -171,8 +171,8 @@ void Configure_For_Afriji(void)
 	Pin_Initialize(PIN_RF1,								LOW, PUSH_PULL, INPUT);	//RF1
 	Pin_Initialize(PIN_RF2,								LOW, PUSH_PULL, INPUT);	//RF2
 	Pin_Initialize(PIN_RF3,								LOW, PUSH_PULL, INPUT);	//RF3
-	Pin_Initialize(PIN_RF4_HBRIDGE_DIN,					LOW, PUSH_PULL, OUTPUT);	//RF4
-	Pin_Initialize(PIN_RF5_HBRIDGE_CIN,					HIGH, PUSH_PULL, OUTPUT);	//RF5
+	Pin_Initialize(PIN_RF4_HBRIDGE_DIN,					LOW, PUSH_PULL, OUTPUT);//RF4
+	Pin_Initialize(PIN_RF5_HBRIDGE_CIN,					LOW, PUSH_PULL, OUTPUT);//RF5
 	Pin_Initialize(PIN_RF6,								LOW, PUSH_PULL, INPUT);	//RF6
 	//PORTG
 	Pin_Initialize(PIN_RG2,								LOW, PUSH_PULL, INPUT);	//RG2
@@ -184,21 +184,23 @@ void Configure_For_Afriji(void)
 
 	/************* PeripheralPinSelect***************/
 		//Input Inverter (Hi-I Lo-V)
-		RPOR11bits.RP22R	= 18;	//OC1 - At
-		RPOR11bits.RP23R	= 19;	//OC2 - Bt
-		RPOR10bits.RP20R	= 20; 	//OC3 - Ab
-		RPOR12bits.RP25R	= 21;	//OC4 - Bb
+//		RPOR11bits.RP22R	= 18;	//OC1 - At
+//		RPOR11bits.RP23R	= 19;	//OC2 - Bt
+		RPOR10bits.RP20R	= 24; 	//OC3 - Ab - Positive Waveform
+		RPOR12bits.RP25R	= 25;	//OC4 - Bb - Negative Waveform
 
-		//Output Inverter (Lo-I Hi-V)
-		//RPOR15bits.RP30R	= 22;	//OC5 - Ct
-		//RPOR8bits.RP16R		= 23;	//OC6 - Dt 
+		//Output Inverter (Lo-I Hi-V) - Bread Board
+		RPOR5bits.RP11R		= 24;	//OC5 - Fire
+		RPOR1bits.RP2R		= 25;	//OC6 - ~Fire
+
+		//Output Inverter (Lo-I Hi-V) - PCB
 		RPOR8bits.RP17R		= 24;	//OC7 - Cb
 		RPOR5bits.RP10R		= 25;	//OC8 - Db
 
 		//LED indicators
-		RPOR2bits.RP4R		= 24;	//Green LED (Red on schematic)
-		RPOR1bits.RP3R		= 22;	//Red LED (Green on Schematic)
-		RPOR6bits.RP12R		= 23;	//Blue LED (Blue on schematic)
+//		RPOR2bits.RP4R		= 24;	//Green LED (Red on schematic)
+		RPOR1bits.RP3R		= 24;	//Red LED (Green on Schematic)
+		RPOR6bits.RP12R		= 25;	//Blue LED (Blue on schematic)
 
 //		RPOR12bits.RP24R 	= 3;	//UART1 - Terminal Tx 
 	__builtin_write_OSCCONL(OSCCON | 0x40);

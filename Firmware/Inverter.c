@@ -17,12 +17,11 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 /************* Semantic Versioning***************/
 /*************Library Dependencies***************/
 /************Arbitrary Functionality*************/
-//#define	OC1RS = PERIOD;
-//#define	OC1R = PERIOD / 2;	//Duty Cycle
-//#define	OC2RS = PERIOD - 2;
-//#define	OC2R
 /*************   Magic  Numbers   ***************/
 #define	PERIOD	1599
+#define MULTIPLIER 1
+#define DIVIDER 1//12-20
+
 /*************    Enumeration     ***************/
 /***********  Structure Definitions  ************/
 /***********State Machine Definitions************/
@@ -62,25 +61,45 @@ unsigned int inverterLevel[] =
 // 14, 12, 12, 12, 12, 12, 12, 12, 12, 10, 10, 10, 10, 10, 10, 10, 10,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  6,  6,  6,  6,  6,
 //  6,  6,  6,  6,  6,  6,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,
 //  2,  2,  2,  2,  2,  2,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0
+////10kHz @ 120 points
+//41,		83,		124,	166,	207,	248,	289,	330,	371,	411,
+//451,	491,	530,	569,	608,	646,	684,	721,	758,	795,
+//830,	865,	900,	934,	967,	1000,	1032,	1063,	1094,	1124,
+//1153,	1181,	1209,	1235,	1261,	1286,	1310,	1333,	1355,	1376,
+//1397,	1416,	1435,	1452,	1468,	1484,	1498,	1512,	1524,	1535,
+//1546,	1555,	1563,	1570,	1576,	1581,	1585,	1587,	1589,	1590,
+//1589,	1587,	1585,	1581,	1576,	1570,	1563,	1555,	1546,	1535,
+//1524,	1512,	1498,	1484,	1468,	1452,	1435,	1416,	1397,	1376,
+//1355,	1333,	1310,	1286,	1261,	1235,	1209,	1181,	1153,	1124,
+//1094,	1063,	1032,	1000,	967,	934,	900,	865,	830,	795,
+//758,	721,	684,	646,	608,	569,	530,	491,	451,	411,
+//371,	330,	289,	248,	207,	166,	124,	83,		41,		0,
+////100kHz @ 120 point s
+//4,		8,		12,		16,		20,		24,		28,		33,		37,		41,
+//45,		49,		53,		56,		60,		64,		68,		72,		75,		79,
+//83,		86,		90,		93,		96,		100,	103,	106,	109,	112,
+//115,	118,	120,	123,	126,	128,	131,	133,	135,	137,
+//139,	141,	143,	145,	146,	148,	149,	151,	152,	153,
+//154,	155,	156,	157,	157,	158,	158,	158,	158,	159,
+//158,	158,	158,	158,	157,	157,	156,	155,	154,	153,
+//152,	151,	149,	148,	146,	145,	143,	141,	139,	137,
+//135,	133,	131,	128,	126,	123,	120,	118,	115,	112,
+//109,	106,	103,	100,	96,		93,		90,		86,		83,		79,
+//75,		72,		68,		64,		60,		56,		53,		49,		45,		41,
+//37,		33,		28,		24,		20,		16,		12,		8,		4,		0
+
 //10kHz @ 180 points
-27,55,83,110,138,166,193,221,248,276,
-303,330,357,384,411,438,464,491,517,543,
-569,595,621,646,671,697,721,746,770,795,
-818,842,865,889,911,934,956,978,1000,1022,
-1043,1063,1084,1104,1124,1143,1162,1181,1199,1218,
-1235,1252,1269,1286,1302,1318,1333,1348,1362,1376,
-1390,1403,1416,1429,1441,1452,1463,1474,1484,1494,
-1503,1512,1520,1528,1535,1542,1549,1555,1560,1565,
-1570,1574,1578,1581,1583,1586,1587,1589,1589,1590,
-1589,1589,1587,1586,1583,1581,1578,1574,1570,1565,
-1560,1555,1549,1542,1535,1528,1520,1512,1503,1494,
-1484,1474,1463,1452,1441,1429,1416,1403,1390,1376,
-1362,1348,1333,1318,1302,1286,1269,1252,1235,1218,
-1199,1181,1162,1143,1124,1104,1084,1063,1043,1022,
-1000,978,956,934,911,889,865,842,818,795,
-770,746,721,697,671,646,621,595,569,543,
-517,491,464,438,411,384,357,330,303,276,
-248,221,193,166,138,110,83,55,27,0
+0,		17,		35,		52,		70,		87,		105,	122,	139,	156,	174,	191,	208,	225,	242,	259,	276,	292,	309,	326,
+342,	358,	375,	391,	407,	423,	438,	454,	469,	485,	500,	515,	530,	545,	559,	574,	588,	602,	616,	629,
+643,	656,	669,	682,	695,	707,	719,	731,	743,	755,	766,	777,	788,	799,	809,	819,	829,	839,	848,	857,
+866,	875,	883,	891,	899,	906,	914,	921,	927,	934,	940,	946,	951,	956,	961,	966,	970,	974,	978,	982,
+985,	988,	990,	993,	995,	996,	998,	999,	999,	1000,	1000,	1000,	999,	999,	998,	996,	995,	993,	990,	988,
+985,	982,	978,	974,	970,	966,	961,	956,	951,	946,	940,	934,	927,	921,	914,	906,	899,	891,	883,	875,
+866,	857,	848,	839,	829,	819,	809,	799,	788,	777,	766,	755,	743,	731,	719,	707,	695,	682,	669,	656,
+643,	629,	616,	602,	588,	574,	559,	545,	530,	515,	500,	485,	469,	454,	438,	423,	407,	391,	375,	358,
+342,	326,	309,	292,	276,	259,	242,	225,	208,	191,	174,	156,	139,	122,	105,	87,		70,		52,		35,		17
+
+
 };
 
 /*************Interrupt Prototypes***************/
@@ -94,32 +113,34 @@ void Negative_Wave(int currentStep);
 #endif
 	
 /************* Module Definitions ***************/
+#define CbTRIS	OC7CON2bits.OCTRIS
+#define DbTRIS	OC8CON2bits.OCTRIS
 
 void Initialize_Inverter(void)
 {
 //	//OC5 - Ct
-//	OC5RS = PERIOD;
-//	OC5R = 0;
-//	OC5CON1				= 0;
-//	OC5CON2				= 0;
-//	OC5CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
-//	OC5CON1bits.OCM		= 0b110;	//110 = Edge-Aligned PWM mode on OCx
-//	OC5CON2bits.SYNCSEL	= 0b11111;	//11111 = This OC module
-//	OC5CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
-//	OC5CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
-//	OC5CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
-//
+	OC5RS = PERIOD;
+	OC5R = 800;
+	OC5CON1				= 0;
+	OC5CON2				= 0;
+	OC5CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
+	OC5CON1bits.OCM		= 0b110;	//110 = Edge-Aligned PWM mode on OCx
+	OC5CON2bits.SYNCSEL	= 0b11111;	//11111 = This OC module
+	OC5CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+	OC5CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
+	OC5CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+
 //	//OC6 - Dt
-//	OC6RS = PERIOD;
-//	OC6R = 0;
-//	OC6CON1				= 0;
-//	OC6CON2				= 0;
-//	OC6CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
-//	OC6CON1bits.OCM		= 0b110;	//110 = Edge-Aligned PWM mode on OCx
-//	OC6CON2bits.SYNCSEL	= 0b00101;	//00101 = Output Compare 5
-//	OC6CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
-//	OC6CON2bits.OCTRIG	= 0;		//1 = Trigger OCx from source designated by SYNCSELx bits
-//	OC6CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+	OC6RS = PERIOD;
+	OC6R = 0;
+	OC6CON1				= 0;
+	OC6CON2				= 0;
+	OC6CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
+	OC6CON1bits.OCM		= 0b110;	//110 = Edge-Aligned PWM mode on OCx
+	OC6CON2bits.SYNCSEL	= 0b00101;	//00101 = Output Compare 5
+	OC6CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+	OC6CON2bits.OCTRIG	= 0;		//1 = Trigger OCx from source designated by SYNCSELx bits
+	OC6CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
 	//OC7 - Cb
 	OC7RS = PERIOD;
@@ -140,9 +161,9 @@ void Initialize_Inverter(void)
 	OC8CON2				= 0;
 	OC8CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
 	OC8CON1bits.OCM		= 0b110;	//101= Double Compare Continuous Pulse mode: initialize OCx pin low, toggle OCx state continuously on alternate matches of OCxR and OCxRS
-	OC8CON2bits.SYNCSEL	= 7;	//00101 = Output Compare 5
+	OC8CON2bits.SYNCSEL	= 7;		//00101 = Output Compare 5
 	OC8CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
-	OC8CON2bits.OCTRIG	= 0;		//1 = Trigger OCx from source designated by SYNCSELx bits
+	OC8CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC8CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
 	return;
@@ -150,48 +171,49 @@ void Initialize_Inverter(void)
 
 void Inverter_Routine(unsigned long time_mS)
 {
+	static int VoutTartget = 0;
+	static int VoutScaling = 0;
+	static int maxVoutScalingStep = 0;
 	static int currentStep = 0;
 
 	if(currentStep < 180)
-	//	Negative_Wave(currentStep-180);
 		Positive_Wave(currentStep);
-	else
-	//	Positive_Wave(currentStep-180);
-		Negative_Wave(currentStep-180);
-
-	++currentStep;
-	if(currentStep >= 360)
+	else if(currentStep == 181)
+	{
+		OC7R = 0;
+		OC8R = 0;
+	}
+	else if(currentStep < 361)
+		Negative_Wave(currentStep-361);
+	else if(currentStep >= 362)
+	{
+		OC7R = 0;
+		OC8R = 0;
+	}
+		
+	if(currentStep >= 362)
 		currentStep = 0;
-
-    //Assign it to the registers
-//	OC5RS = PERIOD;
-//	OC5R = PERIOD / 2;	//Duty Cycle
-//	OC6RS = PERIOD - 2;
-//	OC6R = PERIOD - 6;
+	else
+		++currentStep;
 
     return;
 }
-
 void Positive_Wave(int currentStep)
 {
 	//Generate Positive Sine Wave
-	//OC5R = inverterLevel[currentStep];	//OC5 - Ct
-//	OC7R = inverterLevel[currentStep];	//OC7 - Cb
+	OC7R = (inverterLevel[currentStep]*MULTIPLIER)/DIVIDER;	//OC7 - Ab & Cb
+//	OC7R = 500;	//OC7 - Ab & Cb
+//	OC8R = 0;	//OC8 - Bb & Db
 
-	//Generate Reset
-	//OC6R = 0;	//OC6 - Dt
-	//OC8RS = PERIOD - 1200;//OC8 - Db (Start of Recharge)
-	//OC8R = PERIOD - 600;//OC8 - Db (End of Recharge)
+	return;
 }
 
 void Negative_Wave(int currentStep)
 {
 	//Generate Negative Sine Wave
-	//OC6R = inverterLevel[currentStep];	//OC6 - Dt
-	OC8R = inverterLevel[currentStep];	//OC8 - Db
+	OC8R = (inverterLevel[currentStep]*MULTIPLIER)/DIVIDER;	//OC8 - Db
+//	OC7R = 0;	//OC7 - Ab & Cb
+//	OC8R = 500;	//OC8 - Bb & Db
 
-	//Generate Reset
-	//OC5R = 0;	//OC5 - Ct
-	//OC7RS = PERIOD - 6;//OC7 - Cb (Start of Recharge)
-	//OC7R = PERIOD - 2;//OC7 - Cb (End of Recharge)
+	return;
 }
