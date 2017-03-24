@@ -1,4 +1,10 @@
 #################
+## Dropbox
+#################
+
+.dropbox
+
+#################
 ## Altium
 #################
 
@@ -12,6 +18,7 @@
 *.PrjPCBStructure
 *.LOG
 *.OutJob.Zip
+*.PCBDOCPreview
 Hardware/History/
 Hardware/__Previews/
 
