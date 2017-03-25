@@ -184,21 +184,14 @@ void Configure_For_Afriji(void)
 
 	/************* PeripheralPinSelect***************/
 		//Input Inverter (Hi-I Lo-V)
-//		RPOR11bits.RP22R	= 18;	//OC1 - At
-//		RPOR11bits.RP23R	= 19;	//OC2 - Bt
 		RPOR10bits.RP20R	= 24; 	//OC3 - Ab - Positive Waveform
 		RPOR12bits.RP25R	= 25;	//OC4 - Bb - Negative Waveform
-
-		//Output Inverter (Lo-I Hi-V) - Bread Board
-		RPOR5bits.RP11R		= 24;	//OC5 - Fire
-		RPOR1bits.RP2R		= 25;	//OC6 - ~Fire
 
 		//Output Inverter (Lo-I Hi-V) - PCB
 		RPOR8bits.RP17R		= 24;	//OC7 - Cb
 		RPOR5bits.RP10R		= 25;	//OC8 - Db
 
 		//LED indicators
-//		RPOR2bits.RP4R		= 24;	//Green LED (Red on schematic)
 		RPOR1bits.RP3R		= 24;	//Red LED (Green on Schematic)
 		RPOR6bits.RP12R		= 25;	//Blue LED (Blue on schematic)
 
