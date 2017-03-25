@@ -127,31 +127,16 @@ enum A2D_PIN_DEFINITIONS
 	NUMBER_OF_A2D_PINS
 };
 
-//Libaries
+//Libraries
 //Pins Library
 #define PINS_MAJOR	2
 #define PINS_MINOR	0
 #define PINS_PATCH	0
 
-//A2D Library
-#define A2D_MAJOR	1
-#define A2D_MINOR	1
-#define A2D_PATCH	0
-
-//Inverter Library
-#define INVERTER_MAJOR	0
-#define INVERTER_MINOR	1
-#define INVERTER_PATCH	0
-
 //Scheduler Library
 #define SCHEDULER_MAJOR	0
 #define SCHEDULER_MINOR	1
 #define SCHEDULER_PATCH	0
-
-//Inverter Library
-#define INVERTER_MAJOR	0
-#define INVERTER_MINOR	1
-#define INVERTER_PATCH	0
 
 //Function Prototype
 void Configure_For_Afriji(void);
