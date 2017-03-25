@@ -118,7 +118,11 @@ void Negative_Wave(int currentStep);
 
 void Initialize_Inverter(void)
 {
+
 //	//OC5 - Ct
+
+//  //OC5 - Output_Inverter_Pos-Fire
+
 	OC5RS = PERIOD;
 	OC5R = 800;
 	OC5CON1				= 0;
@@ -130,7 +134,11 @@ void Initialize_Inverter(void)
 	OC5CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC5CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
+
 //	//OC6 - Dt
+
+//	//OC6 - Output_Inverter_Neg-Fire
+
 	OC6RS = PERIOD;
 	OC6R = 0;
 	OC6CON1				= 0;
@@ -142,7 +150,7 @@ void Initialize_Inverter(void)
 	OC6CON2bits.OCTRIG	= 0;		//1 = Trigger OCx from source designated by SYNCSELx bits
 	OC6CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
-	//OC7 - Cb
+	//OC7 - Output_Inverter_Pos-Bottom
 	OC7RS = PERIOD;
 	OC7R = 0;
 	OC7CON1				= 0;
@@ -154,7 +162,7 @@ void Initialize_Inverter(void)
 	OC7CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC7CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
-	//OC8 - Db
+	//OC8 - Output_Inverter_Neg-Bottom
 	OC8RS = PERIOD;
 	OC8R = 0;
 	OC8CON1				= 0;
