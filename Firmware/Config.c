@@ -171,8 +171,13 @@ void Configure_For_Afriji(void)
 	Pin_Initialize(PIN_RF1,								LOW, PUSH_PULL, INPUT);	//RF1
 	Pin_Initialize(PIN_RF2,								LOW, PUSH_PULL, INPUT);	//RF2
 	Pin_Initialize(PIN_RF3,								LOW, PUSH_PULL, INPUT);	//RF3
+
 	Pin_Initialize(PIN_RF4_HBRIDGE_DIN,					LOW, PUSH_PULL, OUTPUT);//RF4
 	Pin_Initialize(PIN_RF5_HBRIDGE_CIN,					LOW, PUSH_PULL, OUTPUT);//RF5
+
+//	Pin_Initialize(PIN_RF4_HBRIDGE_DIN,					LOW, PUSH_PULL, OUTPUT);	//RF4
+//	Pin_Initialize(PIN_RF5_HBRIDGE_CIN,					LOW, PUSH_PULL, OUTPUT);	//RF5
+
 	Pin_Initialize(PIN_RF6,								LOW, PUSH_PULL, INPUT);	//RF6
 	//PORTG
 	Pin_Initialize(PIN_RG2,								LOW, PUSH_PULL, INPUT);	//RG2
@@ -184,12 +189,27 @@ void Configure_For_Afriji(void)
 
 	/************* PeripheralPinSelect***************/
 		//Input Inverter (Hi-I Lo-V)
+<<<<<<< HEAD
 		RPOR10bits.RP20R	= 24; 	//OC3 - Ab - Positive Waveform
 		RPOR12bits.RP25R	= 25;	//OC4 - Bb - Negative Waveform
 
 		//Output Inverter (Lo-I Hi-V) - PCB
 		RPOR8bits.RP17R		= 24;	//OC7 - Cb
 		RPOR5bits.RP10R		= 25;	//OC8 - Db
+=======
+
+		//RPOR11bits.RP22R	= 18;	//OC1 - Input_Inverter_Pos-Fire
+		//RPOR11bits.RP23R	= 19;	//OC2 - Input_Inverter_Neg-Fire
+		//RPOR10bits.RP20R	= 20; 	//OC3 - Input_Inverter_Pos-Reset
+		//RPOR12bits.RP25R	= 21;	//OC4 - Input_Inverter_Neg-Reset
+
+		//Output Inverter (Lo-I Hi-V)
+		//RPOR15bits.RP30R	= 22;	//OC5 - Output_Inverter_Pos-Fire
+		//RPOR8bits.RP16R		= 23;	//OC6 - Output_Inverter_Neg-Fire 
+		//RPOR8bits.RP17R		= 24;	//OC7 - Output_Inverter_Pos-Reset
+		///RPOR5bits.RP10R		= 25;	//OC8 - Output_Inverter_Neg-Reset
+
+>>>>>>> origin/Craig
 
 		//LED indicators
 		RPOR1bits.RP3R		= 24;	//Red LED (Green on Schematic)
