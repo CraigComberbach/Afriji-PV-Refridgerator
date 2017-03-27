@@ -12,7 +12,7 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 /*************    Header Files    ***************/
 #include "Config.h"
 #include "Inverter.h"
-#include "Pins.h"
+#include "A2D.h"
 
 /************* Library Definition ***************/
 /************* Semantic Versioning***************/
@@ -20,114 +20,200 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 /************Arbitrary Functionality*************/
 /*************   Magic  Numbers   ***************/
 #define	PERIOD			159
-#define MULTIPLIER		3
-#define DIVIDER			40//12-20
-#define	SIZE_OF_ARRAY	120
+#define	SIZE_OF_ARRAY	60
 
 /*************    Enumeration     ***************/
+enum SINE_WAVE_STAGES
+{
+	SINE_0_TO_90,
+	SINE_90,
+	SINE_90_TO_180,
+	SINE_180,
+	SINE_180_TO_270,
+	SINE_270,
+	SINE_270_TO_360,
+	SINE_360
+};
+
 /***********  Structure Definitions  ************/
 /***********State Machine Definitions************/
 /*************  Global Variables  ***************/
 unsigned int inverterLevel[SIZE_OF_ARRAY] =
 {
-//10kHz @ 120 points
+//10kHz @ 60 points (0-90º of a sine wave)
 41,		83,		124,	166,	207,	248,	289,	330,	371,	411,
 451,	491,	530,	569,	608,	646,	684,	721,	758,	795,
 830,	865,	900,	934,	967,	1000,	1032,	1063,	1094,	1124,
 1153,	1181,	1209,	1235,	1261,	1286,	1310,	1333,	1355,	1376,
 1397,	1416,	1435,	1452,	1468,	1484,	1498,	1512,	1524,	1535,
-1546,	1555,	1563,	1570,	1576,	1581,	1585,	1587,	1589,	1590,
-1589,	1587,	1585,	1581,	1576,	1570,	1563,	1555,	1546,	1535,
-1524,	1512,	1498,	1484,	1468,	1452,	1435,	1416,	1397,	1376,
-1355,	1333,	1310,	1286,	1261,	1235,	1209,	1181,	1153,	1124,
-1094,	1063,	1032,	1000,	967,	934,	900,	865,	830,	795,
-758,	721,	684,	646,	608,	569,	530,	491,	451,	411,
-371,	330,	289,	248,	207,	166,	124,	83,		41,		0,
+1546,	1555,	1563,	1570,	1576,	1581,	1585,	1587,	1589,	1590
 };
 
 /*************Interrupt Prototypes***************/
 /*************Function  Prototypes***************/
-void Positive_Wave(int currentStep);
-void Negative_Wave(int currentStep);
-
 /************* Device Definitions ***************/
 #if FOSC_Hz > 65536000000  //65.536 GHz
     #error "FOSC is too fast for this code to remain unmodified"
 #endif
 	
 /************* Module Definitions ***************/
-#define CbTRIS	OC7CON2bits.OCTRIS
-#define DbTRIS	OC8CON2bits.OCTRIS
 
 void Initialize_Inverter(void)
 {
-	//OC7 - Output_Inverter_Pos-Bottom
-	OC7RS = PERIOD;
-	OC7R = 0;
-	OC7CON1				= 0;
-	OC7CON2				= 0;
-	OC7CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
-	OC7CON1bits.OCM		= 0b110;	//101= Double Compare Continuous Pulse mode: initialize OCx pin low, toggle OCx state continuously on alternate matches of OCxR and OCxRS
-	OC7CON2bits.SYNCSEL	= 0b11111;	//00101 = Output Compare 5
-	OC7CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
-	OC7CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
-	OC7CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+//	Made using http://asciiflow.com/
+//		+---- Vin+ ---+
+//		|             |
+//	  +-+-+         +-+-+
+//	  |HOA|         |HOB|
+//	  +-+-+         +-+-+
+//		|             |
+//		+-------------+
+//		|             |
+//	  +-+-+         +-+-+
+//	  |LOA|         |LOB|
+//	  +-+-+         +-+-+
+//		|             |
+//		+---- Vin- ---+
 
-	//OC8 - Output_Inverter_Neg-Bottom
-	OC8RS = PERIOD;
-	OC8R = 0;
-	OC8CON1				= 0;
-	OC8CON2				= 0;
-	OC8CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
-	OC8CON1bits.OCM		= 0b110;	//101= Double Compare Continuous Pulse mode: initialize OCx pin low, toggle OCx state continuously on alternate matches of OCxR and OCxRS
-	OC8CON2bits.SYNCSEL	= 7;		//00101 = Output Compare 5
-	OC8CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
-	OC8CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
-	OC8CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+	#warning "The OCM Modules have not been configured, even in the slightest for using the TI App note"
+	//OC1 - HOA
+	OC1RS = PERIOD;
+	OC1R = 0;
+	OC1CON1				= 0;
+	OC1CON2				= 0;
+	OC1CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
+	OC1CON1bits.OCM		= 0b110;	//101= Double Compare Continuous Pulse mode: initialize OCx pin low, toggle OCx state continuously on alternate matches of OCxR and OCxRS
+	OC1CON2bits.SYNCSEL	= 0b11111;	//00101 = Output Compare 5
+	OC1CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+	OC1CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
+	OC1CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+
+	//OC2 - HOB
+	OC2RS = PERIOD;
+	OC2R = 0;
+	OC2CON1				= 0;
+	OC2CON2				= 0;
+	OC2CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
+	OC2CON1bits.OCM		= 0b110;	//101= Double Compare Continuous Pulse mode: initialize OCx pin low, toggle OCx state continuously on alternate matches of OCxR and OCxRS
+	OC2CON2bits.SYNCSEL	= 7;		//00101 = Output Compare 5
+	OC2CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+	OC2CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
+	OC2CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+
+	//OC3 - LOA
+	OC3RS = PERIOD;
+	OC3R = 0;
+	OC3CON1				= 0;
+	OC3CON2				= 0;
+	OC3CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
+	OC3CON1bits.OCM		= 0b110;	//101= Double Compare Continuous Pulse mode: initialize OCx pin low, toggle OCx state continuously on alternate matches of OCxR and OCxRS
+	OC3CON2bits.SYNCSEL	= 0b11111;	//00101 = Output Compare 5
+	OC3CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+	OC3CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
+	OC3CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+
+	//OC4 - LOB
+	OC4RS = PERIOD;
+	OC4R = 0;
+	OC4CON1				= 0;
+	OC4CON2				= 0;
+	OC4CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
+	OC4CON1bits.OCM		= 0b110;	//101= Double Compare Continuous Pulse mode: initialize OCx pin low, toggle OCx state continuously on alternate matches of OCxR and OCxRS
+	OC4CON2bits.SYNCSEL	= 7;		//00101 = Output Compare 5
+	OC4CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+	OC4CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
+	OC4CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
 	return;
 }
 
 void Inverter_Routine(unsigned long time_mS)
 {
+	static enum SINE_WAVE_STAGES stage = SINE_0_TO_90;
 	static int currentStep = 0;
+	static int multiplier = 1;
+	static int divider = 1;
 
-	if(currentStep < SIZE_OF_ARRAY)
-		Positive_Wave(currentStep);
-	else if(currentStep == (SIZE_OF_ARRAY+1))
+	//The following code is an implementation of the TI App Note SLAA602 "800VA Pure Sine Wave Inverter?s Reference Design"
+	//Positive going voltage
+	//HOA	_|- - -...
+	//LOB	- -|_|-...
+	//HOB	_ _|-|_...
+	//LOA	-|_ _ _...
+
+	//Negative going voltage (Inverse of Positive waveform)
+	//HOA	-|_ _ _...
+	//LOB	_ _|-|_...
+	//HOB	- -|_|-...
+	//LOA	_|- - -...
+	
+	switch(stage)
 	{
-		OC7R = 0;
-		OC8R = 0;
-		Pin_Low(PIN_RG7_SWITCHED_GROUND2);
+		case SINE_0_TO_90:
+			#warning "Code not implemented"
+//			(inverterLevel[currentStep]*multiplier)/divider;
+//			OC1R = 0;
+//			OC2R = 0;
+//			OC3R = 0;
+//			OC4R = 0;
+			if(++currentStep >= SIZE_OF_ARRAY)
+				stage = SINE_90;
+			break;
+		case SINE_90:
+			OC1R = 0;
+			OC2R = 0;
+			OC3R = 0;
+			OC4R = 0;
+			Trigger_A2D_Scan;
+			stage = SINE_90_TO_180;
+			break;
+		case SINE_90_TO_180:
+			#warning "Code not implemented"
+			if(--currentStep <= 0)
+				stage = SINE_180;
+			break;
+		case SINE_180:
+			OC1R = 0;
+			OC2R = 0;
+			OC3R = 0;
+			OC4R = 0;
+			Trigger_A2D_Scan;
+			stage = SINE_180_TO_270;
+			break;
+		case SINE_180_TO_270:
+			#warning "Code not implemented"
+			if(++currentStep >= SIZE_OF_ARRAY)
+				stage = SINE_270;
+			break;
+		case SINE_270:
+			OC1R = 0;
+			OC2R = 0;
+			OC3R = 0;
+			OC4R = 0;
+			Trigger_A2D_Scan;
+			stage = SINE_270_TO_360;
+			break;
+		case SINE_270_TO_360:
+			#warning "Code not implemented"
+			if(--currentStep <= 0)
+				stage = SINE_360;
+			break;
+		case SINE_360:
+			OC1R = 0;
+			OC2R = 0;
+			OC3R = 0;
+			OC4R = 0;
+			Trigger_A2D_Scan;
+			stage = SINE_0_TO_90;
+			break;
+		default://How did we get here?
+			OC1R = 0;
+			OC2R = 0;
+			OC3R = 0;
+			OC4R = 0;
+			stage = SINE_0_TO_90;
+			break;
 	}
-	else if(currentStep < (2*SIZE_OF_ARRAY+1))
-		Negative_Wave(currentStep-(SIZE_OF_ARRAY+1));
-	else if(currentStep >= (2*SIZE_OF_ARRAY+2))
-	{
-		OC7R = 0;
-		OC8R = 0;
-		Pin_High(PIN_RG7_SWITCHED_GROUND2);
-	}
-		
-	if(currentStep >= (2*SIZE_OF_ARRAY+2))
-		currentStep = 0;
-	else
-		++currentStep;
 
     return;
-}
-void Positive_Wave(int currentStep)
-{
-	//Generate Positive Sine Wave
-	OC7R = (inverterLevel[currentStep]*MULTIPLIER)/DIVIDER;	//OC7 - Ab & Cb
-
-	return;
-}
-
-void Negative_Wave(int currentStep)
-{
-	//Generate Negative Sine Wave
-	OC8R = (inverterLevel[currentStep]*MULTIPLIER)/DIVIDER;	//OC8 - Db
-
-	return;
 }

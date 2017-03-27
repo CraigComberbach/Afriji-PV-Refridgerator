@@ -162,9 +162,10 @@ void A2D_Initialize(void)
 	AD1CHSbits.CH0NB = 0;			//0 = Channel 0 negative input is VR-
 
 	//A/D Control Register 3
-look into me	AD1CON3bits.ADCS = 0b111111;	//111111 = 64 * TCY
-look into me	AD1CON3bits.SAMC = 0b11111;		//11111 = 31 TAD
-look into me	AD1CON3bits.ADRC = 1;			//1 = A/D internal RC clock
+	#warning "The code to setup the A2D timing has not been configured"
+	AD1CON3bits.ADCS = 0b111111;	//111111 = 64 * TCY
+	AD1CON3bits.SAMC = 0b11111;		//11111 = 31 TAD
+	AD1CON3bits.ADRC = 1;			//1 = A/D internal RC clock
 
 	//A/D Control Register 2
 	AD1CON2bits.ALTS = 0;			//0 = Always uses MUX A input multiplexer settings
