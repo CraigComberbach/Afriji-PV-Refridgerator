@@ -51,21 +51,20 @@ unsigned int inverterLevel[SIZE_OF_ARRAY] =
 //1153,	1181,	1209,	1235,	1261,	1286,	1310,	1333,	1355,	1376,
 //1397,	1416,	1435,	1452,	1468,	1484,	1498,	1512,	1524,	1535,
 //1546,	1555,	1563,	1570,	1576,	1581,	1585,	1587,	1589,	1590
-//100kHz @ 60 points (0-90º of a sine wave) Note: This series factors in the Rise/Fall times buffer
-//32,	45,	57,	70,	82,	95,	107,	119,	132,	144,
+//10kHz @ 60 points (0-90º of a sine wave) Note: This series factors in the Rise/Fall times buffer
+//32,		45,		57,		70,		82,		95,		107,	119,	132,	144,
 //156,	168,	180,	192,	203,	215,	226,	237,	249,	260,
 //270,	281,	291,	302,	312,	322,	331,	341,	350,	359,
 //368,	376,	384,	393,	400,	408,	415,	422,	429,	435,
 //441,	447,	453,	458,	463,	468,	472,	476,	480,	483,
 //486,	489,	491,	494,	495,	497,	498,	499,	499,	500
-//10kHz @ 60 points (0-90º of a sine wave) Note: This series factors in the Rise/Fall times buffer
+//100kHz @ 60 points (0-90º of a sine wave) Note: This series factors in the Rise/Fall times buffer
 20,	21,	22,	23,	23,	24,	25,	26,	27,	27,
 28,	29,	30,	30,	31,	32,	32,	33,	34,	35,
 35,	36,	36,	37,	38,	38,	39,	40,	40,	41,
 41,	42,	42,	43,	43,	44,	44,	45,	45,	45,
 46,	46,	47,	47,	47,	48,	48,	48,	48,	48,
 49,	49,	49,	49,	49,	49,	49,	49,	49,	50
-
 };
 
 /*************Interrupt Prototypes***************/
@@ -185,12 +184,16 @@ void Inverter_Routine(unsigned long time_mS)
 	//2) Both diagonals are unique
 	//3) Negative side is a direct inverse of positive
 
-	Positive_Sine(0);
-	return;
+	if(currentStep >= (SIZE_OF_ARRAY-1))
+	{
+		currentStep = 0;
+		stage = SINE_0_TO_90;
+	}
 
 	switch(stage)
 	{
 		case SINE_0_TO_90:
+			OC5CON2bits.OCINV = 0;
 			Positive_Sine(currentStep);
 
 			//Advance in step or state
@@ -203,6 +206,7 @@ void Inverter_Routine(unsigned long time_mS)
 			stage = SINE_90_TO_180;
 			break;
 		case SINE_90_TO_180:
+			OC5CON2bits.OCINV = 0;
 			Positive_Sine(currentStep);
 
 			if(--currentStep <= 0)
@@ -232,6 +236,7 @@ void Inverter_Routine(unsigned long time_mS)
 			stage = SINE_180_TO_270;
 			break;
 		case SINE_180_TO_270:
+			OC5CON2bits.OCINV = 1;
 			Negative_Sine(currentStep);
 
 			if(++currentStep >= SIZE_OF_ARRAY)
@@ -242,6 +247,7 @@ void Inverter_Routine(unsigned long time_mS)
 			stage = SINE_270_TO_360;
 			break;
 		case SINE_270_TO_360:
+			OC5CON2bits.OCINV = 1;
 			Negative_Sine(currentStep);
 
 			if(--currentStep <= 0)
@@ -296,23 +302,24 @@ void Inverter_Routine(unsigned long time_mS)
 
 void Positive_Sine(int step)
 {
+	step = 0;
 	//HOA
 	OC2CON2bits.OCINV	= !OC5CON2bits.OCINV;
 	OC2R				= 0;
 	OC2RS				= PERIOD/2 - (inverterLevel[step]*multiplier)/divider + adder;
 
-	//LOA - Ensure it is identical to LOA but inverted
+	//LOA
 	OC1CON2bits.OCINV	= OC5CON2bits.OCINV;
 	OC1R				= DEADBAND;
 	OC1RS				= OC2RS - DEADBAND;
 	
 	//LOB
-	OC4CON2bits.OCINV	= OC5CON2bits.OCINV;
+	OC4CON2bits.OCINV	= !OC5CON2bits.OCINV;
 	OC4R				= PERIOD/2;
 	OC4RS				= PERIOD/2 + (inverterLevel[step]*multiplier)/divider + adder;
 	
-	//HOB - Ensure it is identical to HOB but inverted
-	OC3CON2bits.OCINV	= !OC5CON2bits.OCINV;
+	//HOB
+	OC3CON2bits.OCINV	= OC5CON2bits.OCINV;
 	OC3R				= OC4R + DEADBAND;
 	OC3RS				= OC4RS - DEADBAND;
 
@@ -321,32 +328,25 @@ void Positive_Sine(int step)
 
 void Negative_Sine(int step)
 {
-//	//Adjustments
-//	OC1CON2bits.OCINV	= 1;
-//	OC1CON1bits.OCM		= 0b110;	//110= Edge-Aligned PWM mode on OCx
-//	OC2CON1bits.OCM		= 0b101;	//101= Double Compare Continuous Pulse mode: initialize OCx pin low, toggle OCx state continuously on alternate matches of OCxR and OCxRS
-//	OC1CON2bits.SYNCSEL	= 0b11111;	//This module
-//	OC2CON2bits.SYNCSEL	= 1;		//Output Compare 1
-//	OC3CON2bits.SYNCSEL	= 1;		//Output Compare 1
-//	OC4CON2bits.SYNCSEL	= 1;		//Output Compare 1
-//
-//	//LOA
-//	OC1R				= PERIOD/2 - (inverterLevel[step]*multiplier)/divider + adder;
-//
-//	//HOA - Ensure it is identical to LOA but inverted
-//	OC2CON2bits.OCINV	= OC1CON2bits.OCINV;
-//	OC2RS				= DEADBAND;
-//	OC2R				= OC1R-DEADBAND;
-//	
-//	//HOB
-//	OC3CON2bits.OCINV	= OC1CON2bits.OCINV;
-//	OC3R				= PERIOD/2;
-//	OC3RS				= PERIOD/2 + (inverterLevel[step]*multiplier)/divider + adder;
-//	
-//	//LOB - Ensure it is identical to HOB but inverted
-//	OC4CON2bits.OCINV	= !OC1CON2bits.OCINV;
-//	OC4R				= OC3R + DEADBAND;
-//	OC4RS				= OC3RS - DEADBAND;
+	//HOA
+	OC2CON2bits.OCINV	= !OC5CON2bits.OCINV;
+	OC2R				= DEADBAND;
+	OC2RS				= OC1RS - DEADBAND;
+
+	//LOA
+	OC1CON2bits.OCINV	= OC5CON2bits.OCINV;
+	OC1R				= 0;
+	OC1RS				= PERIOD/2 - (inverterLevel[step]*multiplier)/divider + adder;
+	
+	//LOB
+	OC4CON2bits.OCINV	= !OC5CON2bits.OCINV;
+	OC4R				= OC3R + DEADBAND;
+	OC4RS				= OC3RS - DEADBAND;
+	
+	//HOB
+	OC3CON2bits.OCINV	= OC5CON2bits.OCINV;
+	OC3R				= PERIOD/2;
+	OC3RS				= PERIOD/2 + (inverterLevel[step]*multiplier)/divider + adder;
 
 	return;
 }
