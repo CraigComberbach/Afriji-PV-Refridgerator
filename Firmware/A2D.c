@@ -124,7 +124,8 @@ void A2D_Routine(uint32_t time_mS)
 
 void Trigger_A2D_Scan(void)
 {
-	START_SCAN;
+	#warning "Code not implemented"
+//	START_SCAN;
 	return;
 }
 

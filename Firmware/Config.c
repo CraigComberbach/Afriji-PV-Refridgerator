@@ -189,14 +189,14 @@ void Configure_For_Afriji(void)
 
 	/************* PeripheralPinSelect***************/
 		//Input Inverter (Hi-I Lo-V)
-		RPOR1bits.RP2R		= 18;	//OC	HOA(Bt)
-		RPOR5bits.RP11R		= 19;	//OC	HOB(At)
-		RPOR10bits.RP20R	= 20;	//OC	LOA(Ab)
-		RPOR12bits.RP25R	= 21;	//OC	LOB(Bb)
+		RPOR10bits.RP20R	= 18;	//OC1	LOA(Ab)
+		RPOR1bits.RP2R		= 19;	//OC2	HOA(Bt)
+		RPOR5bits.RP11R		= 20;	//OC3	HOB(At)
+		RPOR12bits.RP25R	= 21;	//OC4	LOB(Bb)
 
 		//LED indicators
-		RPOR1bits.RP3R		= 24;	//Red LED (Green on Schematic)
-		RPOR6bits.RP12R		= 25;	//Blue LED (Blue on schematic)
+		RPOR1bits.RP3R		= 18;	//Red LED (Green on Schematic)
+		RPOR6bits.RP12R		= 21;	//Blue LED (Blue on schematic)
 
 //		RPOR12bits.RP24R 	= 3;	//UART1 - Terminal Tx 
 	__builtin_write_OSCCONL(OSCCON | 0x40);
@@ -268,7 +268,7 @@ void __attribute__((interrupt, auto_psv)) _MathError(void)
 {
 	INTCON1bits.MATHERR = 0;
 	dummy = 3;
-//	while(1)
+	while(1)
 		asm("clrwdt");
 //	Reset();
 }
