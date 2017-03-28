@@ -19,9 +19,9 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 /*************Library Dependencies***************/
 /************Arbitrary Functionality*************/
 /*************   Magic  Numbers   ***************/
-#define	PERIOD			1599
+#define	PERIOD			159
 #define	SIZE_OF_ARRAY	60
-#define	DEADBAND		4	//Period resolution is 62.5nS, 8 time divisions allows for the waveform to peak at 12VDC or decay to 0V (which is a very efficient turn on point) before 
+#define	DEADBAND		8	//Period resolution is 62.5nS, 8 time divisions allows for the waveform to peak at 12VDC or decay to 0V (which is a very efficient turn on point) before 
 
 /*************    Enumeration     ***************/
 enum SINE_WAVE_STAGES
@@ -52,12 +52,20 @@ unsigned int inverterLevel[SIZE_OF_ARRAY] =
 //1397,	1416,	1435,	1452,	1468,	1484,	1498,	1512,	1524,	1535,
 //1546,	1555,	1563,	1570,	1576,	1581,	1585,	1587,	1589,	1590
 //100kHz @ 60 points (0-90º of a sine wave) Note: This series factors in the Rise/Fall times buffer
-32,	45,	57,	70,	82,	95,	107,	119,	132,	144,
-156,	168,	180,	192,	203,	215,	226,	237,	249,	260,
-270,	281,	291,	302,	312,	322,	331,	341,	350,	359,
-368,	376,	384,	393,	400,	408,	415,	422,	429,	435,
-441,	447,	453,	458,	463,	468,	472,	476,	480,	483,
-486,	489,	491,	494,	495,	497,	498,	499,	499,	500
+//32,	45,	57,	70,	82,	95,	107,	119,	132,	144,
+//156,	168,	180,	192,	203,	215,	226,	237,	249,	260,
+//270,	281,	291,	302,	312,	322,	331,	341,	350,	359,
+//368,	376,	384,	393,	400,	408,	415,	422,	429,	435,
+//441,	447,	453,	458,	463,	468,	472,	476,	480,	483,
+//486,	489,	491,	494,	495,	497,	498,	499,	499,	500
+//10kHz @ 60 points (0-90º of a sine wave) Note: This series factors in the Rise/Fall times buffer
+20,	21,	22,	23,	23,	24,	25,	26,	27,	27,
+28,	29,	30,	30,	31,	32,	32,	33,	34,	35,
+35,	36,	36,	37,	38,	38,	39,	40,	40,	41,
+41,	42,	42,	43,	43,	44,	44,	45,	45,	45,
+46,	46,	47,	47,	47,	48,	48,	48,	48,	48,
+49,	49,	49,	49,	49,	49,	49,	49,	49,	50
+
 };
 
 /*************Interrupt Prototypes***************/
@@ -89,17 +97,6 @@ void Initialize_Inverter(void)
 //		|             |
 //		+---- Vin- ---+
 
-	//OC2 - HOA
-	OC2R = 0;
-	OC2RS = PERIOD;
-	OC2CON1				= 0;
-	OC2CON2				= 0;
-	OC2CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
-	OC2CON1bits.OCM		= 0b110;	//110= Edge-Aligned PWM mode on OCx
-	OC2CON2bits.SYNCSEL	= 0b11111;	//00001 = Output Compare 1
-	OC2CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
-	OC2CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
-	OC2CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
 	//OC1 - LOA
 	OC1R = 0;
@@ -107,11 +104,23 @@ void Initialize_Inverter(void)
 	OC1CON1				= 0;
 	OC1CON2				= 0;
 	OC1CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
-	OC1CON1bits.OCM		= 0b101;	//101= Double Compare Continuous Pulse mode: initialize OCx pin low, toggle OCx state continuously on alternate matches of OCxR and OCxRS
-	OC1CON2bits.SYNCSEL	= 0b00010;	//11111= This OC module
+	OC1CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
+	OC1CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
 	OC1CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
 	OC1CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC1CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+	
+	//OC2 - HOA
+	OC2R = 0;
+	OC2RS = PERIOD;
+	OC2CON1				= 0;
+	OC2CON2				= 0;
+	OC2CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
+	OC2CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
+	OC2CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
+	OC2CON2bits.OCINV	= 1;		//0 = OCx output is not inverted
+	OC2CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
+	OC2CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
 	//OC3 - HOB
 	OC3R = 0;
@@ -119,8 +128,8 @@ void Initialize_Inverter(void)
 	OC3CON1				= 0;
 	OC3CON2				= 0;
 	OC3CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
-	OC3CON1bits.OCM		= 0b101;	//101= Double Compare Continuous Pulse mode: initialize OCx pin low, toggle OCx state continuously on alternate matches of OCxR and OCxRS
-	OC3CON2bits.SYNCSEL	= 0b00010;	//00001 = Output Compare 1
+	OC3CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
+	OC3CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
 	OC3CON2bits.OCINV	= 1;		//0 = OCx output is not inverted
 	OC3CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC3CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
@@ -131,11 +140,24 @@ void Initialize_Inverter(void)
 	OC4CON1				= 0;
 	OC4CON2				= 0;
 	OC4CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
-	OC4CON1bits.OCM		= 0b101;	//101= Double Compare Continuous Pulse mode: initialize OCx pin low, toggle OCx state continuously on alternate matches of OCxR and OCxRS
-	OC4CON2bits.SYNCSEL	= 0b00010;	//00001 = Output Compare 1
+	OC4CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
+	OC4CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
 	OC4CON2bits.OCINV	= 1;		//0 = OCx output is not inverted
 	OC4CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC4CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+
+	//OC5 - One Reference to rule them all and in the darkness bind them [together]
+	OC5R = 0;
+	OC5RS = PERIOD;
+	OC5CON1				= 0;
+	OC5CON2				= 0;
+	OC5CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
+	OC5CON1bits.OCM		= 0b110;	//110= Edge-Aligned PWM mode on OCx
+	OC5CON2bits.SYNCSEL	= 0b11111;	//11111= This OC module
+	OC5CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+	OC5CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
+	OC5CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+
 
 	return;
 }
@@ -163,7 +185,7 @@ void Inverter_Routine(unsigned long time_mS)
 	//2) Both diagonals are unique
 	//3) Negative side is a direct inverse of positive
 
-	Positive_Sine(3);
+	Positive_Sine(0);
 	return;
 
 	switch(stage)
@@ -274,36 +296,23 @@ void Inverter_Routine(unsigned long time_mS)
 
 void Positive_Sine(int step)
 {
-//	//Adjustments
-	OC1CON2bits.OCTRIS	= 1;		//0 = Output Compare Peripheral x connected to the OCx pin
-	OC2CON2bits.OCTRIS	= 1;		//0 = Output Compare Peripheral x connected to the OCx pin
-
-	OC2CON2bits.OCINV	= 1;
-	OC1CON2bits.SYNCSEL	= 2;		//Output Compare 2
-	OC2CON2bits.SYNCSEL	= 0b11111;	//This module
-	OC3CON2bits.SYNCSEL	= 2;		//Output Compare 2
-	OC4CON2bits.SYNCSEL	= 2;		//Output Compare 2
-	OC1CON1bits.OCM		= 0b101;	//101= Double Compare Continuous Pulse mode: initialize OCx pin low, toggle OCx state continuously on alternate matches of OCxR and OCxRS
-	OC2CON1bits.OCM		= 0b110;	//110= Edge-Aligned PWM mode on OCx
-	
-	OC1CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
-	OC2CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
-	
 	//HOA
-	OC2R				= 50;
+	OC2CON2bits.OCINV	= !OC5CON2bits.OCINV;
+	OC2R				= 0;
+	OC2RS				= PERIOD/2 - (inverterLevel[step]*multiplier)/divider + adder;
 
 	//LOA - Ensure it is identical to LOA but inverted
-	OC1CON2bits.OCINV	= OC2CON2bits.OCINV;
-	OC1RS				= 60;
-	OC1R				= 80;
+	OC1CON2bits.OCINV	= OC5CON2bits.OCINV;
+	OC1R				= DEADBAND;
+	OC1RS				= OC2RS - DEADBAND;
 	
 	//LOB
-	OC4CON2bits.OCINV	= OC2CON2bits.OCINV;
+	OC4CON2bits.OCINV	= OC5CON2bits.OCINV;
 	OC4R				= PERIOD/2;
 	OC4RS				= PERIOD/2 + (inverterLevel[step]*multiplier)/divider + adder;
 	
 	//HOB - Ensure it is identical to HOB but inverted
-	OC3CON2bits.OCINV	= !OC2CON2bits.OCINV;
+	OC3CON2bits.OCINV	= !OC5CON2bits.OCINV;
 	OC3R				= OC4R + DEADBAND;
 	OC3RS				= OC4RS - DEADBAND;
 
