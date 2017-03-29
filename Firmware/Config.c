@@ -85,15 +85,15 @@ void Configure_For_Afriji(void)
 	Pin_Definition(PIN_RC14,							Rx14, &TRISC, &ODCC, &LATC, &PORTC);//RC14
 	Pin_Definition(PIN_RC15,							Rx15, &TRISC, &ODCC, &LATC, &PORTC);//RC15
 	//PORTD
-	Pin_Definition(PIN_RD0,								Rx0, &TRISD, &ODCD, &LATD, &PORTD);	//RD0
+	Pin_Definition(PIN_RD0_HOB,								Rx0, &TRISD, &ODCD, &LATD, &PORTD);	//RD0
 	Pin_Definition(PIN_RD1_TERMINAL_TX,					Rx1, &TRISD, &ODCD, &LATD, &PORTD);	//RD1
 	Pin_Definition(PIN_RD2,								Rx2, &TRISD, &ODCD, &LATD, &PORTD);	//RD2
 	Pin_Definition(PIN_RD3,								Rx3, &TRISD, &ODCD, &LATD, &PORTD);	//RD3
-	Pin_Definition(PIN_RD4_HBRIDGE_BIN,					Rx4, &TRISD, &ODCD, &LATD, &PORTD);	//RD4
-	Pin_Definition(PIN_RD5_HBRIDGE_AIN,					Rx5, &TRISD, &ODCD, &LATD, &PORTD);	//RD5
+	Pin_Definition(PIN_RD4_LOB,					Rx4, &TRISD, &ODCD, &LATD, &PORTD);	//RD4
+	Pin_Definition(PIN_RD5_LOA,					Rx5, &TRISD, &ODCD, &LATD, &PORTD);	//RD5
 	Pin_Definition(PIN_RD6,								Rx6, &TRISD, &ODCD, &LATD, &PORTD);	//RD6
 	Pin_Definition(PIN_RD7,								Rx7, &TRISD, &ODCD, &LATD, &PORTD);	//RD7
-	Pin_Definition(PIN_RD8,								Rx8, &TRISD, &ODCD, &LATD, &PORTD);	//RD8
+	Pin_Definition(PIN_RD8_HOA,								Rx8, &TRISD, &ODCD, &LATD, &PORTD);	//RD8
 	Pin_Definition(PIN_RD9_GREEN_LED,					Rx9, &TRISD, &ODCD, &LATD, &PORTD);	//RD9
 	Pin_Definition(PIN_RD10_RED_LED,					Rx10, &TRISD, &ODCD, &LATD, &PORTD);//RD10
 	Pin_Definition(PIN_RD11_BLUE_LED,					Rx11, &TRISD, &ODCD, &LATD, &PORTD);//RD11
@@ -145,15 +145,11 @@ void Configure_For_Afriji(void)
 	Pin_Initialize(PIN_RC14,							LOW, PUSH_PULL, INPUT);	//RC14
 	Pin_Initialize(PIN_RC15,							LOW, PUSH_PULL, INPUT);	//RC15
 	//PORTD
-	Pin_Initialize(PIN_RD0,								LOW, PUSH_PULL, INPUT);	//RD0
 	Pin_Initialize(PIN_RD1_TERMINAL_TX,					LOW, PUSH_PULL, INPUT);	//RD1
 	Pin_Initialize(PIN_RD2,								LOW, PUSH_PULL, INPUT);	//RD2
 	Pin_Initialize(PIN_RD3,								LOW, PUSH_PULL, INPUT);	//RD3
-	Pin_Initialize(PIN_RD4_HBRIDGE_BIN,					LOW, PUSH_PULL, INPUT);	//RD4
-	Pin_Initialize(PIN_RD5_HBRIDGE_AIN,					LOW, PUSH_PULL, INPUT);	//RD5
 	Pin_Initialize(PIN_RD6,								LOW, PUSH_PULL, INPUT);	//RD6
 	Pin_Initialize(PIN_RD7,								LOW, PUSH_PULL, INPUT);	//RD7
-	Pin_Initialize(PIN_RD8,								LOW, PUSH_PULL, INPUT);	//RD8
 	Pin_Initialize(PIN_RD9_GREEN_LED,					LOW, PUSH_PULL, OUTPUT);//RD9
 	Pin_Initialize(PIN_RD10_RED_LED,					LOW, PUSH_PULL, INPUT);	//RD10
 	Pin_Initialize(PIN_RD11_BLUE_LED,					LOW, PUSH_PULL, INPUT);	//RD11
@@ -188,6 +184,10 @@ void Configure_For_Afriji(void)
 	Pin_Initialize(PIN_RG9,								LOW, PUSH_PULL, INPUT);	//RG9
 
 	/************* PeripheralPinSelect***************/
+	Pin_Initialize(PIN_RD8_HOA,							HIGH, PUSH_PULL, OUTPUT);//RD8
+	Pin_Initialize(PIN_RD0_HOB,							HIGH, PUSH_PULL, OUTPUT);//RD0
+	Pin_Initialize(PIN_RD4_LOB,							LOW, PUSH_PULL, OUTPUT);//RD4
+	Pin_Initialize(PIN_RD5_LOA,							LOW, PUSH_PULL, OUTPUT);//RD5
 		//Input Inverter (Hi-I Lo-V)
 		RPOR10bits.RP20R	= 18;	//OC1	LOA(Ab)
 		RPOR1bits.RP2R		= 19;	//OC2	HOA(Bt)

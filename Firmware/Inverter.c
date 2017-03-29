@@ -13,6 +13,7 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 #include "Config.h"
 #include "Inverter.h"
 #include "A2D.h"
+#include "Pins.h"
 
 /************* Library Definition ***************/
 /************* Semantic Versioning***************/
@@ -21,7 +22,7 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 /*************   Magic  Numbers   ***************/
 #define	PERIOD			159
 #define	SIZE_OF_ARRAY	60
-#define	DEADBAND		8	//Period resolution is 62.5nS, 8 time divisions allows for the waveform to peak at 12VDC or decay to 0V (which is a very efficient turn on point) before 
+#define	DEADBAND		4	//Period resolution is 62.5nS, 8 time divisions allows for the waveform to peak at 12VDC or decay to 0V (which is a very efficient turn on point) before 
 
 /*************    Enumeration     ***************/
 enum SINE_WAVE_STAGES
@@ -157,7 +158,6 @@ void Initialize_Inverter(void)
 	OC5CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC5CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
-
 	return;
 }
 
@@ -168,16 +168,16 @@ void Inverter_Routine(unsigned long time_mS)
 
 	//The following code is an implementation of the TI App Note SLAA602 "800VA Pure Sine Wave Inverter?s Reference Design"
 	//Positive going voltage
-	//HOA	_|- - -...
-	//LOB	- -|_|-...
-	//HOB	_ _|-|_...
-	//LOA	-|_ _ _...
+	//HOA	_/- - -...
+	//LOB	- -\_/-...
+	//HOB	_ _/-\_...
+	//LOA	-\_ _ _...
 
 	//Negative going voltage (Inverse of Positive waveform)
-	//HOA	-|_ _ _...
-	//LOB	_ _|-|_...
-	//HOB	- -|_|-...
-	//LOA	_|- - -...
+	//HOA	-\_ _ _...
+	//LOB	_ _/-\_...
+	//HOB	- -\_/-...
+	//LOA	_/- - -...
 
 	//It looks like the following three rules will always be true
 	//1) Diagonals are the inverse of each other
@@ -188,6 +188,10 @@ void Inverter_Routine(unsigned long time_mS)
 	{
 		case SINE_0_TO_90:
 			Positive_Sine(currentStep);
+			OC1CON2bits.OCTRIS	= 0;
+			OC2CON2bits.OCTRIS	= 0;
+			OC3CON2bits.OCTRIS	= 0;
+			OC4CON2bits.OCTRIS	= 0;
 
 			//Advance in step or state
 			++currentStep;
@@ -196,15 +200,22 @@ void Inverter_Routine(unsigned long time_mS)
 			break;
 		case SINE_90:	//No special PWM event, only sampling is required
 			Trigger_A2D_Scan();
+			
 			stage = SINE_90_TO_180;
 			break;
 		case SINE_90_TO_180:
 			Positive_Sine(currentStep);
 
 			if(--currentStep <= 0)
+			{
 				stage = SINE_180;
+			}
 			break;
 		case SINE_180:
+				OC1CON2bits.OCTRIS	= 1;
+				OC2CON2bits.OCTRIS	= 1;
+				OC3CON2bits.OCTRIS	= 1;
+				OC4CON2bits.OCTRIS	= 1;
 			#warning "Code not implemented"
 			//Trigger an A2D scan
 			Trigger_A2D_Scan();
@@ -214,6 +225,10 @@ void Inverter_Routine(unsigned long time_mS)
 			break;
 		case SINE_180_TO_270:
 			Negative_Sine(currentStep);
+			OC1CON2bits.OCTRIS	= 0;
+			OC2CON2bits.OCTRIS	= 0;
+			OC3CON2bits.OCTRIS	= 0;
+			OC4CON2bits.OCTRIS	= 0;
 
 			if(++currentStep >= SIZE_OF_ARRAY)
 				stage = SINE_270;
@@ -226,11 +241,17 @@ void Inverter_Routine(unsigned long time_mS)
 			Negative_Sine(currentStep);
 
 			if(--currentStep <= 0)
+			{
 				stage = SINE_360;
+			}
 			break;
 		case SINE_360:
 			#warning "Code not implemented"
 			//Trigger an A2D scan
+				OC1CON2bits.OCTRIS	= 1;
+				OC2CON2bits.OCTRIS	= 1;
+				OC3CON2bits.OCTRIS	= 1;
+				OC4CON2bits.OCTRIS	= 1;
 			Trigger_A2D_Scan();
 
 			//Prep for advancement to the next step
@@ -267,12 +288,13 @@ void Positive_Sine(int step)
 
 	//HOA
 	OC2R				= 0;
-	OC2RS				= PERIOD/2 - inverterLevel[step];
+	
+	OC2RS				= PERIOD/2 - inverterLevel[step]/10;
 	OC2CON2bits.OCINV	= !OC5CON2bits.OCINV;
 
 	//LOB
 	OC4R				= PERIOD/2;
-	OC4RS				= PERIOD/2 + inverterLevel[step];
+	OC4RS				= PERIOD/2 + inverterLevel[step]/10;
 	OC4CON2bits.OCINV	= !OC5CON2bits.OCINV;
 	
 	//LOA
@@ -295,12 +317,12 @@ void Negative_Sine(int step)
 
 	//LOA
 	OC1R				= 0;
-	OC1RS				= PERIOD/2 - inverterLevel[step];
+	OC1RS				= PERIOD/2 - inverterLevel[step]/2;
 	OC1CON2bits.OCINV	= OC5CON2bits.OCINV;
 	
 	//HOB
 	OC3R				= PERIOD/2;
-	OC3RS				= PERIOD/2 + inverterLevel[step];
+	OC3RS				= PERIOD/2 + inverterLevel[step]/2;
 	OC3CON2bits.OCINV	= OC5CON2bits.OCINV;
 
 	//HOA
