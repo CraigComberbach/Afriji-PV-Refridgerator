@@ -22,7 +22,7 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 /*************   Magic  Numbers   ***************/
 #define	PERIOD			159
 #define	SIZE_OF_ARRAY	60
-#define	DEADBAND		4	//Period resolution is 62.5nS, 8 time divisions allows for the waveform to peak at 12VDC or decay to 0V (which is a very efficient turn on point) before 
+#define	DEADBAND		8	//Period resolution is 62.5nS, 8 time divisions allows for the waveform to peak at 12VDC or decay to 0V (which is a very efficient turn on point) before 
 
 /*************    Enumeration     ***************/
 enum SINE_WAVE_STAGES
@@ -188,10 +188,6 @@ void Inverter_Routine(unsigned long time_mS)
 	{
 		case SINE_0_TO_90:
 			Positive_Sine(currentStep);
-			OC1CON2bits.OCTRIS	= 0;
-			OC2CON2bits.OCTRIS	= 0;
-			OC3CON2bits.OCTRIS	= 0;
-			OC4CON2bits.OCTRIS	= 0;
 
 			//Advance in step or state
 			++currentStep;
@@ -212,23 +208,29 @@ void Inverter_Routine(unsigned long time_mS)
 			}
 			break;
 		case SINE_180:
-				OC1CON2bits.OCTRIS	= 1;
-				OC2CON2bits.OCTRIS	= 1;
-				OC3CON2bits.OCTRIS	= 1;
-				OC4CON2bits.OCTRIS	= 1;
-			#warning "Code not implemented"
+			//Turn off the PWMs to make it safe to change over
+			OC1CON2bits.OCTRIS	= 1;
+			OC2CON2bits.OCTRIS	= 1;
+			OC3CON2bits.OCTRIS	= 1;
+			OC4CON2bits.OCTRIS	= 1;
+
+			//Transition to a negative waveform in a safe environment
+			Negative_Sine(currentStep);
+
 			//Trigger an A2D scan
 			Trigger_A2D_Scan();
 
 			//Prep for advancement to the next step
 			stage = SINE_180_TO_270;
-			break;
-		case SINE_180_TO_270:
-			Negative_Sine(currentStep);
+			
+			//Resume normal operation
 			OC1CON2bits.OCTRIS	= 0;
 			OC2CON2bits.OCTRIS	= 0;
 			OC3CON2bits.OCTRIS	= 0;
 			OC4CON2bits.OCTRIS	= 0;
+			break;
+		case SINE_180_TO_270:
+			Negative_Sine(currentStep);
 
 			if(++currentStep >= SIZE_OF_ARRAY)
 				stage = SINE_270;
@@ -246,16 +248,27 @@ void Inverter_Routine(unsigned long time_mS)
 			}
 			break;
 		case SINE_360:
-			#warning "Code not implemented"
+			//Turn off the PWMs to make it safe to change over
+			OC1CON2bits.OCTRIS	= 1;
+			OC2CON2bits.OCTRIS	= 1;
+			OC3CON2bits.OCTRIS	= 1;
+			OC4CON2bits.OCTRIS	= 1;
+
+			//Transition to a positive waveform in a safe environment
+			Positive_Sine(currentStep);
+
 			//Trigger an A2D scan
-				OC1CON2bits.OCTRIS	= 1;
-				OC2CON2bits.OCTRIS	= 1;
-				OC3CON2bits.OCTRIS	= 1;
-				OC4CON2bits.OCTRIS	= 1;
 			Trigger_A2D_Scan();
 
 			//Prep for advancement to the next step
 			stage = SINE_0_TO_90;
+
+			//Resume normal operation
+			OC1CON2bits.OCTRIS	= 0;
+			OC2CON2bits.OCTRIS	= 0;
+			OC3CON2bits.OCTRIS	= 0;
+			OC4CON2bits.OCTRIS	= 0;
+
 			break;
 		default://How did we get here?
 			#warning "Code not implemented"
@@ -289,12 +302,12 @@ void Positive_Sine(int step)
 	//HOA
 	OC2R				= 0;
 	
-	OC2RS				= PERIOD/2 - inverterLevel[step]/10;
+	OC2RS				= PERIOD/2 - inverterLevel[step];
 	OC2CON2bits.OCINV	= !OC5CON2bits.OCINV;
 
 	//LOB
 	OC4R				= PERIOD/2;
-	OC4RS				= PERIOD/2 + inverterLevel[step]/10;
+	OC4RS				= PERIOD/2 + inverterLevel[step];
 	OC4CON2bits.OCINV	= !OC5CON2bits.OCINV;
 	
 	//LOA
@@ -317,12 +330,12 @@ void Negative_Sine(int step)
 
 	//LOA
 	OC1R				= 0;
-	OC1RS				= PERIOD/2 - inverterLevel[step]/2;
+	OC1RS				= PERIOD/2 - inverterLevel[step];
 	OC1CON2bits.OCINV	= OC5CON2bits.OCINV;
 	
 	//HOB
 	OC3R				= PERIOD/2;
-	OC3RS				= PERIOD/2 + inverterLevel[step]/2;
+	OC3RS				= PERIOD/2 + inverterLevel[step];
 	OC3CON2bits.OCINV	= OC5CON2bits.OCINV;
 
 	//HOA
