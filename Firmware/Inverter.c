@@ -42,7 +42,7 @@ enum SINE_WAVE_STAGES
 int multiplier = 1;
 int divider = 1;
 int adder = 0;
-unsigned int inverterLevel[SIZE_OF_ARRAY] =
+unsigned int inverterLevel[] =
 {
 ////10kHz @ 60 points (0-90º of a sine wave)
 //41,		83,		124,	166,	207,	248,	289,	330,	371,	411,
@@ -64,7 +64,7 @@ unsigned int inverterLevel[SIZE_OF_ARRAY] =
 35,	36,	36,	37,	38,	38,	39,	40,	40,	41,
 41,	42,	42,	43,	43,	44,	44,	45,	45,	45,
 46,	46,	47,	47,	47,	48,	48,	48,	48,	48,
-49,	49,	49,	49,	49,	49,	49,	49,	49,	50
+49,	49,	49,	49,	49,	49,	49,	49,	49,	50,50
 };
 
 /*************Interrupt Prototypes***************/
@@ -105,7 +105,7 @@ void Initialize_Inverter(void)
 	OC1CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
 	OC1CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
 	OC1CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
-	OC1CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+	OC1CON2bits.OCINV	= 0;
 	OC1CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC1CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 	
@@ -117,7 +117,7 @@ void Initialize_Inverter(void)
 	OC2CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
 	OC2CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
 	OC2CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
-	OC2CON2bits.OCINV	= 1;		//0 = OCx output is not inverted
+	OC2CON2bits.OCINV	= 1;
 	OC2CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC2CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
@@ -129,7 +129,7 @@ void Initialize_Inverter(void)
 	OC3CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
 	OC3CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
 	OC3CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
-	OC3CON2bits.OCINV	= 1;		//0 = OCx output is not inverted
+	OC3CON2bits.OCINV	= 0;
 	OC3CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC3CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
@@ -141,7 +141,7 @@ void Initialize_Inverter(void)
 	OC4CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
 	OC4CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
 	OC4CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
-	OC4CON2bits.OCINV	= 1;		//0 = OCx output is not inverted
+	OC4CON2bits.OCINV	= 1;
 	OC4CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC4CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
@@ -184,16 +184,9 @@ void Inverter_Routine(unsigned long time_mS)
 	//2) Both diagonals are unique
 	//3) Negative side is a direct inverse of positive
 
-	if(currentStep >= (SIZE_OF_ARRAY-1))
-	{
-		currentStep = 0;
-		stage = SINE_0_TO_90;
-	}
-
 	switch(stage)
 	{
 		case SINE_0_TO_90:
-			OC5CON2bits.OCINV = 0;
 			Positive_Sine(currentStep);
 
 			//Advance in step or state
@@ -206,7 +199,6 @@ void Inverter_Routine(unsigned long time_mS)
 			stage = SINE_90_TO_180;
 			break;
 		case SINE_90_TO_180:
-			OC5CON2bits.OCINV = 0;
 			Positive_Sine(currentStep);
 
 			if(--currentStep <= 0)
@@ -214,21 +206,6 @@ void Inverter_Routine(unsigned long time_mS)
 			break;
 		case SINE_180:
 			#warning "Code not implemented"
-			//Allows for circulation on the bottom before starting the next wave form
-//			//LOA
-//			OC1R = ;
-//
-//			//HOB
-//			OC2R = ;
-//
-//			//HOA
-//			OC3R = ;
-//			OC3RS = ;
-//
-//			//LOB
-//			OC4R = ;
-//			OC4RS = ;
-
 			//Trigger an A2D scan
 			Trigger_A2D_Scan();
 
@@ -236,7 +213,6 @@ void Inverter_Routine(unsigned long time_mS)
 			stage = SINE_180_TO_270;
 			break;
 		case SINE_180_TO_270:
-			OC5CON2bits.OCINV = 1;
 			Negative_Sine(currentStep);
 
 			if(++currentStep >= SIZE_OF_ARRAY)
@@ -247,7 +223,6 @@ void Inverter_Routine(unsigned long time_mS)
 			stage = SINE_270_TO_360;
 			break;
 		case SINE_270_TO_360:
-			OC5CON2bits.OCINV = 1;
 			Negative_Sine(currentStep);
 
 			if(--currentStep <= 0)
@@ -255,21 +230,6 @@ void Inverter_Routine(unsigned long time_mS)
 			break;
 		case SINE_360:
 			#warning "Code not implemented"
-			//Allows for circulation on the top before starting the next wave form
-//			//LOA
-//			OC1R = ;
-//
-//			//HOB
-//			OC2R = ;
-//
-//			//HOA
-//			OC3R = ;
-//			OC3RS = ;
-//
-//			//LOB
-//			OC4R = ;
-//			OC4RS = ;
-
 			//Trigger an A2D scan
 			Trigger_A2D_Scan();
 
@@ -302,51 +262,56 @@ void Inverter_Routine(unsigned long time_mS)
 
 void Positive_Sine(int step)
 {
-	step = 0;
-	//HOA
-	OC2CON2bits.OCINV	= !OC5CON2bits.OCINV;
-	OC2R				= 0;
-	OC2RS				= PERIOD/2 - (inverterLevel[step]*multiplier)/divider + adder;
+	//Reference
+	OC5CON2bits.OCINV = 0;
 
+	//HOA
+	OC2R				= 0;
+	OC2RS				= PERIOD/2 - inverterLevel[step];
+	OC2CON2bits.OCINV	= !OC5CON2bits.OCINV;
+
+	//LOB
+	OC4R				= PERIOD/2;
+	OC4RS				= PERIOD/2 + inverterLevel[step];
+	OC4CON2bits.OCINV	= !OC5CON2bits.OCINV;
+	
 	//LOA
-	OC1CON2bits.OCINV	= OC5CON2bits.OCINV;
 	OC1R				= DEADBAND;
 	OC1RS				= OC2RS - DEADBAND;
-	
-	//LOB
-	OC4CON2bits.OCINV	= !OC5CON2bits.OCINV;
-	OC4R				= PERIOD/2;
-	OC4RS				= PERIOD/2 + (inverterLevel[step]*multiplier)/divider + adder;
+	OC1CON2bits.OCINV	= OC5CON2bits.OCINV;
 	
 	//HOB
-	OC3CON2bits.OCINV	= OC5CON2bits.OCINV;
 	OC3R				= OC4R + DEADBAND;
 	OC3RS				= OC4RS - DEADBAND;
+	OC3CON2bits.OCINV	= OC5CON2bits.OCINV;
 
 	return;
 }
 
 void Negative_Sine(int step)
 {
-	//HOA
-	OC2CON2bits.OCINV	= !OC5CON2bits.OCINV;
-	OC2R				= DEADBAND;
-	OC2RS				= OC1RS - DEADBAND;
+	//Reference
+	OC5CON2bits.OCINV = 1;
 
 	//LOA
-	OC1CON2bits.OCINV	= OC5CON2bits.OCINV;
 	OC1R				= 0;
-	OC1RS				= PERIOD/2 - (inverterLevel[step]*multiplier)/divider + adder;
-	
-	//LOB
-	OC4CON2bits.OCINV	= !OC5CON2bits.OCINV;
-	OC4R				= OC3R + DEADBAND;
-	OC4RS				= OC3RS - DEADBAND;
+	OC1RS				= PERIOD/2 - inverterLevel[step];
+	OC1CON2bits.OCINV	= OC5CON2bits.OCINV;
 	
 	//HOB
-	OC3CON2bits.OCINV	= OC5CON2bits.OCINV;
 	OC3R				= PERIOD/2;
-	OC3RS				= PERIOD/2 + (inverterLevel[step]*multiplier)/divider + adder;
+	OC3RS				= PERIOD/2 + inverterLevel[step];
+	OC3CON2bits.OCINV	= OC5CON2bits.OCINV;
+
+	//HOA
+	OC2R				= DEADBAND;
+	OC2RS				= OC1RS - DEADBAND;
+	OC2CON2bits.OCINV	= !OC5CON2bits.OCINV;
+	
+	//LOB
+	OC4R				= OC3R + DEADBAND;
+	OC4RS				= OC3RS - DEADBAND;
+	OC4CON2bits.OCINV	= !OC5CON2bits.OCINV;
 
 	return;
 }
