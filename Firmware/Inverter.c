@@ -20,9 +20,9 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 /*************Library Dependencies***************/
 /************Arbitrary Functionality*************/
 /*************   Magic  Numbers   ***************/
-#define	PERIOD			159
+#define	PERIOD			1599
 #define	SIZE_OF_ARRAY	60
-#define	DEADBAND		8	//Period resolution is 62.5nS, 8 time divisions allows for the waveform to peak at 12VDC or decay to 0V (which is a very efficient turn on point) before 
+#define	DEADBAND		20	//Period resolution is 62.5nS, 8 time divisions allows for the waveform to peak at 12VDC or decay to 0V (which is a very efficient turn on point) before 
 
 /*************    Enumeration     ***************/
 enum SINE_WAVE_STAGES
@@ -30,11 +30,13 @@ enum SINE_WAVE_STAGES
 	SINE_0_TO_90,
 	SINE_90,
 	SINE_90_TO_180,
-	SINE_180,
+	SINE_180_START,
+	SINE_180_FINISH,
 	SINE_180_TO_270,
 	SINE_270,
 	SINE_270_TO_360,
-	SINE_360
+	SINE_360_START,
+	SINE_360_FINISH
 };
 
 /***********  Structure Definitions  ************/
@@ -60,12 +62,14 @@ unsigned int inverterLevel[] =
 //441,	447,	453,	458,	463,	468,	472,	476,	480,	483,
 //486,	489,	491,	494,	495,	497,	498,	499,	499,	500
 //100kHz @ 60 points (0-90º of a sine wave) Note: This series factors in the Rise/Fall times buffer
-20,	21,	22,	23,	23,	24,	25,	26,	27,	27,
-28,	29,	30,	30,	31,	32,	32,	33,	34,	35,
-35,	36,	36,	37,	38,	38,	39,	40,	40,	41,
-41,	42,	42,	43,	43,	44,	44,	45,	45,	45,
-46,	46,	47,	47,	47,	48,	48,	48,	48,	48,
-49,	49,	49,	49,	49,	49,	49,	49,	49,	50,50
+61,	73,	85,	97,	108,	120,	132,	143,	155,	166,
+177,	189,	200,	211,	222,	233,	243,	254,	264,	275,
+285,	295,	304,	314,	323,	333,	342,	351,	359,	368,
+376,	384,	392,	399,	407,	414,	420,	427,	433,	439,
+445,	450,	456,	461,	465,	470,	474,	477,	481,	484,
+487,	490,	492,	494,	496,	497,	498,	499,	499,	500
+
+
 };
 
 /*************Interrupt Prototypes***************/
@@ -183,7 +187,7 @@ void Inverter_Routine(unsigned long time_mS)
 	//1) Diagonals are the inverse of each other
 	//2) Both diagonals are unique
 	//3) Negative side is a direct inverse of positive
-
+	
 	switch(stage)
 	{
 		case SINE_0_TO_90:
@@ -191,7 +195,7 @@ void Inverter_Routine(unsigned long time_mS)
 
 			//Advance in step or state
 			++currentStep;
-			if(currentStep >= SIZE_OF_ARRAY)
+			if(currentStep >= (SIZE_OF_ARRAY-1))
 				stage = SINE_90;
 			break;
 		case SINE_90:	//No special PWM event, only sampling is required
@@ -201,13 +205,12 @@ void Inverter_Routine(unsigned long time_mS)
 			break;
 		case SINE_90_TO_180:
 			Positive_Sine(currentStep);
-
+			LATGbits.LATG7 = 1;
+			LATGbits.LATG7 = 0;
 			if(--currentStep <= 0)
-			{
-				stage = SINE_180;
-			}
+				stage = SINE_180_START;
 			break;
-		case SINE_180:
+		case SINE_180_START:
 			//Turn off the PWMs to make it safe to change over
 			OC1CON2bits.OCTRIS	= 1;
 			OC2CON2bits.OCTRIS	= 1;
@@ -221,18 +224,22 @@ void Inverter_Routine(unsigned long time_mS)
 			Trigger_A2D_Scan();
 
 			//Prep for advancement to the next step
-			stage = SINE_180_TO_270;
-			
+			stage = SINE_180_FINISH;
+			break;
+		case SINE_180_FINISH:
 			//Resume normal operation
 			OC1CON2bits.OCTRIS	= 0;
 			OC2CON2bits.OCTRIS	= 0;
 			OC3CON2bits.OCTRIS	= 0;
 			OC4CON2bits.OCTRIS	= 0;
+
+			//Prep for advancement to the next step
+			stage = SINE_180_TO_270;
 			break;
 		case SINE_180_TO_270:
 			Negative_Sine(currentStep);
 
-			if(++currentStep >= SIZE_OF_ARRAY)
+			if(++currentStep >= (SIZE_OF_ARRAY-1))
 				stage = SINE_270;
 			break;
 		case SINE_270:	//No special PWM event, only sampling is required
@@ -243,11 +250,9 @@ void Inverter_Routine(unsigned long time_mS)
 			Negative_Sine(currentStep);
 
 			if(--currentStep <= 0)
-			{
-				stage = SINE_360;
-			}
+				stage = SINE_360_START;
 			break;
-		case SINE_360:
+		case SINE_360_START:
 			//Turn off the PWMs to make it safe to change over
 			OC1CON2bits.OCTRIS	= 1;
 			OC2CON2bits.OCTRIS	= 1;
@@ -261,7 +266,9 @@ void Inverter_Routine(unsigned long time_mS)
 			Trigger_A2D_Scan();
 
 			//Prep for advancement to the next step
-			stage = SINE_0_TO_90;
+			stage = SINE_360_FINISH;
+			break;
+		case SINE_360_FINISH:
 
 			//Resume normal operation
 			OC1CON2bits.OCTRIS	= 0;
@@ -269,6 +276,8 @@ void Inverter_Routine(unsigned long time_mS)
 			OC3CON2bits.OCTRIS	= 0;
 			OC4CON2bits.OCTRIS	= 0;
 
+			//Prep for advancement to the next step
+			stage = SINE_0_TO_90;
 			break;
 		default://How did we get here?
 			#warning "Code not implemented"
@@ -301,7 +310,6 @@ void Positive_Sine(int step)
 
 	//HOA
 	OC2R				= 0;
-	
 	OC2RS				= PERIOD/2 - inverterLevel[step];
 	OC2CON2bits.OCINV	= !OC5CON2bits.OCINV;
 

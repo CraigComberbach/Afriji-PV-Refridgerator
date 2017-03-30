@@ -167,10 +167,6 @@ void Configure_For_Afriji(void)
 	Pin_Initialize(PIN_RF1,								LOW, PUSH_PULL, INPUT);	//RF1
 	Pin_Initialize(PIN_RF2,								LOW, PUSH_PULL, INPUT);	//RF2
 	Pin_Initialize(PIN_RF3,								LOW, PUSH_PULL, INPUT);	//RF3
-
-	Pin_Initialize(PIN_RF4_HBRIDGE_DIN,					LOW, PUSH_PULL, OUTPUT);//RF4
-	Pin_Initialize(PIN_RF5_HBRIDGE_CIN,					LOW, PUSH_PULL, OUTPUT);//RF5
-
 	Pin_Initialize(PIN_RF4_HBRIDGE_DIN,					LOW, PUSH_PULL, OUTPUT);//RF4
 	Pin_Initialize(PIN_RF5_HBRIDGE_CIN,					LOW, PUSH_PULL, OUTPUT);//RF5
 
@@ -184,8 +180,8 @@ void Configure_For_Afriji(void)
 	Pin_Initialize(PIN_RG9,								LOW, PUSH_PULL, INPUT);	//RG9
 
 	/************* PeripheralPinSelect***************/
-	Pin_Initialize(PIN_RD8_HOA,							HIGH, PUSH_PULL, OUTPUT);//RD8
-	Pin_Initialize(PIN_RD0_HOB,							HIGH, PUSH_PULL, OUTPUT);//RD0
+	Pin_Initialize(PIN_RD8_HOA,							LOW, PUSH_PULL, OUTPUT);//RD8
+	Pin_Initialize(PIN_RD0_HOB,							LOW, PUSH_PULL, OUTPUT);//RD0
 	Pin_Initialize(PIN_RD4_LOB,							LOW, PUSH_PULL, OUTPUT);//RD4
 	Pin_Initialize(PIN_RD5_LOA,							LOW, PUSH_PULL, OUTPUT);//RD5
 		//Input Inverter (Hi-I Lo-V)
