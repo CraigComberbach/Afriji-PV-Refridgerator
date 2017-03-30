@@ -22,7 +22,7 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 /*************   Magic  Numbers   ***************/
 #define	PERIOD			1599
 #define	SIZE_OF_ARRAY	60
-#define	DEADBAND		20	//Period resolution is 62.5nS, 8 time divisions allows for the waveform to peak at 12VDC or decay to 0V (which is a very efficient turn on point) before 
+#define	DEADBAND		8	//Period resolution is 62.5nS, 8 time divisions allows for the waveform to peak at 12VDC or decay to 0V (which is a very efficient turn on point) before 
 
 /*************    Enumeration     ***************/
 enum SINE_WAVE_STAGES
@@ -30,13 +30,11 @@ enum SINE_WAVE_STAGES
 	SINE_0_TO_90,
 	SINE_90,
 	SINE_90_TO_180,
-	SINE_180_START,
-	SINE_180_FINISH,
+	SINE_180,
 	SINE_180_TO_270,
 	SINE_270,
 	SINE_270_TO_360,
-	SINE_360_START,
-	SINE_360_FINISH
+	SINE_360,
 };
 
 /***********  Structure Definitions  ************/
@@ -62,12 +60,13 @@ unsigned int inverterLevel[] =
 //441,	447,	453,	458,	463,	468,	472,	476,	480,	483,
 //486,	489,	491,	494,	495,	497,	498,	499,	499,	500
 //100kHz @ 60 points (0-90º of a sine wave) Note: This series factors in the Rise/Fall times buffer
-61,	73,	85,	97,	108,	120,	132,	143,	155,	166,
-177,	189,	200,	211,	222,	233,	243,	254,	264,	275,
-285,	295,	304,	314,	323,	333,	342,	351,	359,	368,
-376,	384,	392,	399,	407,	414,	420,	427,	433,	439,
-445,	450,	456,	461,	465,	470,	474,	477,	481,	484,
-487,	490,	492,	494,	496,	497,	498,	499,	499,	500
+25,		67,		109,	151,	192,	234,	276,	317,	358,	399,
+439,	479,	519,	559,	598,	637,	675,	713,	750,	787,
+823,	858,	893,	928,	961,	994,	1027,	1058,	1089,	1120,
+1149,	1177,	1205,	1232,	1258,	1283,	1308,	1331,	1354,	1375,
+1396,	1415,	1434,	1451,	1468,	1484,	1498,	1512,	1524,	1536,
+1546,	1555,	1564,	1571,	1577,	1582,	1586,	1588,	1590,	1591
+
 
 
 };
@@ -76,6 +75,7 @@ unsigned int inverterLevel[] =
 /*************Function  Prototypes***************/
 void Positive_Sine(int step);
 void Negative_Sine(int step);
+void Zero_Crossing(void);
 
 /************* Device Definitions ***************/
 #if FOSC_Hz > 65536000000  //65.536 GHz
@@ -200,38 +200,20 @@ void Inverter_Routine(unsigned long time_mS)
 			break;
 		case SINE_90:	//No special PWM event, only sampling is required
 			Trigger_A2D_Scan();
-			
+
 			stage = SINE_90_TO_180;
 			break;
 		case SINE_90_TO_180:
 			Positive_Sine(currentStep);
-			LATGbits.LATG7 = 1;
-			LATGbits.LATG7 = 0;
-			if(--currentStep <= 0)
-				stage = SINE_180_START;
-			break;
-		case SINE_180_START:
-			//Turn off the PWMs to make it safe to change over
-			OC1CON2bits.OCTRIS	= 1;
-			OC2CON2bits.OCTRIS	= 1;
-			OC3CON2bits.OCTRIS	= 1;
-			OC4CON2bits.OCTRIS	= 1;
 
-			//Transition to a negative waveform in a safe environment
-			Negative_Sine(currentStep);
+			if(--currentStep <= 0)
+				stage = SINE_180;
+			break;
+		case SINE_180:
+			Zero_Crossing();
 
 			//Trigger an A2D scan
 			Trigger_A2D_Scan();
-
-			//Prep for advancement to the next step
-			stage = SINE_180_FINISH;
-			break;
-		case SINE_180_FINISH:
-			//Resume normal operation
-			OC1CON2bits.OCTRIS	= 0;
-			OC2CON2bits.OCTRIS	= 0;
-			OC3CON2bits.OCTRIS	= 0;
-			OC4CON2bits.OCTRIS	= 0;
 
 			//Prep for advancement to the next step
 			stage = SINE_180_TO_270;
@@ -250,31 +232,16 @@ void Inverter_Routine(unsigned long time_mS)
 			Negative_Sine(currentStep);
 
 			if(--currentStep <= 0)
-				stage = SINE_360_START;
+				stage = SINE_360;
 			break;
-		case SINE_360_START:
-			//Turn off the PWMs to make it safe to change over
-			OC1CON2bits.OCTRIS	= 1;
-			OC2CON2bits.OCTRIS	= 1;
-			OC3CON2bits.OCTRIS	= 1;
-			OC4CON2bits.OCTRIS	= 1;
+		case SINE_360:
+			Zero_Crossing();
 
 			//Transition to a positive waveform in a safe environment
 			Positive_Sine(currentStep);
 
 			//Trigger an A2D scan
 			Trigger_A2D_Scan();
-
-			//Prep for advancement to the next step
-			stage = SINE_360_FINISH;
-			break;
-		case SINE_360_FINISH:
-
-			//Resume normal operation
-			OC1CON2bits.OCTRIS	= 0;
-			OC2CON2bits.OCTRIS	= 0;
-			OC3CON2bits.OCTRIS	= 0;
-			OC4CON2bits.OCTRIS	= 0;
 
 			//Prep for advancement to the next step
 			stage = SINE_0_TO_90;
@@ -305,56 +272,75 @@ void Inverter_Routine(unsigned long time_mS)
 
 void Positive_Sine(int step)
 {
-	//Reference
-	OC5CON2bits.OCINV = 0;
+	//LOA - 100% Low
+	OC1CON2bits.OCINV	= 1;
+	OC1R				= 0;
+	OC1RS				= PERIOD+1;
 
-	//HOA
+	//HOA - 100% High
+	OC2CON2bits.OCINV	= 0;
 	OC2R				= 0;
-	OC2RS				= PERIOD/2 - inverterLevel[step];
-	OC2CON2bits.OCINV	= !OC5CON2bits.OCINV;
+	OC2RS				= PERIOD+1;
+	
+	//LOB - Bathtub
+	OC4CON2bits.OCINV	= 1;
+	OC4R				= PERIOD - inverterLevel[step] - DEADBAND;
+	OC4RS				= PERIOD - DEADBAND;
 
-	//LOB
-	OC4R				= PERIOD/2;
-	OC4RS				= PERIOD/2 + inverterLevel[step];
-	OC4CON2bits.OCINV	= !OC5CON2bits.OCINV;
-	
-	//LOA
-	OC1R				= DEADBAND;
-	OC1RS				= OC2RS - DEADBAND;
-	OC1CON2bits.OCINV	= OC5CON2bits.OCINV;
-	
-	//HOB
+	//HOB - Mesa
+	OC3CON2bits.OCINV	= 0;
 	OC3R				= OC4R + DEADBAND;
 	OC3RS				= OC4RS - DEADBAND;
-	OC3CON2bits.OCINV	= OC5CON2bits.OCINV;
 
 	return;
 }
 
 void Negative_Sine(int step)
 {
-	//Reference
-	OC5CON2bits.OCINV = 1;
-
-	//LOA
-	OC1R				= 0;
-	OC1RS				= PERIOD/2 - inverterLevel[step];
-	OC1CON2bits.OCINV	= OC5CON2bits.OCINV;
+	//HOB - 100% High
+	OC3CON2bits.OCINV	= 0;
+	OC3R				= 0;
+	OC3RS				= PERIOD+1;
 	
-	//HOB
-	OC3R				= PERIOD/2;
-	OC3RS				= PERIOD/2 + inverterLevel[step];
-	OC3CON2bits.OCINV	= OC5CON2bits.OCINV;
+	//LOB - 100% Low
+	OC4CON2bits.OCINV	= 1;
+	OC4R				= 0;
+	OC4RS				= PERIOD+1;
 
-	//HOA
-	OC2R				= DEADBAND;
+	//LOA - Bathtub
+	OC1CON2bits.OCINV	= 1;
+	OC1R				= PERIOD - inverterLevel[step] - DEADBAND;
+	OC1RS				= PERIOD - DEADBAND;
+
+	//HOA - Mesa
+	OC2CON2bits.OCINV	= 0;
+	OC2R				= OC1R + DEADBAND;
 	OC2RS				= OC1RS - DEADBAND;
-	OC2CON2bits.OCINV	= !OC5CON2bits.OCINV;
+
+	return;
+}
+
+void Zero_Crossing(void)
+{
+	//HOB - 100% High
+	OC3CON2bits.OCINV	= 0;
+	OC3R				= 0;
+	OC3RS				= PERIOD+1;
+
+	//HOA - Mesa
+	OC2CON2bits.OCINV	= 0;
+	OC2R				= 0;
+	OC2RS				= PERIOD+1;
 	
-	//LOB
-	OC4R				= OC3R + DEADBAND;
-	OC4RS				= OC3RS - DEADBAND;
-	OC4CON2bits.OCINV	= !OC5CON2bits.OCINV;
+	//LOB - 100% Low
+	OC4CON2bits.OCINV	= 1;
+	OC4R				= 0;
+	OC4RS				= PERIOD+1;
+
+	//LOA - Bathtub
+	OC1CON2bits.OCINV	= 1;
+	OC1R				= 0;
+	OC1RS				= PERIOD+1;
 
 	return;
 }
