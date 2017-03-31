@@ -314,7 +314,7 @@ void Negative_Sine(int step)
 	//LOB - 100% Low
 	OC4R				= PERIOD+1;
 	OC4RS				= 0;
-
+//Pewpwepew
 
 	return;
 }
