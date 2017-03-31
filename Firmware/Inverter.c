@@ -59,15 +59,13 @@ unsigned int inverterLevel[] =
 //368,	376,	384,	393,	400,	408,	415,	422,	429,	435,
 //441,	447,	453,	458,	463,	468,	472,	476,	480,	483,
 //486,	489,	491,	494,	495,	497,	498,	499,	499,	500
-//100kHz @ 60 points (0-90º of a sine wave) Note: This series factors in the Rise/Fall times buffer
-25,		67,		109,	151,	192,	234,	276,	317,	358,	399,
-439,	479,	519,	559,	598,	637,	675,	713,	750,	787,
-823,	858,	893,	928,	961,	994,	1027,	1058,	1089,	1120,
-1149,	1177,	1205,	1232,	1258,	1283,	1308,	1331,	1354,	1375,
-1396,	1415,	1434,	1451,	1468,	1484,	1498,	1512,	1524,	1536,
-1546,	1555,	1564,	1571,	1577,	1582,	1586,	1588,	1590,	1591
-
-
+//10kHz @ 60 points (0-90º of a sine wave) Note: This series factors in the Rise/Fall times buffer
+8,		51,		93,		135,	178,	220,	262,	303,	345,	386,
+427,	468,	508,	548,	587,	626,	665,	703,	741,	778,
+815,	851,	886,	921,	955,	988,	1021,	1053,	1084,	1115,
+1144,	1173,	1201,	1228,	1255,	1280,	1305,	1328,	1351,	1373,
+1394,	1413,	1432,	1450,	1467,	1483,	1497,	1511,	1524,	1535,
+1546,	1555,	1563,	1570,	1577,	1582,	1585,	1588,	1590,	1591, 1591
 
 };
 
@@ -101,7 +99,6 @@ void Initialize_Inverter(void)
 //		|             |
 //		+---- Vin- ---+
 
-
 	//OC1 - LOA
 	OC1R = 0;
 	OC1RS = PERIOD;
@@ -122,7 +119,7 @@ void Initialize_Inverter(void)
 	OC2CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
 	OC2CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
 	OC2CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
-	OC2CON2bits.OCINV	= 1;
+	OC2CON2bits.OCINV	= 0;
 	OC2CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC2CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
@@ -146,13 +143,13 @@ void Initialize_Inverter(void)
 	OC4CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
 	OC4CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
 	OC4CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
-	OC4CON2bits.OCINV	= 1;
+	OC4CON2bits.OCINV	= 0;
 	OC4CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC4CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
 	//OC5 - One Reference to rule them all and in the darkness bind them [together]
 	OC5R = 0;
-	OC5RS = PERIOD;
+	OC5RS = PERIOD/2;
 	OC5CON1				= 0;
 	OC5CON2				= 0;
 	OC5CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
@@ -272,75 +269,59 @@ void Inverter_Routine(unsigned long time_mS)
 
 void Positive_Sine(int step)
 {
-	//LOA - 100% Low
-	OC1CON2bits.OCINV	= 1;
-	OC1R				= 0;
-	OC1RS				= PERIOD+1;
 
 	//HOA - 100% High
-	OC2CON2bits.OCINV	= 0;
 	OC2R				= 0;
 	OC2RS				= PERIOD+1;
-	
-	//LOB - Bathtub
-	OC4CON2bits.OCINV	= 1;
-	OC4R				= PERIOD - inverterLevel[step] - DEADBAND;
-	OC4RS				= PERIOD - DEADBAND;
 
-	//HOB - Mesa
-	OC3CON2bits.OCINV	= 0;
-	OC3R				= OC4R + DEADBAND;
-	OC3RS				= OC4RS - DEADBAND;
+	//HOB - 100% Low
+	OC3R				= PERIOD+1;
+	OC3RS				= 0;
+
+	//LOA - 100% Low
+	OC1R				= PERIOD+1;
+	OC1RS				= 0;
+
+	//LOB - Triggered
+	OC4R				= PERIOD - inverterLevel[step];
+	OC4RS				= DEADBAND;
 
 	return;
 }
 
 void Negative_Sine(int step)
 {
+//	//HOA - 100% Low
+//	OC2R				= PERIOD+1;
+//	OC2RS				= 0;
+//	
+//	//HOB - 100% High
+//	OC3R				= 0;
+//	OC3RS				= PERIOD+1;
+
+	//HOA - 100% Low
+	OC2R				= PERIOD+1;
+	OC2RS				= 0;
+	
 	//HOB - 100% High
-	OC3CON2bits.OCINV	= 0;
 	OC3R				= 0;
 	OC3RS				= PERIOD+1;
-	
+
+	//LOA - Triggered
+	OC1R				= PERIOD - inverterLevel[step];
+	OC1RS				= DEADBAND;
+
 	//LOB - 100% Low
-	OC4CON2bits.OCINV	= 1;
-	OC4R				= 0;
-	OC4RS				= PERIOD+1;
+	OC4R				= PERIOD+1;
+	OC4RS				= 0;
 
-	//LOA - Bathtub
-	OC1CON2bits.OCINV	= 1;
-	OC1R				= PERIOD - inverterLevel[step] - DEADBAND;
-	OC1RS				= PERIOD - DEADBAND;
-
-	//HOA - Mesa
-	OC2CON2bits.OCINV	= 0;
-	OC2R				= OC1R + DEADBAND;
-	OC2RS				= OC1RS - DEADBAND;
 
 	return;
 }
 
 void Zero_Crossing(void)
 {
-	//HOB - 100% High
-	OC3CON2bits.OCINV	= 0;
-	OC3R				= 0;
-	OC3RS				= PERIOD+1;
-
-	//HOA - Mesa
-	OC2CON2bits.OCINV	= 0;
-	OC2R				= 0;
-	OC2RS				= PERIOD+1;
-	
-	//LOB - 100% Low
-	OC4CON2bits.OCINV	= 1;
-	OC4R				= 0;
-	OC4RS				= PERIOD+1;
-
-	//LOA - Bathtub
-	OC1CON2bits.OCINV	= 1;
-	OC1R				= 0;
-	OC1RS				= PERIOD+1;
-
+	LATGbits.LATG7 = 1;
+	LATGbits.LATG7 = 0;
 	return;
 }
