@@ -45,27 +45,20 @@ int divider = 1;
 int adder = 0;
 unsigned int inverterLevel[] =
 {
-////10kHz @ 60 points (0-90º of a sine wave)
-//41,		83,		124,	166,	207,	248,	289,	330,	371,	411,
-//451,	491,	530,	569,	608,	646,	684,	721,	758,	795,
-//830,	865,	900,	934,	967,	1000,	1032,	1063,	1094,	1124,
-//1153,	1181,	1209,	1235,	1261,	1286,	1310,	1333,	1355,	1376,
-//1397,	1416,	1435,	1452,	1468,	1484,	1498,	1512,	1524,	1535,
-//1546,	1555,	1563,	1570,	1576,	1581,	1585,	1587,	1589,	1590
 //10kHz @ 60 points (0-90º of a sine wave) Note: This series factors in the Rise/Fall times buffer
-//32,		45,		57,		70,		82,		95,		107,	119,	132,	144,
-//156,	168,	180,	192,	203,	215,	226,	237,	249,	260,
-//270,	281,	291,	302,	312,	322,	331,	341,	350,	359,
-//368,	376,	384,	393,	400,	408,	415,	422,	429,	435,
-//441,	447,	453,	458,	463,	468,	472,	476,	480,	483,
-//486,	489,	491,	494,	495,	497,	498,	499,	499,	500
-//10kHz @ 60 points (0-90º of a sine wave) Note: This series factors in the Rise/Fall times buffer
-8,		51,		93,		135,	178,	220,	262,	303,	345,	386,
-427,	468,	508,	548,	587,	626,	665,	703,	741,	778,
-815,	851,	886,	921,	955,	988,	1021,	1053,	1084,	1115,
-1144,	1173,	1201,	1228,	1255,	1280,	1305,	1328,	1351,	1373,
-1394,	1413,	1432,	1450,	1467,	1483,	1497,	1511,	1524,	1535,
-1546,	1555,	1563,	1570,	1577,	1582,	1585,	1588,	1590,	1591, 1591
+//8,		51,		93,		135,	178,	220,	262,	303,	345,	386,
+//427,	468,	508,	548,	587,	626,	665,	703,	741,	778,
+//815,	851,	886,	921,	955,	988,	1021,	1053,	1084,	1115,
+//1144,	1173,	1201,	1228,	1255,	1280,	1305,	1328,	1351,	1373,
+//1394,	1413,	1432,	1450,	1467,	1483,	1497,	1511,	1524,	1535,
+//1546,	1555,	1563,	1570,	1577,	1582,	1585,	1588,	1590,	1591, 1591
+//10kHz @ 60 points (0-90º of a sine wave) Note: This series factors in the Rise/Fall times buffer AND zero crossing AND 95% max PWM
+0,		39,		79,		119,	158,	198,	237,	276,	315,	354,
+393,	431,	469,	507,	544,	581,	617,	653,	689,	724,
+759,	793,	827,	860,	892,	924,	955,	986,	1016,	1045,
+1074,	1101,	1128,	1155,	1180,	1205,	1228,	1251,	1273,	1295,
+1315,	1334,	1353,	1371,	1387,	1403,	1418,	1431,	1444,	1456,
+1467,	1477,	1485,	1493,	1500,	1506,	1510,	1514,	1516,	1518, 1518
 
 };
 
@@ -107,7 +100,7 @@ void Initialize_Inverter(void)
 	OC1CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
 	OC1CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
 	OC1CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
-	OC1CON2bits.OCINV	= 0;
+	OC1CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
 	OC1CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC1CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 	
@@ -119,7 +112,7 @@ void Initialize_Inverter(void)
 	OC2CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
 	OC2CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
 	OC2CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
-	OC2CON2bits.OCINV	= 0;
+	OC2CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
 	OC2CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC2CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
@@ -131,7 +124,7 @@ void Initialize_Inverter(void)
 	OC3CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
 	OC3CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
 	OC3CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
-	OC3CON2bits.OCINV	= 0;
+	OC3CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
 	OC3CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC3CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
@@ -143,13 +136,13 @@ void Initialize_Inverter(void)
 	OC4CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
 	OC4CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
 	OC4CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
-	OC4CON2bits.OCINV	= 0;
+	OC4CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
 	OC4CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC4CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
 	//OC5 - One Reference to rule them all and in the darkness bind them [together]
 	OC5R = 0;
-	OC5RS = PERIOD/2;
+	OC5RS = PERIOD;
 	OC5CON1				= 0;
 	OC5CON2				= 0;
 	OC5CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
@@ -283,8 +276,8 @@ void Positive_Sine(int step)
 	OC1RS				= 0;
 
 	//LOB - Triggered
-	OC4R				= PERIOD - inverterLevel[step];
-	OC4RS				= DEADBAND;
+	OC4R				= PERIOD - inverterLevel[step]-DEADBAND;
+	OC4RS				= PERIOD - DEADBAND;
 
 	return;
 }
@@ -308,19 +301,34 @@ void Negative_Sine(int step)
 	OC3RS				= PERIOD+1;
 
 	//LOA - Triggered
-	OC1R				= PERIOD - inverterLevel[step];
-	OC1RS				= DEADBAND;
+	OC1R				= PERIOD - inverterLevel[step] - DEADBAND;
+	OC1RS				= PERIOD - DEADBAND;
 
 	//LOB - 100% Low
 	OC4R				= PERIOD+1;
 	OC4RS				= 0;
-//Pewpwepew
 
 	return;
 }
 
 void Zero_Crossing(void)
 {
+	//HOA - 100% High
+	OC2R				= 0;
+	OC2RS				= PERIOD+1;
+
+	//HOB - 100% High
+	OC3R				= 0;
+	OC3RS				= PERIOD+1;
+
+	//LOB - 100% Low
+	OC4R				= PERIOD+1;
+	OC4RS				= 0;
+
+	//LOA - 100% Low
+	OC1R				= PERIOD+1;
+	OC1RS				= 0;
+
 	LATGbits.LATG7 = 1;
 	LATGbits.LATG7 = 0;
 	return;
