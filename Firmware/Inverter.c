@@ -20,7 +20,7 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 /*************Library Dependencies***************/
 /************Arbitrary Functionality*************/
 /*************   Magic  Numbers   ***************/
-#define	PERIOD			1599
+#define	PERIOD			159
 #define	SIZE_OF_ARRAY	60
 #define	DEADBAND		8	//Period resolution is 62.5nS, 8 time divisions allows for the waveform to peak at 12VDC or decay to 0V (which is a very efficient turn on point) before 
 
@@ -59,14 +59,13 @@ unsigned int inverterOnPeriod[] =
 //1074,	1101,	1128,	1155,	1180,	1205,	1228,	1251,	1273,	1295,
 //1315,	1334,	1353,	1371,	1387,	1403,	1418,	1431,	1444,	1456,
 //1467,	1477,	1485,	1493,	1500,	1506,	1510,	1514,	1516,	1518, 1518
-//10kHz @ 60 points (0-90º of a sine wave) Note: This series factors in the Rise/Fall times buffer AND zero crossing AND 95% max PWM
-0,		3,		7,		11,		15,		19,		23,		27,		31,		35,
-39,		42,		46,		50,		54,		57,		61,		65,		68,		72,
-75,		78,		82,		85,		88,		91,		95,		98,		101,	103,
-106,	109,	112,	114,	117,	119,	122,	124,	126,	128,
-130,	132,	134,	136,	137,	139,	140,	142,	143,	144,
-145,	146,	147,	148,	149,	149,	150,	150,	150,	150
-
+//100kHz @ 60 points (0-90º of a sine wave) Note: This series factors in the Rise/Fall times buffer AND zero crossing AND 90% max PWM
+1,		4,		8,		12,		15,		19,		23,		26,		30,		34,
+37,		41,		44,		48,		51,		55,		58,		62,		65,		68,
+72,		75,		78,		81,		84,		87,		90,		93,		96,		98,
+101,	104,	106,	108,	111,	113,	115,	118,	120,	122,
+123,	125,	127,	129,	130,	132,	133,	134,	136,	137,
+138,	139,	139,	140,	141,	141,	142,	142,	142,	142
 };
 
 /*************Interrupt Prototypes***************/
@@ -267,30 +266,76 @@ void Inverter_Routine(unsigned long time_mS)
     return;
 }
 
+//Sign	++++++++++++...------------
+//HOA	------------...__/-\_______
+//LOA	____________...\_____/-----
+//HOB	__/-\_______...------------
+//LOB	\_____/-----...____________
 void Positive_Sine(int step)
 {
-
 	//HOA - 100% High
 	OC2R				= 0;
 	OC2RS				= PERIOD+1;
-
-	//HOB - 100% Low
-	OC3R				= PERIOD+1;
-	OC3RS				= 0;
 
 	//LOA - 100% Low
 	OC1R				= PERIOD+1;
 	OC1RS				= 0;
 
-	//LOB - Triggered
-	OC4R				= PERIOD - (inverterOnPeriod[step]*multiplier)/divider - DEADBAND;
-	OC4RS				= PERIOD - DEADBAND;
+	//LOB - Conducting current
+	OC4R				= PERIOD - (inverterOnPeriod[step]*multiplier)/divider;
+	OC4RS				= PERIOD;
+
+	//HOB - Circulating current
+	OC3R				= DEADBAND;
+	OC3RS				= OC4R - DEADBAND;
+
+//*****Above this line is Mikes waveform, below in my custom*****//
+//	//HOA - 100% High
+//	OC2R				= 0;
+//	OC2RS				= PERIOD+1;
+//
+//	//HOB - 100% Low
+//	OC3R				= PERIOD+1;
+//	OC3RS				= 0;
+//
+//	//LOA - 100% Low
+//	OC1R				= PERIOD+1;
+//	OC1RS				= 0;
+//
+//	//LOB - Triggered
+//	OC4R				= PERIOD - (inverterOnPeriod[step]*multiplier)/divider - DEADBAND;
+//	OC4RS				= PERIOD - DEADBAND;
 
 	return;
 }
 
+//100% Low
+//	OCxR				= PERIOD+1;
+//	OCxRS				= 0;
+//	
+//100% High
+//	OCxR				= 0;
+//	OCxRS				= PERIOD+1;
+
 void Negative_Sine(int step)
 {
+	//LOA - Conducting Current
+	OC1R				= PERIOD - (inverterOnPeriod[step]*multiplier)/divider;
+	OC1RS				= PERIOD;
+
+	//HOA - Circulating Current
+	OC2R				= DEADBAND;
+	OC2RS				= OC1R - DEADBAND;
+
+	//LOB - 100% Low
+	OC4R				= PERIOD+1;
+	OC4RS				= 0;
+
+	//HOB - 100% High
+	OC3R				= 0;
+	OC3RS				= PERIOD+1;
+
+//*****above this line is Mikes waveform, below in my custom*****//
 //	//HOA - 100% Low
 //	OC2R				= PERIOD+1;
 //	OC2RS				= 0;
@@ -298,43 +343,35 @@ void Negative_Sine(int step)
 //	//HOB - 100% High
 //	OC3R				= 0;
 //	OC3RS				= PERIOD+1;
-
-	//HOA - 100% Low
-	OC2R				= PERIOD+1;
-	OC2RS				= 0;
-	
-	//HOB - 100% High
-	OC3R				= 0;
-	OC3RS				= PERIOD+1;
-
-	//LOA - Triggered
-	OC1R				= PERIOD - (inverterOnPeriod[step]*multiplier)/divider - DEADBAND;
-	OC1RS				= PERIOD - DEADBAND;
-
-	//LOB - 100% Low
-	OC4R				= PERIOD+1;
-	OC4RS				= 0;
+//
+//	//LOA - Triggered
+//	OC1R				= PERIOD - (inverterOnPeriod[step]*multiplier)/divider - DEADBAND;
+//	OC1RS				= PERIOD - DEADBAND;
+//
+//	//LOB - 100% Low
+//	OC4R				= PERIOD+1;
+//	OC4RS				= 0;
 
 	return;
 }
 
 void Zero_Crossing(void)
 {
-	//HOA - 100% High
-	OC2R				= 0;
-	OC2RS				= PERIOD+1;
-
-	//HOB - 100% High
-	OC3R				= 0;
-	OC3RS				= PERIOD+1;
-
-	//LOB - 100% Low
-	OC4R				= PERIOD+1;
-	OC4RS				= 0;
-
-	//LOA - 100% Low
-	OC1R				= PERIOD+1;
-	OC1RS				= 0;
+//	//HOA - 100% High
+//	OC2R				= 0;
+//	OC2RS				= PERIOD+1;
+//
+//	//HOB - 100% High
+//	OC3R				= 0;
+//	OC3RS				= PERIOD+1;
+//
+//	//LOB - 100% Low
+//	OC4R				= PERIOD+1;
+//	OC4RS				= 0;
+//
+//	//LOA - 100% Low
+//	OC1R				= PERIOD+1;
+//	OC1RS				= 0;
 
 	LATGbits.LATG7 = 1;
 	LATGbits.LATG7 = 0;
