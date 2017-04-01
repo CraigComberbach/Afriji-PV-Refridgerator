@@ -43,7 +43,7 @@ enum SINE_WAVE_STAGES
 int multiplier = 1;
 int divider = 1;
 int adder = 0;
-unsigned int inverterLevel[] =
+unsigned int inverterOnPeriod[] =
 {
 //10kHz @ 60 points (0-90º of a sine wave) Note: This series factors in the Rise/Fall times buffer
 //8,		51,		93,		135,	178,	220,	262,	303,	345,	386,
@@ -53,12 +53,19 @@ unsigned int inverterLevel[] =
 //1394,	1413,	1432,	1450,	1467,	1483,	1497,	1511,	1524,	1535,
 //1546,	1555,	1563,	1570,	1577,	1582,	1585,	1588,	1590,	1591, 1591
 //10kHz @ 60 points (0-90º of a sine wave) Note: This series factors in the Rise/Fall times buffer AND zero crossing AND 95% max PWM
-0,		39,		79,		119,	158,	198,	237,	276,	315,	354,
-393,	431,	469,	507,	544,	581,	617,	653,	689,	724,
-759,	793,	827,	860,	892,	924,	955,	986,	1016,	1045,
-1074,	1101,	1128,	1155,	1180,	1205,	1228,	1251,	1273,	1295,
-1315,	1334,	1353,	1371,	1387,	1403,	1418,	1431,	1444,	1456,
-1467,	1477,	1485,	1493,	1500,	1506,	1510,	1514,	1516,	1518, 1518
+//0,		39,		79,		119,	158,	198,	237,	276,	315,	354,
+//393,	431,	469,	507,	544,	581,	617,	653,	689,	724,
+//759,	793,	827,	860,	892,	924,	955,	986,	1016,	1045,
+//1074,	1101,	1128,	1155,	1180,	1205,	1228,	1251,	1273,	1295,
+//1315,	1334,	1353,	1371,	1387,	1403,	1418,	1431,	1444,	1456,
+//1467,	1477,	1485,	1493,	1500,	1506,	1510,	1514,	1516,	1518, 1518
+//10kHz @ 60 points (0-90º of a sine wave) Note: This series factors in the Rise/Fall times buffer AND zero crossing AND 95% max PWM
+0,		3,		7,		11,		15,		19,		23,		27,		31,		35,
+39,		42,		46,		50,		54,		57,		61,		65,		68,		72,
+75,		78,		82,		85,		88,		91,		95,		98,		101,	103,
+106,	109,	112,	114,	117,	119,	122,	124,	126,	128,
+130,	132,	134,	136,	137,	139,	140,	142,	143,	144,
+145,	146,	147,	148,	149,	149,	150,	150,	150,	150
 
 };
 
@@ -276,7 +283,7 @@ void Positive_Sine(int step)
 	OC1RS				= 0;
 
 	//LOB - Triggered
-	OC4R				= PERIOD - inverterLevel[step]-DEADBAND;
+	OC4R				= PERIOD - (inverterOnPeriod[step]*multiplier)/divider - DEADBAND;
 	OC4RS				= PERIOD - DEADBAND;
 
 	return;
@@ -301,7 +308,7 @@ void Negative_Sine(int step)
 	OC3RS				= PERIOD+1;
 
 	//LOA - Triggered
-	OC1R				= PERIOD - inverterLevel[step] - DEADBAND;
+	OC1R				= PERIOD - (inverterOnPeriod[step]*multiplier)/divider - DEADBAND;
 	OC1RS				= PERIOD - DEADBAND;
 
 	//LOB - 100% Low
