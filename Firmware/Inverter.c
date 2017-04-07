@@ -183,7 +183,6 @@ void Inverter_Routine(unsigned long time_mS)
 	//1) Diagonals are the inverse of each other
 	//2) Both diagonals are unique
 	//3) Negative side is a direct inverse of positive
-	
 	switch(stage)
 	{
 		case SINE_0_TO_90:
@@ -278,16 +277,16 @@ void Positive_Sine(int step)
 	OC2RS				= PERIOD+1;
 
 	//LOA - 100% Low
-	OC1R				= PERIOD+1;
 	OC1RS				= 0;
+	OC1R				= PERIOD+1;
 
 	//LOB - Conducting current
-	OC4R				= PERIOD - (inverterOnPeriod[step]*multiplier)/divider;
 	OC4RS				= PERIOD;
+	OC4R				= PERIOD - (inverterOnPeriod[step]*multiplier)/divider;
 
 	//HOB - Circulating current
-	OC3R				= DEADBAND;
-	OC3RS				= OC4R - DEADBAND;
+	OC3RS				= OC4R - DEADBAND;	//This should be reversed?
+	OC3R				= DEADBAND;			//This should be reversed?
 
 //*****Above this line is Mikes waveform, below in my custom*****//
 //	//HOA - 100% High
@@ -320,16 +319,16 @@ void Positive_Sine(int step)
 void Negative_Sine(int step)
 {
 	//LOA - Conducting Current
-	OC1R				= PERIOD - (inverterOnPeriod[step]*multiplier)/divider;
 	OC1RS				= PERIOD;
+	OC1R				= PERIOD - (inverterOnPeriod[step]*multiplier)/divider;
 
 	//HOA - Circulating Current
 	OC2R				= DEADBAND;
 	OC2RS				= OC1R - DEADBAND;
 
 	//LOB - 100% Low
-	OC4R				= PERIOD+1;
 	OC4RS				= 0;
+	OC4R				= PERIOD+1;
 
 	//HOB - 100% High
 	OC3R				= 0;
@@ -372,8 +371,5 @@ void Zero_Crossing(void)
 //	//LOA - 100% Low
 //	OC1R				= PERIOD+1;
 //	OC1RS				= 0;
-
-	LATGbits.LATG7 = 1;
-	LATGbits.LATG7 = 0;
 	return;
 }
