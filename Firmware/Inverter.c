@@ -99,8 +99,8 @@ void Initialize_Inverter(void)
 //		+---- Vin- ---+
 
 	//OC1 - LOA
-	OC1R = 0;
-	OC1RS = PERIOD;
+	OC1RS				= 0;		//Ensures it is off until needed
+	OC1R				= PERIOD+1;	//Ensures it is off until needed
 	OC1CON1				= 0;
 	OC1CON2				= 0;
 	OC1CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
@@ -111,8 +111,8 @@ void Initialize_Inverter(void)
 	OC1CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 	
 	//OC2 - HOA
-	OC2R = 0;
-	OC2RS = PERIOD;
+	OC2RS				= 0;		//Ensures it is off until needed
+	OC2R				= PERIOD+1;	//Ensures it is off until needed
 	OC2CON1				= 0;
 	OC2CON2				= 0;
 	OC2CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
@@ -123,8 +123,8 @@ void Initialize_Inverter(void)
 	OC2CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
 	//OC3 - HOB
-	OC3R = 0;
-	OC3RS = PERIOD;
+	OC3RS				= 0;		//Ensures it is off until needed
+	OC3R				= PERIOD+1;	//Ensures it is off until needed
 	OC3CON1				= 0;
 	OC3CON2				= 0;
 	OC3CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
@@ -135,8 +135,8 @@ void Initialize_Inverter(void)
 	OC3CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
 	//OC4 - LOB
-	OC4R = 0;
-	OC4RS = PERIOD;
+	OC4RS				= 0;		//Ensures it is off until needed
+	OC4R				= PERIOD+1;	//Ensures it is off until needed
 	OC4CON1				= 0;
 	OC4CON2				= 0;
 	OC4CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
