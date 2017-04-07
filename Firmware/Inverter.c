@@ -319,8 +319,8 @@ void Positive_Sine(int step)
 void Negative_Sine(int step)
 {
 	//LOA - Conducting Current
-	OC1RS				= PERIOD;
 	OC1R				= PERIOD - (inverterOnPeriod[step]*multiplier)/divider;
+	OC1RS				= PERIOD;
 
 	//HOA - Circulating Current
 	OC2R				= DEADBAND;
@@ -365,11 +365,12 @@ void Zero_Crossing(void)
 //	OC3RS				= PERIOD+1;
 //
 //	//LOB - 100% Low
-//	OC4R				= PERIOD+1;
 //	OC4RS				= 0;
+//	OC4R				= PERIOD+1;
 //
 //	//LOA - 100% Low
-//	OC1R				= PERIOD+1;
 //	OC1RS				= 0;
+//	OC1R				= PERIOD+1;
+
 	return;
 }
