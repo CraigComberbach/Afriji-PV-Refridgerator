@@ -83,32 +83,7 @@ enum A2D_PIN_DEFINITIONS
 #define A2D_LIBRARY
 
 /*************   Magic  Numbers   ***************/
-#define NO_FORMATING			(void*)0
-#define NO_PREFUNCTION			(void*)0
-#define NO_POSTFUNCTION			(void*)0
-#define NO_FINISHED_FUNCTION	(void*)0
-#define NORMAL_AVERAGING		(void*)0
 #define AUTO_CONVERSION			0
-#define MANUAL_CONVERSION		1
-enum A2D_SAMPLE_SIZE
-{
-	A2D_ONE_SAMPLE,			//1
-	A2D_TWO_SAMPLES,		//2
-	A2D_THREE_SAMPLES,		//3
-	A2D_FOUR_SAMPLES,		//4
-	A2D_FIVE_SAMPLES,		//5
-	A2D_SIX_SAMPLES,		//6
-	A2D_SEVEN_SAMPLES,		//7
-	A2D_EIGHT_SAMPLES,		//8
-	A2D_NINE_SAMPLES,		//9
-	A2D_TEN_SAMPLES,		//10
-	A2D_ELEVEN_SAMPLES,		//11
-	A2D_TWELVE_SAMPLES,		//12
-	A2D_THIRTEEN_SAMPLES,	//13
-	A2D_FOURTEEN_SAMPLES,	//14
-	A2D_FIFTEEN_SAMPLES,	//15
-	A2D_MAX_SAMPLES,		//16
-};
 
 /*************    Enumeration     ***************/
 enum RESOLUTION
@@ -140,29 +115,6 @@ void A2D_Initialize(void);
 int A2D_Channel_Settings(int channel, enum RESOLUTION desiredResolutionIncrease, int numberOfAverages, int (*formatFunction)(int));
 
 /**
- * Sets up the fundamental settings of the scan, allowing you to change the number of samples and increasing resolution, in addition to adding custom formating and inserting function before/after a scan as well as when a channel is finished scanning, as well as detailing how averaging is done, and how many samples are taken in a burst
- * @param channel The A2D channel that is to be scanned, these are enumerated in the project config file
- * @param desiredResolution The desired additional bits of resolution (between 0(10-bit) and 6(16-bit)), you can use enum RESOLUTION in this header file to simplify
- * @param numberOfAverages The number of desired "readings" to be averaged (This will be different than the number of samples taken if additional resolution is selected). This number must be 16 or greater, must not be 65536 or bigger and must be a multiple of 16.
- * @param formatFunction Function pointer that will format the raw A2D values, the function must accept an integer representing the raw A2D value, it should also return the formatted value as an integer
- * @param preFunction Function pointer that will run just as the channel is starting to be scanned (eg switched pin turning on), the function must accept an integer indicating A2D channel, it should not return a value
- * @param postFunction Function pointer that will run just as the channel is finished being scanned (eg switched pin turning off), the function must accept an integer indicating A2D channel, it should not return a value
- * @param finishedFunction Function pointer that will run when the sampling/averaging is completed and a new value is ready (eg functions that need to run as soon as a sample is ready), the function must accept an integer indicating A2D channel, it should not return a value
- * @param inspectionFunction Allows the interception of the raw A2D values before they are summed and averaged. Only allows access to the current buffer (max 16 intergers). Useful for cherry picking values, or for example generating truly random numbers. The function should accept an integer (A2D channel, volatile unsigned int (pointer to A2D buffer), another integer (size of buffer, typically 16), and must return an integer
- * @param sampleSize This value is used to specify how many samples are to be taken in a single burst. This is useful if you only want a limited sample size, some possible uses are with the CTMU module (only the first reading is valid). The number is 0 centered (16-samples should be a value of 15), because of this the enum in the A2D.h header file is provided to simplify this
- * @param triggerType This takes one of two arguments, either AUTO_CONVERSION or MANUAL_CONVERSION. Auto conversion is the default and the A2D routine will take care of everything, Manual however turns that control over to an external function
- *  * @return 1 = Channel was updated successfully, 0 = Value out of range, no changes were made
- */
- int A2D_Advanced_Channel_Settings(int channel, enum RESOLUTION desiredResolutionIncrease, int numberOfAverages, int (*formatPointer)(int), void (*preFunction)(int), void (*postFunction)(int), void (*finishedFunction)(int), int (*inspectionFunction)(int, volatile unsigned int *, int), enum A2D_SAMPLE_SIZE sampleSize, int triggerType);
-
-/**
- * Adds the channel to the scanning queue
- * @param channel The channel that is to be added to the scanning queue, these are declared in the controller config file
- * @return 1 = Success, 0 = Failure - Channel out of range
- */
-int A2D_Add_To_Scan_Queue(int channel);
-
-/**
  * Calculates and updates averaged/formatted result, through the magic of DSP it will also increase the resolution if required
  * Calling this function multiple times will only do something if a conversion has completed
  * Calling this function will start a conversion if it is not already converting
@@ -175,5 +127,10 @@ void A2D_Routine(uint32_t time_mS);
  * @return The formatted A2D values
  */
 int A2D_Value(int channel);
+
+/**
+ * Starts a scan of all of the A2D channels
+ */
+void Trigger_A2D_Scan(void);
 
 #endif

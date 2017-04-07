@@ -1,13 +1,14 @@
 /**************************************************************************************************
 Target Hardware:		PIC24FJ256GA106
 Code assumptions:		
-Purpose:				
+Purpose:				Firmware for Afriji Solar DC to AC appliance power supply device
 Notes:					
 
 Version History:
-vnext	Y-M-D	Craig Comberbach
+v0.0.A	2017-03-12      Craig Comberbach, Michael MacKay
 Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 2.40 GHz, 5 GB RAM, Windows 10 64 bit Home
-	First version
+ Revision History:
+ * v0.0.A   -   Initial prototype firmware
 **************************************************************************************************/
 /*************    Header Files    ***************/
 #include "Config.h"
@@ -18,6 +19,13 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 
 /************* Library Definition ***************/
 /************* Semantic Versioning***************/
+#if MAJOR_FIRMWARE_VERSION != 0
+    #error "Firmware has had a change that loses some previously supported functionality"
+#elif MINOR_FIRMWARE_VERSION != 1
+    #error "Firmware has new features that this code may benefit from"
+#elif PATCH_FIRMWARE_VERSION != 0
+	#error "Firmware has had a bug fix, you should check to see that we weren't relying on a bug for functionality"
+#endif
 /*************Library Dependencies***************/
 /************Arbitrary Functionality*************/
 /*************   Magic  Numbers   ***************/
@@ -43,10 +51,10 @@ int main(void)
 	Configure_For_Afriji();
 
 	//Scheduled Tasks
-	Initialize_Scheduler(46/*uS*/);
+	Initialize_Scheduler(25/*uS*/);
 	Schedule_Task(STARTUP_TASK,		&Heart_Beat_Task,	1000/*uS Delay*/,		50000/*uS Period*/,		20/*Repetitions*/);
 	Schedule_Task(HEART_BEAT_TASK,	&Heart_Beat_Task,	1000000/*uS Delay*/,	360000/*uS Period*/,	PERMANENT_TASK);
-	Schedule_Task(INVERTER_TASK,	&Inverter_Routine,	1000000/*uS Delay*/,	46/*uS Period*/,		PERMANENT_TASK);
+	Schedule_Task(INVERTER_TASK,	&Inverter_Routine,	1000000/*uS Delay*/,	25/*uS Period*/,		PERMANENT_TASK);
 	Schedule_Task(A2D_TASK,			&A2D_Routine,		1000666/*uS Delay*/,	1000/*uS Period*/,		PERMANENT_TASK);
 
 	while(1)
