@@ -31,6 +31,8 @@ dist/
 private/
 *local.*
 NMakefile
+*.mk
+*.properties
 
 #################
 ## MPLAB 8

@@ -281,12 +281,12 @@ void Positive_Sine(int step)
 	OC1R				= PERIOD+1;
 
 	//LOB - Conducting current
-	OC4RS				= PERIOD;
 	OC4R				= PERIOD - (inverterOnPeriod[step]*multiplier)/divider;
+	OC4RS				= PERIOD;
 
 	//HOB - Circulating current
-	OC3RS				= OC4R - DEADBAND;	//This should be reversed?
-	OC3R				= DEADBAND;			//This should be reversed?
+	OC3R				= DEADBAND;
+	OC3RS				= OC4R - DEADBAND;
 
 //*****Above this line is Mikes waveform, below in my custom*****//
 //	//HOA - 100% High
