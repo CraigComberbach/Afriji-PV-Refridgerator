@@ -165,7 +165,7 @@ void Inverter_Routine(unsigned long time_mS)
 {
 	static enum SINE_WAVE_STAGES stage = SINE_0_TO_90;
 	static int currentStep = 0;
-
+	Nop();
 	//The following code is an implementation of the TI App Note SLAA602 "800VA Pure Sine Wave Inverter?s Reference Design"
 	//Positive going voltage
 	//HOA	_/- - -...
