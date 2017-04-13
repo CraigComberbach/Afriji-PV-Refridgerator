@@ -67,15 +67,15 @@ enum PIN_DEFINITIONS
 	PIN_RC14,								//RC14 - Unused
 	PIN_RC15,								//RC15 - Unused
 	//PORTD
-	PIN_RD0,								//RD0
+	PIN_RD0_HOB,								//RD0
 	PIN_RD1_TERMINAL_TX,					//RD1
 	PIN_RD2,								//RD2 - Unused
 	PIN_RD3,								//RD3 - Unused
-	PIN_RD4_HBRIDGE_BIN,					//RD4
-	PIN_RD5_HBRIDGE_AIN,					//RD5
+	PIN_RD4_LOB,					//RD4
+	PIN_RD5_LOA,					//RD5
 	PIN_RD6,								//RD6 - Unused
 	PIN_RD7,								//RD7 - Unused
-	PIN_RD8,								//RD8 - Unused
+	PIN_RD8_HOA,								//RD8 - Unused
 	PIN_RD9_GREEN_LED,						//RD9
 	PIN_RD10_RED_LED,						//RD10
 	PIN_RD11_BLUE_LED,						//RD11
@@ -127,31 +127,16 @@ enum A2D_PIN_DEFINITIONS
 	NUMBER_OF_A2D_PINS
 };
 
-//Libaries
+//Libraries
 //Pins Library
 #define PINS_MAJOR	2
 #define PINS_MINOR	0
 #define PINS_PATCH	0
 
-//A2D Library
-#define A2D_MAJOR	1
-#define A2D_MINOR	1
-#define A2D_PATCH	0
-
-//Inverter Library
-#define INVERTER_MAJOR	0
-#define INVERTER_MINOR	1
-#define INVERTER_PATCH	0
-
 //Scheduler Library
 #define SCHEDULER_MAJOR	0
 #define SCHEDULER_MINOR	1
 #define SCHEDULER_PATCH	0
-
-//Inverter Library
-#define INVERTER_MAJOR	0
-#define INVERTER_MINOR	1
-#define INVERTER_PATCH	0
 
 //Function Prototype
 void Configure_For_Afriji(void);
