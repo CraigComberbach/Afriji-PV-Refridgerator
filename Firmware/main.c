@@ -54,7 +54,7 @@ int main(void)
 	Initialize_Scheduler(25/*uS*/);
 	Schedule_Task(STARTUP_TASK,		&Heart_Beat_Task,	1000/*uS Delay*/,		50000/*uS Period*/,		20/*Repetitions*/);
 	Schedule_Task(HEART_BEAT_TASK,	&Heart_Beat_Task,	1000000/*uS Delay*/,	360000/*uS Period*/,	PERMANENT_TASK);
-	Schedule_Task(INVERTER_TASK,	&Inverter_Routine,	1000000/*uS Delay*/,	25/*uS Period*/,		PERMANENT_TASK);
+	Schedule_Task(INVERTER_TASK,	&Inverter_Routine,	1000000/*uS Delay*/,	75/*uS Period*/,		PERMANENT_TASK);
 	Schedule_Task(A2D_TASK,			&A2D_Routine,		1000666/*uS Delay*/,	1000/*uS Period*/,		PERMANENT_TASK);
 
 	while(1)

@@ -21,7 +21,7 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 /************Arbitrary Functionality*************/
 /*************   Magic  Numbers   ***************/
 #define	PERIOD			159
-#define	SIZE_OF_ARRAY	60
+#define	SIZE_OF_ARRAY	56
 #define	DEADBAND		2	//Period resolution is 62.5nS; This is the delay between turning on/off one and turning on/off the other
 
 /*************    Enumeration     ***************/
@@ -59,7 +59,6 @@ unsigned int inverterOnPeriod[SIZE_OF_ARRAY] =
 111,	113,	116,	118,	121,	123,	126,	128,	130,	132,
 134,	136,	138,	139,	141,	142,	144,	145,	146,	147,
 148,	149,	150,	151,	151,	152,	152,	152,	152,	153
-
 };
 
 /*************Interrupt Prototypes***************/

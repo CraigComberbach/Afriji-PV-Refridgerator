@@ -41,7 +41,7 @@ v0.0.0	2016-05-26	Craig Comberbach	Compiler: XC16 v1.11	IDE: MPLABx 3.30	Tool: I
 #else
 	uint32_t schedulerPeriod_uS;
 #endif
-#define TASK_PROFILING_ENABLED
+//#define TASK_PROFILING_ENABLED
 struct SCHEDULED_TASKS
 {
 	#ifdef CONSERVE_MEMORY
