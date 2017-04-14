@@ -21,7 +21,7 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 /************Arbitrary Functionality*************/
 /*************   Magic  Numbers   ***************/
 #define	PERIOD			159
-#define	SIZE_OF_ARRAY	56
+#define	SIZE_OF_ARRAY	60
 #define	DEADBAND		2	//Period resolution is 62.5nS; This is the delay between turning on/off one and turning on/off the other
 
 /*************    Enumeration     ***************/
@@ -40,9 +40,11 @@ enum SINE_WAVE_STAGES
 /***********  Structure Definitions  ************/
 /***********State Machine Definitions************/
 /*************  Global Variables  ***************/
-int multiplier = 1;
-int divider = 1;
-int adder = 0;
+int multiplier[NUMBER_OF_INVERTERS_SUPPORTED];
+int divider[NUMBER_OF_INVERTERS_SUPPORTED];
+int adder[NUMBER_OF_INVERTERS_SUPPORTED];
+enum SINE_WAVE_STAGES phaseRange[NUMBER_OF_INVERTERS_SUPPORTED];
+int currentStep[NUMBER_OF_INVERTERS_SUPPORTED];
 unsigned int inverterOnPeriod[SIZE_OF_ARRAY] =
 {
 //10kHz @ 60 points (0-90º of a sine wave) Note: This series factors in the Rise/Fall times buffer AND zero crossing AND 95% max PWM
@@ -63,15 +65,11 @@ unsigned int inverterOnPeriod[SIZE_OF_ARRAY] =
 
 /*************Interrupt Prototypes***************/
 /*************Function  Prototypes***************/
-void Positive_Sine(int step);
-void Negative_Sine(int step);
-void Zero_Crossing(void);
+void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter);
+void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter);
+void Zero_Crossing(enum INVERTERS_SUPPORTED inverter);
 
-/************* Device Definitions ***************/
-#if FOSC_Hz > 65536000000  //65.536 GHz
-    #error "FOSC is too fast for this code to remain unmodified"
-#endif
-	
+/************* Device Definitions ***************/	
 /************* Module Definitions ***************/
 
 void Initialize_Inverter(void)
@@ -91,7 +89,18 @@ void Initialize_Inverter(void)
 //		|             |
 //		+---- Vin- ---+
 
-	//OC1 - LOA
+	int loop;
+	
+	for(loop = 0; loop < NUMBER_OF_INVERTERS_SUPPORTED; ++loop)
+	{
+		phaseRange[loop] = SINE_0_TO_90;
+		currentStep[loop] = 0;
+		multiplier[loop] = 1;
+		divider[loop] = 1;
+		adder[loop] = 0;
+	}
+	
+	//OC1 - LOA HiA
 	OC1RS				= 0;		//Ensures it is off until needed
 	OC1R				= PERIOD+1;	//Ensures it is off until needed
 	OC1CON1				= 0;
@@ -103,7 +112,7 @@ void Initialize_Inverter(void)
 	OC1CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC1CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 	
-	//OC2 - HOA
+	//OC2 - HOA HiA
 	OC2RS				= 0;		//Ensures it is off until needed
 	OC2R				= PERIOD+1;	//Ensures it is off until needed
 	OC2CON1				= 0;
@@ -115,7 +124,7 @@ void Initialize_Inverter(void)
 	OC2CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC2CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
-	//OC3 - HOB
+	//OC3 - HOB HiA
 	OC3RS				= 0;		//Ensures it is off until needed
 	OC3R				= PERIOD+1;	//Ensures it is off until needed
 	OC3CON1				= 0;
@@ -127,7 +136,7 @@ void Initialize_Inverter(void)
 	OC3CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC3CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
-	//OC4 - LOB
+	//OC4 - LOB HiA
 	OC4RS				= 0;		//Ensures it is off until needed
 	OC4R				= PERIOD+1;	//Ensures it is off until needed
 	OC4CON1				= 0;
@@ -150,112 +159,169 @@ void Initialize_Inverter(void)
 	OC5CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
 	OC5CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC5CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+	
+	//OC6 - LOA HiV
+	OC6RS				= 0;		//Ensures it is off until needed
+	OC6R				= PERIOD+1;	//Ensures it is off until needed
+	OC6CON1				= 0;
+	OC6CON2				= 0;
+	OC6CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
+	OC6CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
+	OC6CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
+	OC6CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+	OC6CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
+	OC6CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+	
+	//OC7 - HOA HiV
+	OC7RS				= 0;		//Ensures it is off until needed
+	OC7R				= PERIOD+1;	//Ensures it is off until needed
+	OC7CON1				= 0;
+	OC7CON2				= 0;
+	OC7CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
+	OC7CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
+	OC7CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
+	OC7CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+	OC7CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
+	OC7CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+
+	//OC8 - HOB HiV
+	OC8RS				= 0;		//Ensures it is off until needed
+	OC8R				= PERIOD+1;	//Ensures it is off until needed
+	OC8CON1				= 0;
+	OC8CON2				= 0;
+	OC8CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
+	OC8CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
+	OC8CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
+	OC8CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+	OC8CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
+	OC8CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+
+	//OC9 - LOB HiV
+	OC9RS				= 0;		//Ensures it is off until needed
+	OC9R				= PERIOD+1;	//Ensures it is off until needed
+	OC9CON1				= 0;
+	OC9CON2				= 0;
+	OC9CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
+	OC9CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
+	OC9CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
+	OC9CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+	OC9CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
+	OC9CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
 	return;
 }
 
 void Inverter_Routine(unsigned long time_mS)
 {
-	static enum SINE_WAVE_STAGES stage = SINE_0_TO_90;
-	static int currentStep = 0;
-	
-	switch(stage)
+	int currentInverter;
+
+	for(currentInverter = 0; currentInverter < NUMBER_OF_INVERTERS_SUPPORTED; ++currentInverter)
 	{
-		case SINE_0_TO_90:
-			Positive_Sine(currentStep);
+		switch(phaseRange[currentInverter])
+		{
+			case SINE_0_TO_90:
+				Positive_Sine(currentStep[currentInverter], currentInverter);
 
-			//Advance in step or state
-			++currentStep;
-			if(currentStep >= (SIZE_OF_ARRAY))
-			{
-				currentStep = SIZE_OF_ARRAY-1;
-				stage = SINE_90;
-			}
-			break;
-		case SINE_90:	//No special PWM event, only sampling is required
-			Trigger_A2D_Scan();
+				//Advance in step or state
+				++currentStep[currentInverter];
+				if(currentStep[currentInverter] >= (SIZE_OF_ARRAY))
+				{
+					currentStep[currentInverter] = SIZE_OF_ARRAY-1;
+					phaseRange[currentInverter] = SINE_90;
+				}
+				break;
+			case SINE_90:	//No special PWM event, only sampling is required
+				Trigger_A2D_Scan();
 
-			stage = SINE_90_TO_180;
-			break;
-		case SINE_90_TO_180:
-			Positive_Sine(currentStep);
+				phaseRange[currentInverter] = SINE_90_TO_180;
+				break;
+			case SINE_90_TO_180:
+				Positive_Sine(currentStep[currentInverter], currentInverter);
 
-			//Advance in step or state
-			--currentStep;
-			if(--currentStep < 0)
-			{
-				currentStep = 0;
-				stage = SINE_180;
-			}
-			break;
-		case SINE_180:
-			Zero_Crossing();
+				//Advance in step or state
+				--currentStep[currentInverter];
+				if(--currentStep[currentInverter] < 0)
+				{
+					currentStep[currentInverter] = 0;
+					phaseRange[currentInverter] = SINE_180;
+				}
+				break;
+			case SINE_180:
+				Zero_Crossing(currentInverter);
 
-			//Trigger an A2D scan
-			Trigger_A2D_Scan();
+				//Trigger an A2D scan
+				Trigger_A2D_Scan();
 
-			//Prep for advancement to the next step
-			stage = SINE_180_TO_270;
-			break;
-		case SINE_180_TO_270:
-			Negative_Sine(currentStep);
+				//Prep for advancement to the next step
+				phaseRange[currentInverter] = SINE_180_TO_270;
+				break;
+			case SINE_180_TO_270:
+				Negative_Sine(currentStep[currentInverter], currentInverter);
 
-			//Advance in step or state
-			++currentStep;
-			if(currentStep >= (SIZE_OF_ARRAY))
-			{
-				currentStep = SIZE_OF_ARRAY-1;
-				stage = SINE_270;
-			}
-			break;
-		case SINE_270:	//No special PWM event, only sampling is required
-			Trigger_A2D_Scan();
-			stage = SINE_270_TO_360;
-			break;
-		case SINE_270_TO_360:
-			Negative_Sine(currentStep);
+				//Advance in step or state
+				++currentStep[currentInverter];
+				if(currentStep[currentInverter] >= (SIZE_OF_ARRAY))
+				{
+					currentStep[currentInverter] = SIZE_OF_ARRAY-1;
+					phaseRange[currentInverter] = SINE_270;
+				}
+				break;
+			case SINE_270:	//No special PWM event, only sampling is required
+				Trigger_A2D_Scan();
+				phaseRange[currentInverter] = SINE_270_TO_360;
+				break;
+			case SINE_270_TO_360:
+				Negative_Sine(currentStep[currentInverter], currentInverter);
 
-			//Advance in step or state
-			--currentStep;
-			if(--currentStep < 0)
-			{
-				currentStep = 0;
-				stage = SINE_360;
-			}
-			break;
-		case SINE_360:
-			Zero_Crossing();
+				//Advance in step or state
+				--currentStep[currentInverter];
+				if(--currentStep[currentInverter] < 0)
+				{
+					currentStep[currentInverter] = 0;
+					phaseRange[currentInverter] = SINE_360;
+				}
+				break;
+			case SINE_360:
+				Zero_Crossing(currentInverter);
 
-			//Transition to a positive waveform in a safe environment
-			Positive_Sine(currentStep);
+				//Trigger an A2D scan
+				Trigger_A2D_Scan();
 
-			//Trigger an A2D scan
-			Trigger_A2D_Scan();
+				//Prep for advancement to the next step
+				phaseRange[currentInverter] = SINE_0_TO_90;
+				break;
+			default://How did we get here?
+				//Cycle current through the top FETs and prepare to start back at zero degrees
+				switch(currentInverter)
+				{
+					case HIGH_CURRENT:
+						//HOA - 100% High
+						OC2R				= 0;
+						OC2RS				= PERIOD+1;
 
-			//Prep for advancement to the next step
-			stage = SINE_0_TO_90;
-			break;
-		default://How did we get here?
-			//Cycle current through the top FETs and prepare to star back at zero degrees
-			//HOA - 100% High
-			OC2R				= 0;
-			OC2RS				= PERIOD+1;
+						//HOB - 100% High
+						OC3R				= 0;
+						OC3RS				= PERIOD+1;
 
-			//HOB - 100% High
-			OC3R				= 0;
-			OC3RS				= PERIOD+1;
+						//LOB - 100% Low
+						OC4RS				= 0;
+						OC4R				= PERIOD+1;
 
-			//LOB - 100% Low
-			OC4RS				= 0;
-			OC4R				= PERIOD+1;
+						//LOA - 100% Low
+						OC1RS				= 0;
+						OC1R				= PERIOD+1;
 
-			//LOA - 100% Low
-			OC1RS				= 0;
-			OC1R				= PERIOD+1;
-
-			currentStep = 0;
-			stage = SINE_0_TO_90;
-			break;
+						break;
+					case HIGH_VOLTAGE:
+						#warning "This code only supports the High Current inverter"
+						break;
+					default:
+						break;
+				}
+				currentStep[currentInverter] = 0;
+				phaseRange[currentInverter] = SINE_0_TO_90;
+				break;
+		}
 	}
 
     return;
@@ -266,40 +332,34 @@ void Inverter_Routine(unsigned long time_mS)
 //LOA	____________...\_____/-----
 //HOB	__/-\_______...------------
 //LOB	\_____/-----...____________
-void Positive_Sine(int step)
+void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 {
-	//LOA - 100% Low
-	OC1RS				= 0;
-	OC1R				= PERIOD+1;
+	switch(inverter)
+	{
+		case HIGH_CURRENT:
+			//LOA - 100% Low
+			OC1RS				= 0;
+			OC1R				= PERIOD+1;
 
-	//HOA - 100% High
-	OC2R				= 0;
-	OC2RS				= PERIOD+1;
+			//HOA - 100% High
+			OC2R				= 0;
+			OC2RS				= PERIOD+1;
 
-	//HOB - Circulating current
-	OC3R				= DEADBAND;
-	OC3RS				= PERIOD - (inverterOnPeriod[step]*multiplier)/divider - DEADBAND;
+			//HOB - Circulating current
+			OC3R				= DEADBAND;
+			OC3RS				= PERIOD - (inverterOnPeriod[step]*multiplier[inverter])/divider[inverter] - DEADBAND;
 
-	//LOB - Conducting current
-	OC4R				= PERIOD - (inverterOnPeriod[step]*multiplier)/divider;
-	OC4RS				= PERIOD;
+			//LOB - Conducting current
+			OC4R				= PERIOD - (inverterOnPeriod[step]*multiplier[inverter])/divider[inverter];
+			OC4RS				= PERIOD;
 
-//*****Above this line is Mikes waveform, below in my custom*****//
-//	//HOA - 100% High
-//	//HOB - 100% Low
-//	OC3R				= PERIOD+1;
-//	OC3RS				= 0;
-//
-//	OC2R				= 0;
-//	OC2RS				= PERIOD+1;
-//
-//	//LOA - 100% Low
-//	OC1R				= PERIOD+1;
-//	OC1RS				= 0;
-//
-//	//LOB - Triggered
-//	OC4R				= PERIOD - (inverterOnPeriod[step]*multiplier)/divider - DEADBAND;
-//	OC4RS				= PERIOD - DEADBAND;
+			break;
+		case HIGH_VOLTAGE:
+			#warning "This code only supports the High Current inverter"
+			break;
+		default:
+			break;
+	}
 
 	return;
 }
@@ -312,61 +372,66 @@ void Positive_Sine(int step)
 //	OCxR				= 0;
 //	OCxRS				= PERIOD+1;
 
-void Negative_Sine(int step)
+void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 {
-	//HOA - Circulating Current
-	OC2R				= DEADBAND;
-	OC2RS				= PERIOD - (inverterOnPeriod[step]*multiplier)/divider - DEADBAND;
+	switch(inverter)
+	{
+		case HIGH_CURRENT:
+			//HOA - Circulating Current
+			OC2R				= DEADBAND;
+			OC2RS				= PERIOD - (inverterOnPeriod[step]*multiplier[inverter])/divider[inverter] - DEADBAND;
 
-	//LOA - Conducting Current
-	OC1R				= PERIOD - (inverterOnPeriod[step]*multiplier)/divider;
-	OC1RS				= PERIOD;
+			//LOA - Conducting Current
+			OC1R				= PERIOD - (inverterOnPeriod[step]*multiplier[inverter])/divider[inverter];
+			OC1RS				= PERIOD;
 
-	//LOB - 100% Low
-	OC4RS				= 0;
-	OC4R				= PERIOD+1;
+			//LOB - 100% Low
+			OC4RS				= 0;
+			OC4R				= PERIOD+1;
 
-	//HOB - 100% High
-	OC3R				= 0;
-	OC3RS				= PERIOD+1;
+			//HOB - 100% High
+			OC3R				= 0;
+			OC3RS				= PERIOD+1;
 
-//*****above this line is Mikes waveform, below in my custom*****//
-//	//HOA - 100% Low
-//	OC2R				= PERIOD+1;
-//	OC2RS				= 0;
-//	
-//	//HOB - 100% High
-//	OC3R				= 0;
-//	OC3RS				= PERIOD+1;
-//
-//	//LOA - Triggered
-//	OC1R				= PERIOD - (inverterOnPeriod[step]*multiplier)/divider - DEADBAND;
-//	OC1RS				= PERIOD - DEADBAND;
-//
-//	//LOB - 100% Low
-//	OC4R				= PERIOD+1;
-//	OC4RS				= 0;
+			break;
+		case HIGH_VOLTAGE:
+			#warning "This code only supports the High Current inverter"
+			break;
+		default:
+			break;
+	}
 
 	return;
 }
 
-void Zero_Crossing(void)
+void Zero_Crossing(enum INVERTERS_SUPPORTED inverter)
 {
-//	//HOA - 100% High
-//	OC2R				= 0;
-//	OC2RS				= PERIOD+1;
+	switch(inverter)
+	{
+		case HIGH_CURRENT:
+//			//HOA - 100% High
+//			OC2R				= 0;
+//			OC2RS				= PERIOD+1;
 //
-//	//HOB - 100% High
-//	OC3R				= 0;
-//	OC3RS				= PERIOD+1;
+//			//HOB - 100% High
+//			OC3R				= 0;
+//			OC3RS				= PERIOD+1;
 //
-//	//LOB - 100% Low
-//	OC4RS				= 0;
-//	OC4R				= PERIOD+1;
+//			//LOB - 100% Low
+//			OC4RS				= 0;
+//			OC4R				= PERIOD+1;
 //
-//	//LOA - 100% Low
-//	OC1RS				= 0;
-//	OC1R				= PERIOD+1;
+//			//LOA - 100% Low
+//			OC1RS				= 0;
+//			OC1R				= PERIOD+1;
+
+			break;
+		case HIGH_VOLTAGE:
+			#warning "This code only supports the High Current inverter"
+			break;
+		default:
+			break;
+	}
 
 	return;
 }

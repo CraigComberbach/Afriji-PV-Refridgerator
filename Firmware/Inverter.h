@@ -21,6 +21,13 @@
 /*************Library Dependencies***************/
 /*************   Magic  Numbers   ***************/
 /*************    Enumeration     ***************/
+enum INVERTERS_SUPPORTED
+{
+	HIGH_CURRENT,
+	HIGH_VOLTAGE,
+	NUMBER_OF_INVERTERS_SUPPORTED
+};
+
 /*************    Structures      ***************/
 /***********State Machine Definitions************/
 /*************Function  Prototypes***************/

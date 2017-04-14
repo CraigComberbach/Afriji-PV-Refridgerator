@@ -67,15 +67,15 @@ enum PIN_DEFINITIONS
 	PIN_RC14,								//RC14 - Unused
 	PIN_RC15,								//RC15 - Unused
 	//PORTD
-	PIN_RD0_HOB,								//RD0
+	PIN_RD0_HOB_HiA,						//RD0
 	PIN_RD1_TERMINAL_TX,					//RD1
 	PIN_RD2,								//RD2 - Unused
 	PIN_RD3,								//RD3 - Unused
-	PIN_RD4_LOB,					//RD4
-	PIN_RD5_LOA,					//RD5
+	PIN_RD4_LOB_HiA,						//RD4
+	PIN_RD5_LOA_HiA,						//RD5
 	PIN_RD6,								//RD6 - Unused
 	PIN_RD7,								//RD7 - Unused
-	PIN_RD8_HOA,								//RD8 - Unused
+	PIN_RD8_HOA_HiA,						//RD8 - Unused
 	PIN_RD9_GREEN_LED,						//RD9
 	PIN_RD10_RED_LED,						//RD10
 	PIN_RD11_BLUE_LED,						//RD11
@@ -91,10 +91,10 @@ enum PIN_DEFINITIONS
 	//PORTF
 	PIN_RF0,								//RF0 - Unused
 	PIN_RF1,								//RF1 - Unused
-	PIN_RF2,								//RF2 - Unused
-	PIN_RF3,								//RF3 - Unused
-	PIN_RF4_HBRIDGE_DIN,					//RF4
-	PIN_RF5_HBRIDGE_CIN,					//RF5
+	PIN_RF2_HOB_HiV,						//RF2 - Unused
+	PIN_RF3_HOA_HiV,						//RF3 - Unused
+	PIN_RF4_LOA_HiV,						//RF4
+	PIN_RF5_LOB_HiV,						//RF5
 	PIN_RF6,								//RF6 - Unused
 	//PORTG
 	PIN_RG2,								//RG2 - Unused
