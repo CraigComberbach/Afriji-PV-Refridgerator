@@ -313,7 +313,22 @@ void Inverter_Routine(unsigned long time_mS)
 
 						break;
 					case HIGH_VOLTAGE:
-						#warning "This code only supports the High Current inverter"
+						//HOA - 100% High
+						OC7R				= 0;
+						OC7RS				= PERIOD+1;
+
+						//HOB - 100% High
+						OC8R				= 0;
+						OC8RS				= PERIOD+1;
+
+						//LOB - 100% Low
+						OC9RS				= 0;
+						OC9R				= PERIOD+1;
+
+						//LOA - 100% Low
+						OC6RS				= 0;
+						OC6R				= PERIOD+1;
+
 						break;
 					default:
 						break;
@@ -355,7 +370,22 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 
 			break;
 		case HIGH_VOLTAGE:
-			#warning "This code only supports the High Current inverter"
+			//LOA - 100% Low
+			OC6RS				= 0;
+			OC6R				= PERIOD+1;
+
+			//HOA - 100% High
+			OC7R				= 0;
+			OC7RS				= PERIOD+1;
+
+			//HOB - Circulating current
+			OC8R				= DEADBAND;
+			OC8RS				= PERIOD - (inverterOnPeriod[step]*multiplier[inverter])/divider[inverter] - DEADBAND;
+
+			//LOB - Conducting current
+			OC9R				= PERIOD - (inverterOnPeriod[step]*multiplier[inverter])/divider[inverter];
+			OC9RS				= PERIOD;
+
 			break;
 		default:
 			break;
@@ -395,7 +425,22 @@ void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 
 			break;
 		case HIGH_VOLTAGE:
-			#warning "This code only supports the High Current inverter"
+			//HOA - Circulating Current
+			OC7R				= DEADBAND;
+			OC7RS				= PERIOD - (inverterOnPeriod[step]*multiplier[inverter])/divider[inverter] - DEADBAND;
+
+			//LOA - Conducting Current
+			OC6R				= PERIOD - (inverterOnPeriod[step]*multiplier[inverter])/divider[inverter];
+			OC6RS				= PERIOD;
+
+			//LOB - 100% Low
+			OC9RS				= 0;
+			OC9R				= PERIOD+1;
+
+			//HOB - 100% High
+			OC8R				= 0;
+			OC8RS				= PERIOD+1;
+
 			break;
 		default:
 			break;
@@ -427,7 +472,22 @@ void Zero_Crossing(enum INVERTERS_SUPPORTED inverter)
 
 			break;
 		case HIGH_VOLTAGE:
-			#warning "This code only supports the High Current inverter"
+//			//HOA - 100% High
+//			OC7R				= 0;
+//			OC7RS				= PERIOD+1;
+//
+//			//HOB - 100% High
+//			OC8R				= 0;
+//			OC8RS				= PERIOD+1;
+//
+//			//LOB - 100% Low
+//			OC9RS				= 0;
+//			OC9R				= PERIOD+1;
+//
+//			//LOA - 100% Low
+//			OC6RS				= 0;
+//			OC6R				= PERIOD+1;
+
 			break;
 		default:
 			break;
