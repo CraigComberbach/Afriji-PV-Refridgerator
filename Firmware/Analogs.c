@@ -1,7 +1,28 @@
+/**************************************************************************************************
+Target Hardware:		Afriji Solar Refridgerator
+Chip resources used:	ADC Indirectly
+Purpose:				Formatting analog signals
+
+Version History:
+v0.0.0	2017-04-15  Craig Comberbach
+	Compiler: XC16 v1.21	IDE: MPLABx 3.05	Tool: ICD3	Computer: Intel Xeon CPU 3.07 GHz, 6 GB RAM, Windows 7 64 bit Professional SP1
+	First version
+ **************************************************************************************************/
+/*************    Header Files    ***************/
 #include "Config.h"
 #include "Analogs.h"
 #include "Pins.h"
 
+/************* Semantic Versioning***************/
+/************Arbitrary Functionality*************/
+/*************   Magic  Numbers   ***************/
+#define SLR	5	//Slew Rate Limiter for the Hi-Current format, includeds one decimal place of resolution
+
+/*************    Enumeration     ***************/
+/*************ArbitraryFunctionality*************/
+/************* Module Definitions ***************/
+/************* Other  Definitions ***************/
+/*************  Global Variables  ***************/
 const signed int afrijiThermistor_C[1024] =
 {
   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,  30,  31,
@@ -38,6 +59,8 @@ const signed int afrijiThermistor_C[1024] =
 992, 993, 994, 995, 996, 997, 998, 999,1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1012,1013,1014,1015,1016,1017,1018,1019,1020,1021,1022,1023
 };
 
+/*************Function  Prototypes***************/
+
 int Afriji_Celcius_Formating(int raw)
 {
 	return afrijiThermistor_C[raw];
@@ -69,14 +92,23 @@ int LoV_Formating(int value)
 
 int HiI_Formating(int value)
 {
-//	long intermediate = value;
-//	intermediate *= 210;
-//	intermediate += 14950;
-//	intermediate /= 1000;
-//
-//	return (int) intermediate;
-	
-	return (value * 21) / 100 + 15;
+	static int previousMeasurement = 15;
+	int temp;
+
+	//Calculate/Format the current measurement
+	temp = (value * 21) / 100 + 15;
+
+	//Check and apply Slew Rate Limiter
+	if((previousMeasurement - temp) > SLR)
+		temp = previousMeasurement - SLR;
+	else if((temp - previousMeasurement) > SLR)
+		temp = previousMeasurement + SLR;
+
+	//Record measurement for next time
+	previousMeasurement = temp;
+
+	//Return the Slew Rate Limited value
+	return temp;
 }
 
 int LoI_Formating(int value)
