@@ -57,7 +57,7 @@ int main(void)
 	Schedule_Task(HEART_BEAT_TASK,	&Heart_Beat_Task,	1000000/*uS Delay*/,	500000/*uS Period*/,	PERMANENT_TASK);
 	Schedule_Task(INVERTER_TASK,	&Inverter_Routine,	1000000/*uS Delay*/,	40/*uS Period*/,		PERMANENT_TASK);
 	Schedule_Task(A2D_TASK,			&A2D_Routine,		1000666/*uS Delay*/,	1000/*uS Period*/,		PERMANENT_TASK);
-	Schedule_Task(FREQUENCY_RAMP,	&Frequency_Ramp,	1000000/*uS Delay*/,	1000000/*uS Period*/,	12/*Repetitions*/);
+	Schedule_Task(FREQUENCY_RAMP,	&Frequency_Ramp,	1000000/*uS Delay*/,	1000000/*uS Period*/,	35/*Repetitions*/);
 
 	while(1)
 	{
@@ -82,8 +82,10 @@ void Heart_Beat_Task(unsigned long time_mS)
 
 void Frequency_Ramp(unsigned long time_mS)
 {
-	Set_Target_Delay_uS(Get_Target_Delay_uS(HIGH_CURRENT)-80, HIGH_CURRENT);
+	static int frequency = 20;
+//	Set_Target_Delay_uS(Get_Target_Delay_uS(HIGH_CURRENT)-80, HIGH_CURRENT);
 //	Set_Target_Delay_uS(440, HIGH_CURRENT);		//60Hz
 //	Set_Target_Delay_uS(1400, HIGH_CURRENT);	//20Hz
+	Set_Frequency_Hz(frequency++, HIGH_CURRENT);
 	return;
 }

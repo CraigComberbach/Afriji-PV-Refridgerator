@@ -514,3 +514,22 @@ int Get_Target_Delay_uS(enum INVERTERS_SUPPORTED inverter)
 {
 	return Invertahoy[inverter].targetDelay_uS;
 }
+
+void Set_Frequency_Hz(int newFrequency_Hz, enum INVERTERS_SUPPORTED inverter)
+{
+	long temp;
+	temp = 1000000;			//Number of uS in one second
+	temp /= newFrequency_Hz;//Divide by frequency to get number of uS per full cycle
+	temp /= 44;				//Divide by number of distinct steps in a full wave
+	Invertahoy[inverter].targetDelay_uS = (int)temp;
+	return;
+}
+
+int Get_Frequency_Hz(enum INVERTERS_SUPPORTED inverter)
+{
+	long temp;
+	temp = 1000000;								//Number of uS in one second
+	temp /= 44;									//Divide by number of distinct steps in a full wave
+	temp /= Invertahoy[inverter].targetDelay_uS;//Divide by current delay
+	return (int)temp;
+}
