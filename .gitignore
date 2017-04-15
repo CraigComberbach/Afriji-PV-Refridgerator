@@ -218,3 +218,5 @@ pip-log.txt
 
 # Mac crap
 .DS_Store
+*.PCBDOCPreview
+*.properties
