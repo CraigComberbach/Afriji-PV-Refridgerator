@@ -67,8 +67,8 @@ void Configure_For_Afriji(void)
 	Pin_Definition(PIN_RB1_TRANSFORMER_PRIMARY_PLUS,	Rx1, &TRISB, &ODCB, &LATB, &PORTB);	//RB1
 	Pin_Definition(PIN_RB2_VSOLAR_PLUS,					Rx2, &TRISB, &ODCB, &LATB, &PORTB);	//RB2
 	Pin_Definition(PIN_RB3_TEMP2,						Rx3, &TRISB, &ODCB, &LATB, &PORTB);	//RB3
-	Pin_Definition(PIN_RB4_PGD,							Rx4, &TRISB, &ODCB, &LATB, &PORTB);	//RB4
-	Pin_Definition(PIN_RB5_PGC,							Rx5, &TRISB, &ODCB, &LATB, &PORTB);	//RB5
+//	Pin_Definition(PIN_RB4_PGD,							Rx4, &TRISB, &ODCB, &LATB, &PORTB);	//RB4
+//	Pin_Definition(PIN_RB5_PGC,							Rx5, &TRISB, &ODCB, &LATB, &PORTB);	//RB5
 	Pin_Definition(PIN_RB6_TEMP1,						Rx6, &TRISB, &ODCB, &LATB, &PORTB);	//RB6
 	Pin_Definition(PIN_RB7_TEMP3,						Rx7, &TRISB, &ODCB, &LATB, &PORTB);	//RB7
 	Pin_Definition(PIN_RB8_TEMP4,						Rx8, &TRISB, &ODCB, &LATB, &PORTB);	//RB8
@@ -127,8 +127,8 @@ void Configure_For_Afriji(void)
 	Pin_Initialize(PIN_RB1_TRANSFORMER_PRIMARY_PLUS,	LOW, PUSH_PULL, INPUT);	//RB1
 	Pin_Initialize(PIN_RB2_VSOLAR_PLUS,					LOW, PUSH_PULL, INPUT);	//RB2
 	Pin_Initialize(PIN_RB3_TEMP2,						LOW, PUSH_PULL, INPUT);	//RB3
-	Pin_Initialize(PIN_RB4_PGD,							LOW, PUSH_PULL, INPUT);	//RB4
-	Pin_Initialize(PIN_RB5_PGC,							LOW, PUSH_PULL, INPUT);	//RB5
+//	Pin_Initialize(PIN_RB4_PGD,							LOW, PUSH_PULL, INPUT);	//RB4
+//	Pin_Initialize(PIN_RB5_PGC,							LOW, PUSH_PULL, INPUT);	//RB5
 	Pin_Initialize(PIN_RB6_TEMP1,						LOW, PUSH_PULL, INPUT);	//RB6
 	Pin_Initialize(PIN_RB7_TEMP3,						LOW, PUSH_PULL, INPUT);	//RB7
 	Pin_Initialize(PIN_RB8_TEMP4,						LOW, PUSH_PULL, INPUT);	//RB8
@@ -145,11 +145,15 @@ void Configure_For_Afriji(void)
 	Pin_Initialize(PIN_RC14,							LOW, PUSH_PULL, INPUT);	//RC14
 	Pin_Initialize(PIN_RC15,							LOW, PUSH_PULL, INPUT);	//RC15
 	//PORTD
+	Pin_Initialize(PIN_RD0_HOB_HiA,						LOW, PUSH_PULL, OUTPUT);//RD0
 	Pin_Initialize(PIN_RD1_TERMINAL_TX,					LOW, PUSH_PULL, INPUT);	//RD1
 	Pin_Initialize(PIN_RD2,								LOW, PUSH_PULL, INPUT);	//RD2
 	Pin_Initialize(PIN_RD3,								LOW, PUSH_PULL, INPUT);	//RD3
+	Pin_Initialize(PIN_RD4_LOB_HiA,						LOW, PUSH_PULL, OUTPUT);//RD4
+	Pin_Initialize(PIN_RD5_LOA_HiA,						LOW, PUSH_PULL, OUTPUT);//RD5
 	Pin_Initialize(PIN_RD6,								LOW, PUSH_PULL, INPUT);	//RD6
 	Pin_Initialize(PIN_RD7,								LOW, PUSH_PULL, INPUT);	//RD7
+	Pin_Initialize(PIN_RD8_HOA_HiA,						LOW, PUSH_PULL, OUTPUT);//RD8
 	Pin_Initialize(PIN_RD9_GREEN_LED,					LOW, PUSH_PULL, OUTPUT);//RD9
 	Pin_Initialize(PIN_RD10_RED_LED,					LOW, PUSH_PULL, INPUT);	//RD10
 	Pin_Initialize(PIN_RD11_BLUE_LED,					LOW, PUSH_PULL, INPUT);	//RD11
@@ -159,35 +163,27 @@ void Configure_For_Afriji(void)
 	Pin_Initialize(PIN_RE2,								LOW, PUSH_PULL, INPUT);	//RE2
 	Pin_Initialize(PIN_RE3,								LOW, PUSH_PULL, INPUT);	//RE3
 	Pin_Initialize(PIN_RE4,								LOW, PUSH_PULL, INPUT);	//RE4
-	Pin_Initialize(PIN_RE5_SWITCHED_GROUND5,			LOW, PUSH_PULL, INPUT);	//RE5
-	Pin_Initialize(PIN_RE6_SWITCHED_GROUND4,			LOW, PUSH_PULL, INPUT);	//RE6
-	Pin_Initialize(PIN_RE7_SWITCHED_GROUND3,			LOW, PUSH_PULL, INPUT);	//RE7
+	Pin_Initialize(PIN_RE5_SWITCHED_GROUND5,			LOW, OPEN_DRAIN, OUTPUT);//RE5
+	Pin_Initialize(PIN_RE6_SWITCHED_GROUND4,			LOW, OPEN_DRAIN, OUTPUT);//RE6
+	Pin_Initialize(PIN_RE7_SWITCHED_GROUND3,			LOW, OPEN_DRAIN, OUTPUT);//RE7
 	//PORTF
 	Pin_Initialize(PIN_RF0,								LOW, PUSH_PULL, INPUT);	//RF0
 	Pin_Initialize(PIN_RF1,								LOW, PUSH_PULL, INPUT);	//RF1
-	Pin_Initialize(PIN_RF2_HOB_HiV,						LOW, PUSH_PULL, INPUT);	//RF2
-	Pin_Initialize(PIN_RF3_HOA_HiV,						LOW, PUSH_PULL, INPUT);	//RF3
+	Pin_Initialize(PIN_RF2_HOB_HiV,						LOW, PUSH_PULL, OUTPUT);//RF2
+	Pin_Initialize(PIN_RF3_HOA_HiV,						LOW, PUSH_PULL, OUTPUT);//RF3
 	Pin_Initialize(PIN_RF4_LOA_HiV,						LOW, PUSH_PULL, OUTPUT);//RF4
 	Pin_Initialize(PIN_RF5_LOB_HiV,						LOW, PUSH_PULL, OUTPUT);//RF5
 	Pin_Initialize(PIN_RF6,								LOW, PUSH_PULL, INPUT);	//RF6
 	//PORTG
 	Pin_Initialize(PIN_RG2,								LOW, PUSH_PULL, INPUT);	//RG2
 	Pin_Initialize(PIN_RG3,								LOW, PUSH_PULL, INPUT);	//RG3
-	Pin_Initialize(PIN_RG6_SWITCHED_GROUND1,			LOW, PUSH_PULL, OUTPUT);//RG6
-	Pin_Initialize(PIN_RG7_SWITCHED_GROUND2,			LOW, PUSH_PULL, OUTPUT);//RG7
+	Pin_Initialize(PIN_RG6_SWITCHED_GROUND1,			LOW, OPEN_DRAIN, OUTPUT);//RG6
+	Pin_Initialize(PIN_RG7_SWITCHED_GROUND2,			LOW, OPEN_DRAIN, OUTPUT);//RG7
 	Pin_Initialize(PIN_RG8,								LOW, PUSH_PULL, INPUT);	//RG8
 	Pin_Initialize(PIN_RG9,								LOW, PUSH_PULL, INPUT);	//RG9
 
 	/************* PeripheralPinSelect***************/
-	Pin_Initialize(PIN_RD8_HOA_HiA,						LOW, PUSH_PULL, OUTPUT);//RD8
-	Pin_Initialize(PIN_RD0_HOB_HiA,						LOW, PUSH_PULL, OUTPUT);//RD0
-	Pin_Initialize(PIN_RD4_LOB_HiA,						LOW, PUSH_PULL, OUTPUT);//RD4
-	Pin_Initialize(PIN_RD5_LOA_HiA,						LOW, PUSH_PULL, OUTPUT);//RD5
 
-	Pin_Initialize(PIN_RF2_HOB_HiV,						LOW, PUSH_PULL, OUTPUT);//RF2
-	Pin_Initialize(PIN_RF3_HOA_HiV,						LOW, PUSH_PULL, OUTPUT);//RF3
-	Pin_Initialize(PIN_RF4_LOA_HiV,						LOW, PUSH_PULL, OUTPUT);//RF4
-	Pin_Initialize(PIN_RF5_LOB_HiV,						LOW, PUSH_PULL, OUTPUT);//RF5
 	//Input Inverter (Hi-I Lo-V)
 	RPOR10bits.RP20R	= 18;	//OC1	LOA
 	RPOR1bits.RP2R		= 19;	//OC2	HOA
@@ -201,28 +197,28 @@ void Configure_For_Afriji(void)
 	RPOR8bits.RP17R		= 35;	//OC9	LOB
 
 	//LED indicators
-	RPOR1bits.RP3R		= 18;	//Red LED (Green on Schematic)
-	RPOR6bits.RP12R		= 21;	//Blue LED (Blue on schematic)
+	RPOR1bits.RP3R		= 23;	//Red LED (Green on Schematic)
+	RPOR6bits.RP12R		= 18;	//Blue LED (Blue on schematic)
 
 //	RPOR12bits.RP24R 	= 3;	//UART1 - Terminal Tx 
 	__builtin_write_OSCCONL(OSCCON | 0x40);
 
 //	/*************        A2D         ***************/
 	A2D_Initialize();
-	A2D_Channel_Settings(A2D_AN0_TRANSFORMER_PRIMARY_MINUS,		RESOLUTION_10_BIT,	1,		&LoV_Formating);
-	A2D_Channel_Settings(A2D_AN1_TRANSFORMER_PRIMARY_PLUS,		RESOLUTION_10_BIT,	1,		&LoV_Formating);
-	A2D_Channel_Settings(A2D_AN2_SOLAR_PLUS,					RESOLUTION_10_BIT,	1,		&LoV_Formating);
-	A2D_Channel_Settings(A2D_AN13_TRANSFORMER_SECONDARY_PLUS,	RESOLUTION_10_BIT,	1,		&HiV_Formating);
-	A2D_Channel_Settings(A2D_AN12_VDC_BUS_PLUS,					RESOLUTION_10_BIT,	1,		&HiV_Formating);
-	A2D_Channel_Settings(A2D_AN14_VOUT_PLUS,					RESOLUTION_10_BIT,	1,		&HiV_Formating);
-	A2D_Channel_Settings(A2D_AN15_VOUT_MINUS,					RESOLUTION_10_BIT,	1,		&HiV_Formating);
-	A2D_Channel_Settings(A2D_AN9_INPUT_CURRENT,					RESOLUTION_10_BIT,	1,		&HiI_Formating);
-	A2D_Channel_Settings(A2D_AN10_OUTPUT_CURRENT,				RESOLUTION_10_BIT,	1,		&LoI_Formating);
-	A2D_Channel_Settings(A2D_AN6_TEMP1,							RESOLUTION_10_BIT,	65520,	&Afriji_Celcius_Formating);
-	A2D_Channel_Settings(A2D_AN3_TEMP2,							RESOLUTION_10_BIT,	65520,	&Afriji_Celcius_Formating);
-	A2D_Channel_Settings(A2D_AN7_TEMP3,							RESOLUTION_10_BIT,	65520,	&Afriji_Celcius_Formating);
-	A2D_Channel_Settings(A2D_AN8_TEMP4,							RESOLUTION_10_BIT,	65520,	&Afriji_Celcius_Formating);
-	A2D_Channel_Settings(A2D_AN11_TEMP5,						RESOLUTION_10_BIT,	65520,	&Afriji_Celcius_Formating);
+	A2D_Channel_Settings(A2D_AN0_TRANSFORMER_PRIMARY_MINUS,		RESOLUTION_10_BIT,	1,	&LoV_Formating);
+	A2D_Channel_Settings(A2D_AN1_TRANSFORMER_PRIMARY_PLUS,		RESOLUTION_10_BIT,	1,	&LoV_Formating);
+	A2D_Channel_Settings(A2D_AN2_SOLAR_PLUS,					RESOLUTION_10_BIT,	1,	&LoV_Formating);
+	A2D_Channel_Settings(A2D_AN13_TRANSFORMER_SECONDARY_PLUS,	RESOLUTION_10_BIT,	1,	&HiV_Formating);
+	A2D_Channel_Settings(A2D_AN12_VDC_BUS_PLUS,					RESOLUTION_10_BIT,	1,	&HiV_Formating);
+	A2D_Channel_Settings(A2D_AN14_VOUT_PLUS,					RESOLUTION_10_BIT,	1,	&HiV_Formating);
+	A2D_Channel_Settings(A2D_AN15_VOUT_MINUS,					RESOLUTION_10_BIT,	1,	&HiV_Formating);
+	A2D_Channel_Settings(A2D_AN9_INPUT_CURRENT,					RESOLUTION_10_BIT,	1,	&HiI_Formating);
+	A2D_Channel_Settings(A2D_AN10_OUTPUT_CURRENT,				RESOLUTION_10_BIT,	1,	&LoI_Formating);
+	A2D_Channel_Settings(A2D_AN6_TEMP1,							RESOLUTION_10_BIT,	1,	&Afriji_Celcius_Formating);
+	A2D_Channel_Settings(A2D_AN3_TEMP2,							RESOLUTION_10_BIT,	1,	&Afriji_Celcius_Formating);
+	A2D_Channel_Settings(A2D_AN7_TEMP3,							RESOLUTION_10_BIT,	1,	&Afriji_Celcius_Formating);
+	A2D_Channel_Settings(A2D_AN8_TEMP4,							RESOLUTION_10_BIT,	1,	&Afriji_Celcius_Formating);
+	A2D_Channel_Settings(A2D_AN11_TEMP5,						RESOLUTION_10_BIT,	1,	&Afriji_Celcius_Formating);
 
 	/*************         I2C        ***************/
 	/*************       Timers       ***************/

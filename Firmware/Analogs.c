@@ -88,5 +88,6 @@ int LoI_Formating(int value)
 //
 //	return (int) intermediate;
 
-	return (value * 19) / 1000 + 1;
+	return -1;//Not a valid measurement, the pins of the amplifier have been lifted
+//	return (value * 19) / 1000 + 1;
 }
