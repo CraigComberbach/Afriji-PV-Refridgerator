@@ -20,21 +20,17 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 /*************Library Dependencies***************/
 /************Arbitrary Functionality*************/
 /*************   Magic  Numbers   ***************/
-#define	PERIOD			159
-#define	SIZE_OF_ARRAY	10
-#define	DEADBAND		2	//Period resolution is 62.5nS; This is the delay between turning on/off one and turning on/off the other
-
+#define	PERIOD						159
+#define	SIZE_OF_ARRAY				10
+#define	DEADBAND					2	//Period resolution is 62.5nS; This is the delay between turning on/off one and turning on/off the other
+#define NUMBER_OF_uS_IN_ONE_SECOND	1000000
 /*************    Enumeration     ***************/
 enum SINE_WAVE_STAGES
 {
 	SINE_0_TO_90,
-	SINE_90,
 	SINE_90_TO_180,
-	SINE_180,
 	SINE_180_TO_270,
-	SINE_270,
 	SINE_270_TO_360,
-	SINE_360,
 };
 
 /***********  Structure Definitions  ************/
@@ -61,7 +57,6 @@ unsigned int inverterOnPeriod[SIZE_OF_ARRAY] =
 /*************Function  Prototypes***************/
 void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter);
 void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter);
-void Zero_Crossing(enum INVERTERS_SUPPORTED inverter);
 
 /************* Device Definitions ***************/	
 /************* Module Definitions ***************/
@@ -233,14 +228,10 @@ void Inverter_Routine(unsigned long time_uS)
 					++Invertahoy[currentInverter].currentStep;
 					if(Invertahoy[currentInverter].currentStep >= (SIZE_OF_ARRAY))
 					{
+						Trigger_A2D_Scan();
 						Invertahoy[currentInverter].currentStep = SIZE_OF_ARRAY-1;
-						Invertahoy[currentInverter].phaseRange = SINE_90;
+						Invertahoy[currentInverter].phaseRange = SINE_90_TO_180;
 					}
-					break;
-				case SINE_90:	//No special PWM event, only sampling is required
-					Trigger_A2D_Scan();
-
-					Invertahoy[currentInverter].phaseRange = SINE_90_TO_180;
 					break;
 				case SINE_90_TO_180:
 					Positive_Sine(Invertahoy[currentInverter].currentStep, currentInverter);
@@ -249,18 +240,10 @@ void Inverter_Routine(unsigned long time_uS)
 					--Invertahoy[currentInverter].currentStep;
 					if(--Invertahoy[currentInverter].currentStep < 0)
 					{
+						Trigger_A2D_Scan();
 						Invertahoy[currentInverter].currentStep = 0;
-						Invertahoy[currentInverter].phaseRange = SINE_180;
+						Invertahoy[currentInverter].phaseRange = SINE_180_TO_270;
 					}
-					break;
-				case SINE_180:
-					Zero_Crossing(currentInverter);
-
-					//Trigger an A2D scan
-					Trigger_A2D_Scan();
-
-					//Prep for advancement to the next step
-					Invertahoy[currentInverter].phaseRange = SINE_180_TO_270;
 					break;
 				case SINE_180_TO_270:
 					Negative_Sine(Invertahoy[currentInverter].currentStep, currentInverter);
@@ -270,12 +253,9 @@ void Inverter_Routine(unsigned long time_uS)
 					if(Invertahoy[currentInverter].currentStep >= (SIZE_OF_ARRAY))
 					{
 						Invertahoy[currentInverter].currentStep = SIZE_OF_ARRAY-1;
-						Invertahoy[currentInverter].phaseRange = SINE_270;
+						Invertahoy[currentInverter].phaseRange = SINE_270_TO_360;
+						Trigger_A2D_Scan();
 					}
-					break;
-				case SINE_270:	//No special PWM event, only sampling is required
-					Trigger_A2D_Scan();
-					Invertahoy[currentInverter].phaseRange = SINE_270_TO_360;
 					break;
 				case SINE_270_TO_360:
 					Negative_Sine(Invertahoy[currentInverter].currentStep, currentInverter);
@@ -284,18 +264,10 @@ void Inverter_Routine(unsigned long time_uS)
 					--Invertahoy[currentInverter].currentStep;
 					if(--Invertahoy[currentInverter].currentStep < 0)
 					{
+						Trigger_A2D_Scan();
 						Invertahoy[currentInverter].currentStep = 0;
-						Invertahoy[currentInverter].phaseRange = SINE_360;
+						Invertahoy[currentInverter].phaseRange = SINE_0_TO_90;
 					}
-					break;
-				case SINE_360:
-					Zero_Crossing(currentInverter);
-
-					//Trigger an A2D scan
-					Trigger_A2D_Scan();
-
-					//Prep for advancement to the next step
-					Invertahoy[currentInverter].phaseRange = SINE_0_TO_90;
 					break;
 				default://How did we get here?
 					//Cycle current through the top FETs and prepare to start back at zero degrees
@@ -457,53 +429,6 @@ void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 	return;
 }
 
-void Zero_Crossing(enum INVERTERS_SUPPORTED inverter)
-{
-	switch(inverter)
-	{
-		case HIGH_CURRENT:
-//			//HOA - 100% High
-//			OC2R				= 0;
-//			OC2RS				= PERIOD+1;
-//
-//			//HOB - 100% High
-//			OC3R				= 0;
-//			OC3RS				= PERIOD+1;
-//
-//			//LOB - 100% Low
-//			OC4RS				= 0;
-//			OC4R				= PERIOD+1;
-//
-//			//LOA - 100% Low
-//			OC1RS				= 0;
-//			OC1R				= PERIOD+1;
-
-			break;
-		case HIGH_VOLTAGE:
-//			//HOA - 100% High
-//			OC7R				= 0;
-//			OC7RS				= PERIOD+1;
-//
-//			//HOB - 100% High
-//			OC8R				= 0;
-//			OC8RS				= PERIOD+1;
-//
-//			//LOB - 100% Low
-//			OC9RS				= 0;
-//			OC9R				= PERIOD+1;
-//
-//			//LOA - 100% Low
-//			OC6RS				= 0;
-//			OC6R				= PERIOD+1;
-
-			break;
-		default:
-			break;
-	}
-
-	return;
-}
-
 void Set_Target_Delay_uS(int newDelay_uS, enum INVERTERS_SUPPORTED inverter)
 {
 	Invertahoy[inverter].targetDelay_uS = newDelay_uS;
@@ -518,9 +443,9 @@ int Get_Target_Delay_uS(enum INVERTERS_SUPPORTED inverter)
 void Set_Frequency_Hz(int newFrequency_Hz, enum INVERTERS_SUPPORTED inverter)
 {
 	long temp;
-	temp = 1000000;			//Number of uS in one second
-	temp /= newFrequency_Hz;//Divide by frequency to get number of uS per full cycle
-	temp /= 44;				//Divide by number of distinct steps in a full wave
+	temp = NUMBER_OF_uS_IN_ONE_SECOND;	//Number of uS in one second
+	temp /= newFrequency_Hz;			//Divide by frequency to get number of uS per full cycle
+	temp /= SIZE_OF_ARRAY * 4;			//Divide by number of distinct steps in a full wave
 	Invertahoy[inverter].targetDelay_uS = (int)temp;
 	return;
 }
@@ -528,8 +453,8 @@ void Set_Frequency_Hz(int newFrequency_Hz, enum INVERTERS_SUPPORTED inverter)
 int Get_Frequency_Hz(enum INVERTERS_SUPPORTED inverter)
 {
 	long temp;
-	temp = 1000000;								//Number of uS in one second
-	temp /= 44;									//Divide by number of distinct steps in a full wave
+	temp = NUMBER_OF_uS_IN_ONE_SECOND;			//Number of uS in one second
+	temp /= SIZE_OF_ARRAY * 4;					//Divide by number of distinct steps in a full wave
 	temp /= Invertahoy[inverter].targetDelay_uS;//Divide by current delay
 	return (int)temp;
 }

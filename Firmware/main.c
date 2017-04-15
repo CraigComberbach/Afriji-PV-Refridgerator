@@ -83,9 +83,7 @@ void Heart_Beat_Task(unsigned long time_mS)
 void Frequency_Ramp(unsigned long time_mS)
 {
 	static int frequency = 20;
-//	Set_Target_Delay_uS(Get_Target_Delay_uS(HIGH_CURRENT)-80, HIGH_CURRENT);
-//	Set_Target_Delay_uS(440, HIGH_CURRENT);		//60Hz
-//	Set_Target_Delay_uS(1400, HIGH_CURRENT);	//20Hz
 	Set_Frequency_Hz(frequency++, HIGH_CURRENT);
+
 	return;
 }
