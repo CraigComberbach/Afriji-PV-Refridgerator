@@ -36,6 +36,7 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 /*************Interrupt Prototypes***************/
 /*************Function  Prototypes***************/
 void Heart_Beat_Task(unsigned long time_mS);
+void Frequency_Ramp(unsigned long time_mS);
 
 /************* Device Definitions ***************/
 /************* Module Definitions ***************/
@@ -51,11 +52,12 @@ int main(void)
 	Configure_For_Afriji();
 
 	//Scheduled Tasks
-	Initialize_Scheduler(25/*uS*/);
+	Initialize_Scheduler(40/*uS*/);
 	Schedule_Task(STARTUP_TASK,		&Heart_Beat_Task,	1000/*uS Delay*/,		50000/*uS Period*/,		20/*Repetitions*/);
-	Schedule_Task(HEART_BEAT_TASK,	&Heart_Beat_Task,	1000000/*uS Delay*/,	360000/*uS Period*/,	PERMANENT_TASK);
-	Schedule_Task(INVERTER_TASK,	&Inverter_Routine,	1000000/*uS Delay*/,	75/*uS Period*/,		PERMANENT_TASK);
+	Schedule_Task(HEART_BEAT_TASK,	&Heart_Beat_Task,	1000000/*uS Delay*/,	500000/*uS Period*/,	PERMANENT_TASK);
+	Schedule_Task(INVERTER_TASK,	&Inverter_Routine,	1000000/*uS Delay*/,	40/*uS Period*/,		PERMANENT_TASK);
 	Schedule_Task(A2D_TASK,			&A2D_Routine,		1000666/*uS Delay*/,	1000/*uS Period*/,		PERMANENT_TASK);
+	Schedule_Task(FREQUENCY_RAMP,	&Frequency_Ramp,	1000000/*uS Delay*/,	1000000/*uS Period*/,	12/*Repetitions*/);
 
 	while(1)
 	{
@@ -75,5 +77,13 @@ int main(void)
 void Heart_Beat_Task(unsigned long time_mS)
 {
 	Pin_Toggle(PIN_RD9_GREEN_LED);
+	return;
+}
+
+void Frequency_Ramp(unsigned long time_mS)
+{
+	Set_Target_Delay_uS(Get_Target_Delay_uS(HIGH_CURRENT)-80, HIGH_CURRENT);
+//	Set_Target_Delay_uS(440, HIGH_CURRENT);		//60Hz
+//	Set_Target_Delay_uS(1400, HIGH_CURRENT);	//20Hz
 	return;
 }

@@ -120,6 +120,7 @@ void Task_Master(void)
 					//Average Execution Time
 					scheduledTasks[loop].sumExecutionTime_FCYticks += time;
 					scheduledTasks[loop].avgExecutionTime_FCYticks = scheduledTasks[loop].sumExecutionTime_FCYticks / scheduledTasks[loop].recurrenceCount;
+					Nop();
 				#endif
 			}
 		}
