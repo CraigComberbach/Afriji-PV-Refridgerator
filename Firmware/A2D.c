@@ -50,7 +50,6 @@ struct A2D_Channel_Attributes
 	int value;														//The most current averaged value, includes resolution increase if used
 	int (*formatFunction)(int);										//Used to specify a function that handles the formating of the averaged value
 	unsigned long sumOfSamples;										//Sum of all the A2D samples before it undergoes DSP/Averaging
-	int autoConversion;												//0 means auto-convert, 1 means external trigger convert
 } A2D_Channel[NUMBER_OF_CHANNELS];
 
 /*************Function  Prototypes***************/
@@ -124,8 +123,7 @@ void A2D_Routine(uint32_t time_mS)
 
 void Trigger_A2D_Scan(void)
 {
-	#warning "Code not implemented"
-//	START_SCAN;
+	START_SCAN;
 	return;
 }
 
@@ -145,6 +143,19 @@ void __attribute__((__interrupt__, auto_psv)) _ADC1Interrupt(void)
 
 void A2D_Initialize(void)
 {
+	int channel;
+	
+	for(channel = 0; channel < NUMBER_OF_CHANNELS; ++channel)
+	{
+		A2D_Channel[channel].bitsOfResolutionIncrease = RESOLUTION_10_BIT;
+		A2D_Channel[channel].samplesRequired = ~0;
+		A2D_Channel[channel].valueForDSP = ~0;
+		A2D_Channel[channel].samplesTaken = 0;
+		A2D_Channel[channel].value = 0;
+		A2D_Channel[channel].formatFunction = (void*)0;
+		A2D_Channel[channel].sumOfSamples = 0;
+	}
+
 	//AD1 Interrupt
 	IFS0bits.AD1IF = 0;				//0 = Interrupt request has not occurred
 	IEC0bits.AD1IE = 1;				//1 = Interrupt request is enabled

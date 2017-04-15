@@ -83,8 +83,6 @@ enum A2D_PIN_DEFINITIONS
 #define A2D_LIBRARY
 
 /*************   Magic  Numbers   ***************/
-#define AUTO_CONVERSION			0
-
 /*************    Enumeration     ***************/
 enum RESOLUTION
 {
