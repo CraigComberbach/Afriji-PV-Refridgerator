@@ -85,15 +85,15 @@ void Configure_For_Afriji(void)
 	Pin_Definition(PIN_RC14,							Rx14, &TRISC, &ODCC, &LATC, &PORTC);//RC14
 	Pin_Definition(PIN_RC15,							Rx15, &TRISC, &ODCC, &LATC, &PORTC);//RC15
 	//PORTD
-	Pin_Definition(PIN_RD0_HOB,								Rx0, &TRISD, &ODCD, &LATD, &PORTD);	//RD0
+	Pin_Definition(PIN_RD0_HOB_HiA,						Rx0, &TRISD, &ODCD, &LATD, &PORTD);	//RD0
 	Pin_Definition(PIN_RD1_TERMINAL_TX,					Rx1, &TRISD, &ODCD, &LATD, &PORTD);	//RD1
 	Pin_Definition(PIN_RD2,								Rx2, &TRISD, &ODCD, &LATD, &PORTD);	//RD2
 	Pin_Definition(PIN_RD3,								Rx3, &TRISD, &ODCD, &LATD, &PORTD);	//RD3
-	Pin_Definition(PIN_RD4_LOB,					Rx4, &TRISD, &ODCD, &LATD, &PORTD);	//RD4
-	Pin_Definition(PIN_RD5_LOA,					Rx5, &TRISD, &ODCD, &LATD, &PORTD);	//RD5
+	Pin_Definition(PIN_RD4_LOB_HiA,						Rx4, &TRISD, &ODCD, &LATD, &PORTD);	//RD4
+	Pin_Definition(PIN_RD5_LOA_HiA,						Rx5, &TRISD, &ODCD, &LATD, &PORTD);	//RD5
 	Pin_Definition(PIN_RD6,								Rx6, &TRISD, &ODCD, &LATD, &PORTD);	//RD6
 	Pin_Definition(PIN_RD7,								Rx7, &TRISD, &ODCD, &LATD, &PORTD);	//RD7
-	Pin_Definition(PIN_RD8_HOA,								Rx8, &TRISD, &ODCD, &LATD, &PORTD);	//RD8
+	Pin_Definition(PIN_RD8_HOA_HiA,						Rx8, &TRISD, &ODCD, &LATD, &PORTD);	//RD8
 	Pin_Definition(PIN_RD9_GREEN_LED,					Rx9, &TRISD, &ODCD, &LATD, &PORTD);	//RD9
 	Pin_Definition(PIN_RD10_RED_LED,					Rx10, &TRISD, &ODCD, &LATD, &PORTD);//RD10
 	Pin_Definition(PIN_RD11_BLUE_LED,					Rx11, &TRISD, &ODCD, &LATD, &PORTD);//RD11
@@ -109,10 +109,10 @@ void Configure_For_Afriji(void)
 	//PORTF
 	Pin_Definition(PIN_RF0,								Rx0, &TRISF, &ODCF, &LATF, &PORTF);	//RF0
 	Pin_Definition(PIN_RF1,								Rx1, &TRISF, &ODCF, &LATF, &PORTF);	//RF1
-	Pin_Definition(PIN_RF2,								Rx2, &TRISF, &ODCF, &LATF, &PORTF);	//RF2
-	Pin_Definition(PIN_RF3,								Rx3, &TRISF, &ODCF, &LATF, &PORTF);	//RF3
-	Pin_Definition(PIN_RF4_HBRIDGE_DIN,					Rx4, &TRISF, &ODCF, &LATF, &PORTF);	//RF4
-	Pin_Definition(PIN_RF5_HBRIDGE_CIN,					Rx5, &TRISF, &ODCF, &LATF, &PORTF);	//RF5
+	Pin_Definition(PIN_RF2_HOB_HiV,						Rx2, &TRISF, &ODCF, &LATF, &PORTF);	//RF2
+	Pin_Definition(PIN_RF3_HOA_HiV,						Rx3, &TRISF, &ODCF, &LATF, &PORTF);	//RF3
+	Pin_Definition(PIN_RF4_LOA_HiV,						Rx4, &TRISF, &ODCF, &LATF, &PORTF);	//RF4
+	Pin_Definition(PIN_RF5_LOB_HiV,						Rx5, &TRISF, &ODCF, &LATF, &PORTF);	//RF5
 	Pin_Definition(PIN_RF6,								Rx6, &TRISF, &ODCF, &LATF, &PORTF);	//RF6
 	//PORTG
 	Pin_Definition(PIN_RG2,								Rx2, &TRISG, &ODCG, &LATG, &PORTG);	//RG2
@@ -165,11 +165,10 @@ void Configure_For_Afriji(void)
 	//PORTF
 	Pin_Initialize(PIN_RF0,								LOW, PUSH_PULL, INPUT);	//RF0
 	Pin_Initialize(PIN_RF1,								LOW, PUSH_PULL, INPUT);	//RF1
-	Pin_Initialize(PIN_RF2,								LOW, PUSH_PULL, INPUT);	//RF2
-	Pin_Initialize(PIN_RF3,								LOW, PUSH_PULL, INPUT);	//RF3
-	Pin_Initialize(PIN_RF4_HBRIDGE_DIN,					LOW, PUSH_PULL, OUTPUT);//RF4
-	Pin_Initialize(PIN_RF5_HBRIDGE_CIN,					LOW, PUSH_PULL, OUTPUT);//RF5
-
+	Pin_Initialize(PIN_RF2_HOB_HiV,						LOW, PUSH_PULL, INPUT);	//RF2
+	Pin_Initialize(PIN_RF3_HOA_HiV,						LOW, PUSH_PULL, INPUT);	//RF3
+	Pin_Initialize(PIN_RF4_LOA_HiV,						LOW, PUSH_PULL, OUTPUT);//RF4
+	Pin_Initialize(PIN_RF5_LOB_HiV,						LOW, PUSH_PULL, OUTPUT);//RF5
 	Pin_Initialize(PIN_RF6,								LOW, PUSH_PULL, INPUT);	//RF6
 	//PORTG
 	Pin_Initialize(PIN_RG2,								LOW, PUSH_PULL, INPUT);	//RG2
@@ -180,21 +179,32 @@ void Configure_For_Afriji(void)
 	Pin_Initialize(PIN_RG9,								LOW, PUSH_PULL, INPUT);	//RG9
 
 	/************* PeripheralPinSelect***************/
-	Pin_Initialize(PIN_RD8_HOA,							LOW, PUSH_PULL, OUTPUT);//RD8
-	Pin_Initialize(PIN_RD0_HOB,							LOW, PUSH_PULL, OUTPUT);//RD0
-	Pin_Initialize(PIN_RD4_LOB,							LOW, PUSH_PULL, OUTPUT);//RD4
-	Pin_Initialize(PIN_RD5_LOA,							LOW, PUSH_PULL, OUTPUT);//RD5
-		//Input Inverter (Hi-I Lo-V)
-		RPOR10bits.RP20R	= 18;	//OC1	LOA(Ab)
-		RPOR1bits.RP2R		= 19;	//OC2	HOA(Bt)
-		RPOR5bits.RP11R		= 20;	//OC3	HOB(At)
-		RPOR12bits.RP25R	= 21;	//OC4	LOB(Bb)
+	Pin_Initialize(PIN_RD8_HOA_HiA,						LOW, PUSH_PULL, OUTPUT);//RD8
+	Pin_Initialize(PIN_RD0_HOB_HiA,						LOW, PUSH_PULL, OUTPUT);//RD0
+	Pin_Initialize(PIN_RD4_LOB_HiA,						LOW, PUSH_PULL, OUTPUT);//RD4
+	Pin_Initialize(PIN_RD5_LOA_HiA,						LOW, PUSH_PULL, OUTPUT);//RD5
 
-		//LED indicators
-		RPOR1bits.RP3R		= 18;	//Red LED (Green on Schematic)
-		RPOR6bits.RP12R		= 21;	//Blue LED (Blue on schematic)
+	Pin_Initialize(PIN_RF2_HOB_HiV,						LOW, PUSH_PULL, OUTPUT);//RF2
+	Pin_Initialize(PIN_RF3_HOA_HiV,						LOW, PUSH_PULL, OUTPUT);//RF3
+	Pin_Initialize(PIN_RF4_LOA_HiV,						LOW, PUSH_PULL, OUTPUT);//RF4
+	Pin_Initialize(PIN_RF5_LOB_HiV,						LOW, PUSH_PULL, OUTPUT);//RF5
+	//Input Inverter (Hi-I Lo-V)
+	RPOR10bits.RP20R	= 18;	//OC1	LOA
+	RPOR1bits.RP2R		= 19;	//OC2	HOA
+	RPOR5bits.RP11R		= 20;	//OC3	HOB
+	RPOR12bits.RP25R	= 21;	//OC4	LOB
 
-//		RPOR12bits.RP24R 	= 3;	//UART1 - Terminal Tx 
+	//Output Inverter (Hi-V Lo-A)
+	RPOR5bits.RP10R		= 23;	//OC6	LOA
+	RPOR8bits.RP16R		= 24;	//OC7	HOA
+	RPOR15bits.RP30R	= 25;	//OC8	HOB
+	RPOR8bits.RP17R		= 35;	//OC9	LOB
+
+	//LED indicators
+	RPOR1bits.RP3R		= 18;	//Red LED (Green on Schematic)
+	RPOR6bits.RP12R		= 21;	//Blue LED (Blue on schematic)
+
+//	RPOR12bits.RP24R 	= 3;	//UART1 - Terminal Tx 
 	__builtin_write_OSCCONL(OSCCON | 0x40);
 
 //	/*************        A2D         ***************/

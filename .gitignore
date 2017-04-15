@@ -31,6 +31,8 @@ dist/
 private/
 *local.*
 NMakefile
+*.mk
+*.properties
 
 #################
 ## MPLAB 8
@@ -216,3 +218,5 @@ pip-log.txt
 
 # Mac crap
 .DS_Store
+*.PCBDOCPreview
+*.properties
