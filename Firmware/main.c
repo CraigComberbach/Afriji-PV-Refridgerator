@@ -56,7 +56,7 @@ int main(void)
 	Schedule_Task(STARTUP_TASK,		&Heart_Beat_Task,	1000/*uS Delay*/,		50000/*uS Period*/,		20/*Repetitions*/);
 	Schedule_Task(HEART_BEAT_TASK,	&Heart_Beat_Task,	1000000/*uS Delay*/,	500000/*uS Period*/,	PERMANENT_TASK);
 	Schedule_Task(INVERTER_TASK,	&Inverter_Routine,	1000000/*uS Delay*/,	40/*uS Period*/,		PERMANENT_TASK);
-	Schedule_Task(A2D_TASK,			&A2D_Routine,		1000666/*uS Delay*/,	1000/*uS Period*/,		PERMANENT_TASK);
+	Schedule_Task(A2D_TASK,			&A2D_Routine,		1000666/*uS Delay*/,	1000/*uS Period*/,		PERMANENT_TASK);//No longer than once ever 8mS will allow the result to be captured in time to be used with a 60Hz waveform
 	Schedule_Task(FREQUENCY_RAMP,	&Frequency_Ramp,	1000000/*uS Delay*/,	100000/*uS Period*/,	35/*Repetitions*/);
 
 	while(1)
@@ -85,7 +85,10 @@ void Frequency_Ramp(unsigned long time_mS)
 	static int frequency = 20;
 
 	Set_Frequency_Hz(60, HIGH_CURRENT);
-	Set_Frequency_Hz(frequency++, HIGH_VOLTAGE);
+	Set_Frequency_Hz(60, HIGH_VOLTAGE);
+//	Set_Frequency_Hz(frequency, HIGH_CURRENT);
+//	Set_Frequency_Hz(frequency, HIGH_VOLTAGE);
+//	frequency++;
 
 	return;
 }

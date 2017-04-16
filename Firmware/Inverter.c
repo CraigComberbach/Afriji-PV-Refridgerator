@@ -24,6 +24,7 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 #define	SIZE_OF_ARRAY				10
 #define	DEADBAND					2	//Period resolution is 62.5nS; This is the delay between turning on/off one and turning on/off the other
 #define NUMBER_OF_uS_IN_ONE_SECOND	1000000
+
 /*************    Enumeration     ***************/
 enum SINE_WAVE_STAGES
 {
@@ -38,7 +39,6 @@ struct INVERTER_VARIABLES
 {
 	int multiplier;
 	int divider;
-	int adder;
 	enum SINE_WAVE_STAGES phaseRange;
 	int currentStep;
 	int delayCounter_uS;
@@ -57,6 +57,7 @@ unsigned int inverterOnPeriod[SIZE_OF_ARRAY] =
 /*************Function  Prototypes***************/
 void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter);
 void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter);
+void Peaks(enum INVERTERS_SUPPORTED inverter);
 
 /************* Device Definitions ***************/	
 /************* Module Definitions ***************/
@@ -85,10 +86,9 @@ void Initialize_Inverter(void)
 		Invertahoy[loop].phaseRange = SINE_0_TO_90;
 		Invertahoy[loop].currentStep = 0;
 		Invertahoy[loop].multiplier = 1;
-		Invertahoy[loop].divider = 1;
-		Invertahoy[loop].adder = 0;
+		Invertahoy[loop].divider = 100;
 		Invertahoy[loop].delayCounter_uS = 0;
-		Invertahoy[loop].targetDelay_uS = 1400;
+		Invertahoy[loop].targetDelay_uS = 416;//60Hz
 	}
 	
 	//OC1 - LOA HiA
@@ -228,7 +228,7 @@ void Inverter_Routine(unsigned long time_uS)
 					++Invertahoy[currentInverter].currentStep;
 					if(Invertahoy[currentInverter].currentStep >= (SIZE_OF_ARRAY))
 					{
-						Trigger_A2D_Scan();
+						Peaks(currentInverter);
 						Invertahoy[currentInverter].currentStep = SIZE_OF_ARRAY-1;
 						Invertahoy[currentInverter].phaseRange = SINE_90_TO_180;
 					}
@@ -240,7 +240,6 @@ void Inverter_Routine(unsigned long time_uS)
 					--Invertahoy[currentInverter].currentStep;
 					if(--Invertahoy[currentInverter].currentStep < 0)
 					{
-						Trigger_A2D_Scan();
 						Invertahoy[currentInverter].currentStep = 0;
 						Invertahoy[currentInverter].phaseRange = SINE_180_TO_270;
 					}
@@ -252,9 +251,9 @@ void Inverter_Routine(unsigned long time_uS)
 					++Invertahoy[currentInverter].currentStep;
 					if(Invertahoy[currentInverter].currentStep >= (SIZE_OF_ARRAY))
 					{
+						Peaks(currentInverter);
 						Invertahoy[currentInverter].currentStep = SIZE_OF_ARRAY-1;
 						Invertahoy[currentInverter].phaseRange = SINE_270_TO_360;
-						Trigger_A2D_Scan();
 					}
 					break;
 				case SINE_270_TO_360:
@@ -264,7 +263,6 @@ void Inverter_Routine(unsigned long time_uS)
 					--Invertahoy[currentInverter].currentStep;
 					if(--Invertahoy[currentInverter].currentStep < 0)
 					{
-						Trigger_A2D_Scan();
 						Invertahoy[currentInverter].currentStep = 0;
 						Invertahoy[currentInverter].phaseRange = SINE_0_TO_90;
 					}
@@ -329,6 +327,25 @@ void Inverter_Routine(unsigned long time_uS)
 //LOB	\_____/-----...____________
 void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 {
+	int circulatingCurrentPeriod;
+	int conductingCurrentPeriod;
+
+	//Precalculate periods
+	circulatingCurrentPeriod	= PERIOD - (inverterOnPeriod[step]*Invertahoy[inverter].multiplier)/Invertahoy[inverter].divider - DEADBAND;
+	conductingCurrentPeriod		= PERIOD - (inverterOnPeriod[step]*Invertahoy[inverter].multiplier)/Invertahoy[inverter].divider;
+
+	//Check to see if the circulating current period is valid and cap it if is not
+	if(circulatingCurrentPeriod < inverterOnPeriod[0])
+		circulatingCurrentPeriod = inverterOnPeriod[0];
+	else if(circulatingCurrentPeriod > inverterOnPeriod[SIZE_OF_ARRAY-1])
+		circulatingCurrentPeriod = inverterOnPeriod[SIZE_OF_ARRAY-1];
+
+	//Check to see if the conducting current period is valid and cap it if is not
+	if(conductingCurrentPeriod < inverterOnPeriod[0])
+		conductingCurrentPeriod = inverterOnPeriod[0];
+	else if(conductingCurrentPeriod > inverterOnPeriod[SIZE_OF_ARRAY-1])
+		conductingCurrentPeriod = inverterOnPeriod[SIZE_OF_ARRAY-1];
+
 	switch(inverter)
 	{
 		case HIGH_CURRENT:
@@ -342,10 +359,10 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 
 			//HOB - Circulating current
 			OC3R				= DEADBAND;
-			OC3RS				= PERIOD - (inverterOnPeriod[step]*Invertahoy[inverter].multiplier)/Invertahoy[inverter].divider - DEADBAND;
+			OC3RS				= circulatingCurrentPeriod;
 
 			//LOB - Conducting current
-			OC4R				= PERIOD - (inverterOnPeriod[step]*Invertahoy[inverter].multiplier)/Invertahoy[inverter].divider;
+			OC4R				= conductingCurrentPeriod;
 			OC4RS				= PERIOD;
 
 			break;
@@ -360,10 +377,10 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 
 			//HOB - Circulating current
 			OC8R				= DEADBAND;
-			OC8RS				= PERIOD - (inverterOnPeriod[step]*Invertahoy[inverter].multiplier)/Invertahoy[inverter].divider - DEADBAND;
+			OC8RS				= circulatingCurrentPeriod;
 
 			//LOB - Conducting current
-			OC9R				= PERIOD - (inverterOnPeriod[step]*Invertahoy[inverter].multiplier)/Invertahoy[inverter].divider;
+			OC9R				= conductingCurrentPeriod;
 			OC9RS				= PERIOD;
 
 			break;
@@ -384,15 +401,36 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 
 void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 {
+	int circulatingCurrentPeriod;
+	int conductingCurrentPeriod;
+
+	//Precalculate periods
+	circulatingCurrentPeriod	= PERIOD - (inverterOnPeriod[step]*Invertahoy[inverter].multiplier)/Invertahoy[inverter].divider - DEADBAND;
+	conductingCurrentPeriod		= PERIOD - (inverterOnPeriod[step]*Invertahoy[inverter].multiplier)/Invertahoy[inverter].divider;
+
+	//Check to see if the circulating current period is valid and cap it if is not
+	if(circulatingCurrentPeriod < inverterOnPeriod[0])
+		circulatingCurrentPeriod = inverterOnPeriod[0];
+	else if(circulatingCurrentPeriod > inverterOnPeriod[SIZE_OF_ARRAY-1])
+		circulatingCurrentPeriod = inverterOnPeriod[SIZE_OF_ARRAY-1];
+
+	//Check to see if the conducting current period is valid and cap it if is not
+	if(conductingCurrentPeriod < inverterOnPeriod[0])
+		conductingCurrentPeriod = inverterOnPeriod[0];
+	else if(conductingCurrentPeriod > inverterOnPeriod[SIZE_OF_ARRAY-1])
+		conductingCurrentPeriod = inverterOnPeriod[SIZE_OF_ARRAY-1];
+
 	switch(inverter)
 	{
 		case HIGH_CURRENT:
+				
+			
 			//HOA - Circulating Current
 			OC2R				= DEADBAND;
-			OC2RS				= PERIOD - (inverterOnPeriod[step]*Invertahoy[inverter].multiplier)/Invertahoy[inverter].divider - DEADBAND;
+			OC2RS				= circulatingCurrentPeriod;
 
 			//LOA - Conducting Current
-			OC1R				= PERIOD - (inverterOnPeriod[step]*Invertahoy[inverter].multiplier)/Invertahoy[inverter].divider;
+			OC1R				= conductingCurrentPeriod;
 			OC1RS				= PERIOD;
 
 			//LOB - 100% Low
@@ -407,10 +445,10 @@ void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 		case HIGH_VOLTAGE:
 			//HOA - Circulating Current
 			OC7R				= DEADBAND;
-			OC7RS				= PERIOD - (inverterOnPeriod[step]*Invertahoy[inverter].multiplier)/Invertahoy[inverter].divider - DEADBAND;
+			OC7RS				= circulatingCurrentPeriod;
 
 			//LOA - Conducting Current
-			OC6R				= PERIOD - (inverterOnPeriod[step]*Invertahoy[inverter].multiplier)/Invertahoy[inverter].divider;
+			OC6R				= conductingCurrentPeriod;
 			OC6RS				= PERIOD;
 
 			//LOB - 100% Low
@@ -457,4 +495,42 @@ int Get_Frequency_Hz(enum INVERTERS_SUPPORTED inverter)
 	temp /= SIZE_OF_ARRAY * 4;					//Divide by number of distinct steps in a full wave
 	temp /= Invertahoy[inverter].targetDelay_uS;//Divide by current delay
 	return (int)temp;
+}
+
+void Peaks(enum INVERTERS_SUPPORTED inverter)
+{
+	int currentVoltage;
+	int targetVoltage = 240;//24VAC
+	int deadband;
+
+	//Take a sample; it won't give me a result for THIS calculation, but will be ready by the next one
+	Trigger_A2D_Scan();
+
+	switch(inverter)
+	{
+		case HIGH_CURRENT:
+			//Check if the voltage needs to be adjusted
+			currentVoltage = A2D_Value(A2D_AN13_TRANSFORMER_SECONDARY_PLUS);
+			break;
+		case HIGH_VOLTAGE:
+//			currentVoltage = A2D_Value(A2D_AN13_TRANSFORMER_SECONDARY_PLUS);
+			break;
+		default:
+			break;
+	}
+
+	//Check if voltage control is required
+	deadband = targetVoltage / 10;//If we are within 10% do nothing
+	if(currentVoltage < (targetVoltage - deadband))//Voltage is too low
+		Invertahoy[inverter].multiplier++;
+	else if(currentVoltage > (targetVoltage + deadband))//Voltage is too high
+		Invertahoy[inverter].multiplier--;
+
+	//Apply caps to multiplier as required
+	if(Invertahoy[inverter].multiplier > 100)
+		Invertahoy[inverter].multiplier = 100;
+	else if(Invertahoy[inverter].multiplier <= 0)
+		Invertahoy[inverter].multiplier = 1;
+	
+	return;
 }
