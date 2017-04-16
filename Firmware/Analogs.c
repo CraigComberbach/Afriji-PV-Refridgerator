@@ -18,6 +18,7 @@ v0.0.0	2017-04-15  Craig Comberbach
 /*************   Magic  Numbers   ***************/
 #define SLR_LoV		2	//Slew Rate Limiter for the Lo-Voltage format, includes one decimal place of resolution
 #define SLR_HiV		2	//Slew Rate Limiter for the Hi-Voltage format, includes one decimal place of resolution
+#define SLR_LoI		5	//Slew Rate Limiter for the Lo-Current format, includes one decimal place of resolution
 #define SLR_HiI		5	//Slew Rate Limiter for the Hi-Current format, includes one decimal place of resolution
 
 /*************    Enumeration     ***************/
@@ -131,7 +132,7 @@ int LoV_Formating_AN2(int value)
 
 int HiI_Formating(int value)
 {
-	static int previousMeasurement = 15;	//Start at 1.5A as that is out minimum measurable current
+	static int previousMeasurement = 15;	//Start at 1.5A as that is our minimum measurable current
 	int temp;
 
 	//Calculate/Format the current measurement
@@ -152,15 +153,23 @@ int HiI_Formating(int value)
 
 int LoI_Formating(int value)
 {
-//	long intermediate = value;
-//	intermediate *= 19;
-//	intermediate += 1498;
-//	intermediate /= 1000;
-//
-//	return (int) intermediate;
+	static int previousMeasurement = 1;	//Start at 0.1A as that is our minimum measurable current
+	int temp;
 
-	return -1;//Not a valid measurement, the pins of the amplifier have been lifted
-//	return (value * 19) / 1000 + 1;
+	//Calculate/Format the current measurement
+	temp = (value * 19) / 1000 + 1;
+
+	//Check and apply Slew Rate Limiter
+	if((previousMeasurement - temp) > SLR_LoI)
+		temp = previousMeasurement - SLR_LoI;
+	else if((temp - previousMeasurement) > SLR_LoI)
+		temp = previousMeasurement + SLR_LoI;
+
+	//Record measurement for next time
+	previousMeasurement = temp;
+
+	//Return the Slew Rate Limited value
+	return temp;
 }
 
 int HiV_Formating(int value, int previousMeasurement)
