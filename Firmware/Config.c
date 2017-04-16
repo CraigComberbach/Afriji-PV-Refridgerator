@@ -208,10 +208,10 @@ void Configure_For_Afriji(void)
 	A2D_Channel_Settings(A2D_AN0_TRANSFORMER_PRIMARY_MINUS,		RESOLUTION_10_BIT,	1,	&LoV_Formating_AN0);
 	A2D_Channel_Settings(A2D_AN1_TRANSFORMER_PRIMARY_PLUS,		RESOLUTION_10_BIT,	1,	&LoV_Formating_AN1);
 	A2D_Channel_Settings(A2D_AN2_SOLAR_PLUS,					RESOLUTION_10_BIT,	1,	&LoV_Formating_AN2);
-	A2D_Channel_Settings(A2D_AN13_TRANSFORMER_SECONDARY_PLUS,	RESOLUTION_10_BIT,	1,	&HiV_Formating);
-	A2D_Channel_Settings(A2D_AN12_VDC_BUS_PLUS,					RESOLUTION_10_BIT,	1,	&HiV_Formating);
-	A2D_Channel_Settings(A2D_AN14_VOUT_PLUS,					RESOLUTION_10_BIT,	1,	&HiV_Formating);
-	A2D_Channel_Settings(A2D_AN15_VOUT_MINUS,					RESOLUTION_10_BIT,	1,	&HiV_Formating);
+	A2D_Channel_Settings(A2D_AN12_VDC_BUS_PLUS,					RESOLUTION_10_BIT,	1,	&HiV_Formating_AN12);
+	A2D_Channel_Settings(A2D_AN13_TRANSFORMER_SECONDARY_PLUS,	RESOLUTION_10_BIT,	1,	&HiV_Formating_AN13);
+	A2D_Channel_Settings(A2D_AN14_VOUT_PLUS,					RESOLUTION_10_BIT,	1,	&HiV_Formating_AN14);
+	A2D_Channel_Settings(A2D_AN15_VOUT_MINUS,					RESOLUTION_10_BIT,	1,	&HiV_Formating_AN15);
 	A2D_Channel_Settings(A2D_AN9_INPUT_CURRENT,					RESOLUTION_10_BIT,	1,	&HiI_Formating);
 	A2D_Channel_Settings(A2D_AN10_OUTPUT_CURRENT,				RESOLUTION_10_BIT,	1,	&LoI_Formating);
 	A2D_Channel_Settings(A2D_AN6_TEMP1,							RESOLUTION_10_BIT,	1,	&Afriji_Celcius_Formating);

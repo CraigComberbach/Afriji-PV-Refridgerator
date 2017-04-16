@@ -16,8 +16,9 @@ v0.0.0	2017-04-15  Craig Comberbach
 /************* Semantic Versioning***************/
 /************Arbitrary Functionality*************/
 /*************   Magic  Numbers   ***************/
-#define SLR_LoV		2	//Slew Rate Limiter for the Lo-Voltage format, includeds one decimal place of resolution
-#define SLR_HiI		5	//Slew Rate Limiter for the Hi-Current format, includeds one decimal place of resolution
+#define SLR_LoV		2	//Slew Rate Limiter for the Lo-Voltage format, includes one decimal place of resolution
+#define SLR_HiV		2	//Slew Rate Limiter for the Hi-Voltage format, includes one decimal place of resolution
+#define SLR_HiI		5	//Slew Rate Limiter for the Hi-Current format, includes one decimal place of resolution
 
 /*************    Enumeration     ***************/
 /*************ArbitraryFunctionality*************/
@@ -62,6 +63,7 @@ const signed int afrijiThermistor_C[1024] =
 
 /*************Function  Prototypes***************/
 int LoV_Formating(int value, int previousMeasurement);
+int HiV_Formating(int value, int previousMeasurement);
 
 int Afriji_Celcius_Formating(int raw)
 {
@@ -78,12 +80,6 @@ void Switched_Ground_Off(int channel)
 {
 
 	return;
-}
-
-int HiV_Formating(int value)
-{
-	//This is 97.35% accurate, but fast. For full accuracy use *2233/1023 (needs 32-bit math)
-	return (value * 17) / 8;
 }
 
 int LoV_Formating(int value, int previousMeasurement)
@@ -166,3 +162,60 @@ int LoI_Formating(int value)
 	return -1;//Not a valid measurement, the pins of the amplifier have been lifted
 //	return (value * 19) / 1000 + 1;
 }
+
+int HiV_Formating(int value, int previousMeasurement)
+{
+	int temp;
+
+	//Calculate/Format the current measurement
+	temp = (value * 17) / 8;
+
+	//Check and apply Slew Rate Limiter
+	if((previousMeasurement - temp) > SLR_HiV)
+		temp = previousMeasurement - SLR_HiV;
+	else if((temp - previousMeasurement) > SLR_HiV)
+		temp = previousMeasurement + SLR_HiV;
+
+	//Record measurement for next time
+	previousMeasurement = temp;
+
+	//Return the Slew Rate Limited value
+	return temp;
+}
+
+int HiV_Formating_AN12(int value)
+{
+	static int previousMeasurement = 0;
+
+	previousMeasurement = HiV_Formating(value, previousMeasurement);
+
+	return previousMeasurement;
+}
+
+int HiV_Formating_AN13(int value)
+{
+	static int previousMeasurement = 0;
+
+	previousMeasurement = HiV_Formating(value, previousMeasurement);
+
+	return previousMeasurement;
+}
+
+int HiV_Formating_AN14(int value)
+{
+	static int previousMeasurement = 0;
+
+	previousMeasurement = HiV_Formating(value, previousMeasurement);
+
+	return previousMeasurement;
+}
+
+int HiV_Formating_AN15(int value)
+{
+	static int previousMeasurement = 0;
+
+	previousMeasurement = HiV_Formating(value, previousMeasurement);
+
+	return previousMeasurement;
+}
+
