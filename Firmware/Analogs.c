@@ -16,7 +16,8 @@ v0.0.0	2017-04-15  Craig Comberbach
 /************* Semantic Versioning***************/
 /************Arbitrary Functionality*************/
 /*************   Magic  Numbers   ***************/
-#define SLR	5	//Slew Rate Limiter for the Hi-Current format, includeds one decimal place of resolution
+#define SLR_LoV		2	//Slew Rate Limiter for the Lo-Voltage format, includeds one decimal place of resolution
+#define SLR_HiI		5	//Slew Rate Limiter for the Hi-Current format, includeds one decimal place of resolution
 
 /*************    Enumeration     ***************/
 /*************ArbitraryFunctionality*************/
@@ -60,6 +61,7 @@ const signed int afrijiThermistor_C[1024] =
 };
 
 /*************Function  Prototypes***************/
+int LoV_Formating(int value, int previousMeasurement);
 
 int Afriji_Celcius_Formating(int raw)
 {
@@ -84,25 +86,66 @@ int HiV_Formating(int value)
 	return (value * 17) / 8;
 }
 
-int LoV_Formating(int value)
+int LoV_Formating(int value, int previousMeasurement)
 {
-	//This is 99.04% accurate, but fast. For full accuracy use *694/1023 (needs 32-bit math)
-	return (value * 43) / 64;
+	int temp;
+
+	//Calculate/Format the current measurement
+	temp = (value * 43) / 64;
+
+	//Check and apply Slew Rate Limiter
+	if((previousMeasurement - temp) > SLR_LoV)
+		temp = previousMeasurement - SLR_LoV;
+	else if((temp - previousMeasurement) > SLR_LoV)
+		temp = previousMeasurement + SLR_LoV;
+
+	//Record measurement for next time
+	previousMeasurement = temp;
+
+	//Return the Slew Rate Limited value
+	return temp;
+}
+
+int LoV_Formating_AN0(int value)
+{
+	static int previousMeasurement = 0;
+
+	previousMeasurement = LoV_Formating(value, previousMeasurement);
+
+	return previousMeasurement;
+}
+
+int LoV_Formating_AN1(int value)
+{
+	static int previousMeasurement = 0;
+
+	previousMeasurement = LoV_Formating(value, previousMeasurement);
+
+	return previousMeasurement;
+}
+
+int LoV_Formating_AN2(int value)
+{
+	static int previousMeasurement = 0;
+
+	previousMeasurement = LoV_Formating(value, previousMeasurement);
+
+	return previousMeasurement;
 }
 
 int HiI_Formating(int value)
 {
-	static int previousMeasurement = 15;
+	static int previousMeasurement = 15;	//Start at 1.5A as that is out minimum measurable current
 	int temp;
 
 	//Calculate/Format the current measurement
 	temp = (value * 21) / 100 + 15;
 
 	//Check and apply Slew Rate Limiter
-	if((previousMeasurement - temp) > SLR)
-		temp = previousMeasurement - SLR;
-	else if((temp - previousMeasurement) > SLR)
-		temp = previousMeasurement + SLR;
+	if((previousMeasurement - temp) > SLR_HiI)
+		temp = previousMeasurement - SLR_HiI;
+	else if((temp - previousMeasurement) > SLR_HiI)
+		temp = previousMeasurement + SLR_HiI;
 
 	//Record measurement for next time
 	previousMeasurement = temp;
