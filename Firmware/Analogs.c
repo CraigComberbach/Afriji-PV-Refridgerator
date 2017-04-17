@@ -1,7 +1,31 @@
+/**************************************************************************************************
+Target Hardware:		Afriji Solar Refridgerator
+Chip resources used:	ADC Indirectly
+Purpose:				Formatting analog signals
+
+Version History:
+v0.0.0	2017-04-15  Craig Comberbach
+	Compiler: XC16 v1.21	IDE: MPLABx 3.05	Tool: ICD3	Computer: Intel Xeon CPU 3.07 GHz, 6 GB RAM, Windows 7 64 bit Professional SP1
+	First version
+ **************************************************************************************************/
+/*************    Header Files    ***************/
 #include "Config.h"
 #include "Analogs.h"
 #include "Pins.h"
 
+/************* Semantic Versioning***************/
+/************Arbitrary Functionality*************/
+/*************   Magic  Numbers   ***************/
+#define SLR_LoV		2	//Slew Rate Limiter for the Lo-Voltage format, includes one decimal place of resolution
+#define SLR_HiV		2	//Slew Rate Limiter for the Hi-Voltage format, includes one decimal place of resolution
+#define SLR_LoI		5	//Slew Rate Limiter for the Lo-Current format, includes one decimal place of resolution
+#define SLR_HiI		5	//Slew Rate Limiter for the Hi-Current format, includes one decimal place of resolution
+
+/*************    Enumeration     ***************/
+/*************ArbitraryFunctionality*************/
+/************* Module Definitions ***************/
+/************* Other  Definitions ***************/
+/*************  Global Variables  ***************/
 const signed int afrijiThermistor_C[1024] =
 {
   0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,  30,  31,
@@ -38,6 +62,10 @@ const signed int afrijiThermistor_C[1024] =
 992, 993, 994, 995, 996, 997, 998, 999,1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1012,1013,1014,1015,1016,1017,1018,1019,1020,1021,1022,1023
 };
 
+/*************Function  Prototypes***************/
+int LoV_Formating(int value, int previousMeasurement);
+int HiV_Formating(int value, int previousMeasurement);
+
 int Afriji_Celcius_Formating(int raw)
 {
 	return afrijiThermistor_C[raw];
@@ -55,39 +83,148 @@ void Switched_Ground_Off(int channel)
 	return;
 }
 
-int HiV_Formating(int value)
+int LoV_Formating(int value, int previousMeasurement)
 {
-	//This is 97.35% accurate, but fast. For full accuracy use *2233/1023 (needs 32-bit math)
-	return (value * 17) / 8;
+	int temp;
+
+	//Calculate/Format the current measurement
+	temp = (value * 43) / 64;
+
+	//Check and apply Slew Rate Limiter
+	if((previousMeasurement - temp) > SLR_LoV)
+		temp = previousMeasurement - SLR_LoV;
+	else if((temp - previousMeasurement) > SLR_LoV)
+		temp = previousMeasurement + SLR_LoV;
+
+	//Record measurement for next time
+	previousMeasurement = temp;
+
+	//Return the Slew Rate Limited value
+	return temp;
 }
 
-int LoV_Formating(int value)
+int LoV_Formating_AN0(int value)
 {
-	//This is 99.04% accurate, but fast. For full accuracy use *694/1023 (needs 32-bit math)
-	return (value * 43) / 64;
+	static int previousMeasurement = 0;
+
+	previousMeasurement = LoV_Formating(value, previousMeasurement);
+
+	return previousMeasurement;
+}
+
+int LoV_Formating_AN1(int value)
+{
+	static int previousMeasurement = 0;
+
+	previousMeasurement = LoV_Formating(value, previousMeasurement);
+
+	return previousMeasurement;
+}
+
+int LoV_Formating_AN2(int value)
+{
+	static int previousMeasurement = 0;
+
+	previousMeasurement = LoV_Formating(value, previousMeasurement);
+
+	return previousMeasurement;
 }
 
 int HiI_Formating(int value)
 {
-//	long intermediate = value;
-//	intermediate *= 210;
-//	intermediate += 14950;
-//	intermediate /= 1000;
-//
-//	return (int) intermediate;
-	
-	return (value * 21) / 100 + 15;
+	static int previousMeasurement = 15;	//Start at 1.5A as that is our minimum measurable current
+	int temp;
+
+	//Calculate/Format the current measurement
+	temp = (value * 21) / 100 + 15;
+
+	//Check and apply Slew Rate Limiter
+	if((previousMeasurement - temp) > SLR_HiI)
+		temp = previousMeasurement - SLR_HiI;
+	else if((temp - previousMeasurement) > SLR_HiI)
+		temp = previousMeasurement + SLR_HiI;
+
+	//Record measurement for next time
+	previousMeasurement = temp;
+
+	//Return the Slew Rate Limited value
+	return temp;
 }
 
 int LoI_Formating(int value)
 {
-//	long intermediate = value;
-//	intermediate *= 19;
-//	intermediate += 1498;
-//	intermediate /= 1000;
-//
-//	return (int) intermediate;
+	static int previousMeasurement = 1;	//Start at 0.1A as that is our minimum measurable current
+	int temp;
 
-	return -1;//Not a valid measurement, the pins of the amplifier have been lifted
-//	return (value * 19) / 1000 + 1;
+	//Calculate/Format the current measurement
+	temp = (value * 19) / 1000 + 1;
+
+	//Check and apply Slew Rate Limiter
+	if((previousMeasurement - temp) > SLR_LoI)
+		temp = previousMeasurement - SLR_LoI;
+	else if((temp - previousMeasurement) > SLR_LoI)
+		temp = previousMeasurement + SLR_LoI;
+
+	//Record measurement for next time
+	previousMeasurement = temp;
+
+	//Return the Slew Rate Limited value
+	return temp;
 }
+
+int HiV_Formating(int value, int previousMeasurement)
+{
+	int temp;
+
+	//Calculate/Format the current measurement
+	temp = (value * 17) / 8;
+
+	//Check and apply Slew Rate Limiter
+	if((previousMeasurement - temp) > SLR_HiV)
+		temp = previousMeasurement - SLR_HiV;
+	else if((temp - previousMeasurement) > SLR_HiV)
+		temp = previousMeasurement + SLR_HiV;
+
+	//Record measurement for next time
+	previousMeasurement = temp;
+
+	//Return the Slew Rate Limited value
+	return temp;
+}
+
+int HiV_Formating_AN12(int value)
+{
+	static int previousMeasurement = 0;
+
+	previousMeasurement = HiV_Formating(value, previousMeasurement);
+
+	return previousMeasurement;
+}
+
+int HiV_Formating_AN13(int value)
+{
+	static int previousMeasurement = 0;
+
+	previousMeasurement = HiV_Formating(value, previousMeasurement);
+
+	return previousMeasurement;
+}
+
+int HiV_Formating_AN14(int value)
+{
+	static int previousMeasurement = 0;
+
+	previousMeasurement = HiV_Formating(value, previousMeasurement);
+
+	return previousMeasurement;
+}
+
+int HiV_Formating_AN15(int value)
+{
+	static int previousMeasurement = 0;
+
+	previousMeasurement = HiV_Formating(value, previousMeasurement);
+
+	return previousMeasurement;
+}
+
