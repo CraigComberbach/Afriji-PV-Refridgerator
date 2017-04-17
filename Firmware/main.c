@@ -85,7 +85,9 @@ void Frequency_Ramp(unsigned long time_mS)
 	static int frequency = 20;
 
 	Set_Frequency_Hz(60, HIGH_CURRENT);
+	#ifdef DUAL_INVERTER
 	Set_Frequency_Hz(frequency++, HIGH_VOLTAGE);
+	#endif
 
 	return;
 }

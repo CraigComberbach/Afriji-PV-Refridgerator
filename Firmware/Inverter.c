@@ -291,6 +291,7 @@ void Inverter_Routine(unsigned long time_uS)
 							OC1R				= PERIOD+1;
 
 							break;
+						#ifdef DUAL_INVERTER
 						case HIGH_VOLTAGE:
 							//HOA - 100% High
 							OC7R				= 0;
@@ -309,6 +310,7 @@ void Inverter_Routine(unsigned long time_uS)
 							OC6R				= PERIOD+1;
 
 							break;
+						#endif
 						default:
 							break;
 					}
@@ -349,6 +351,7 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 			OC4RS				= PERIOD;
 
 			break;
+		#ifdef DUAL_INVERTER
 		case HIGH_VOLTAGE:
 			//LOA - 100% Low
 			OC6RS				= 0;
@@ -367,6 +370,7 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 			OC9RS				= PERIOD;
 
 			break;
+		#endif
 		default:
 			break;
 	}
@@ -404,6 +408,7 @@ void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 			OC3RS				= PERIOD+1;
 
 			break;
+		#ifdef DUAL_INVERTER
 		case HIGH_VOLTAGE:
 			//HOA - Circulating Current
 			OC7R				= DEADBAND;
@@ -422,6 +427,7 @@ void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 			OC8RS				= PERIOD+1;
 
 			break;
+		#endif
 		default:
 			break;
 	}
