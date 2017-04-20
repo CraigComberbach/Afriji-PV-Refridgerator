@@ -506,7 +506,7 @@ int Get_Frequency_Hz(enum INVERTERS_SUPPORTED inverter)
 void Peaks(enum INVERTERS_SUPPORTED inverter)
 {
 	int currentVoltage;
-	int targetVoltage = 240;//24VAC
+	int targetVoltage = 1700;
 	int deadband;
 
 	//Take a sample; it won't give me a result for THIS calculation, but will be ready by the next one
@@ -516,7 +516,7 @@ void Peaks(enum INVERTERS_SUPPORTED inverter)
 	{
 		case HIGH_CURRENT:
 			//Check if the voltage needs to be adjusted
-			currentVoltage = A2D_Value(A2D_AN13_TRANSFORMER_SECONDARY_PLUS);
+			currentVoltage = A2D_Value(A2D_AN12_VDC_BUS_PLUS);
 			break;
 		#ifdef DUAL_INVERTER
 		case HIGH_VOLTAGE:
@@ -528,7 +528,8 @@ void Peaks(enum INVERTERS_SUPPORTED inverter)
 	}
 
 	//Check if voltage control is required
-	deadband = targetVoltage / 10;//If we are within 10% do nothing
+//	deadband = targetVoltage / 10;//If we are within 10% do nothing
+	deadband = 10;//If we are within 10% do nothing
 	if(currentVoltage < (targetVoltage - deadband))//Voltage is too low
 		Invertahoy[inverter].multiplier++;
 	else if(currentVoltage > (targetVoltage + deadband))//Voltage is too high

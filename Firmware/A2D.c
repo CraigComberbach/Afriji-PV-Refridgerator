@@ -65,22 +65,22 @@ void A2D_Routine(uint32_t time_mS)
 		scanIsComplete = 0;
 
 		//Add the sample to the sum of the samples in the raw variable
-		A2D_Channel[0].sumOfSamples += ADC1BUF0;	//A2D_AN0_TRANSFORMER_PRIMARY_MINUS
-		A2D_Channel[1].sumOfSamples += ADC1BUF1;	//A2D_AN1_TRANSFORMER_PRIMARY_PLUS
-		A2D_Channel[2].sumOfSamples += ADC1BUF2;	//A2D_AN2_SOLAR_PLUS
+			A2D_Channel[0].sumOfSamples += ADC1BUF0;	//A2D_AN0_TRANSFORMER_PRIMARY_MINUS
+			A2D_Channel[1].sumOfSamples += ADC1BUF1;	//A2D_AN1_TRANSFORMER_PRIMARY_PLUS
+			A2D_Channel[2].sumOfSamples += ADC1BUF2;	//A2D_AN2_SOLAR_PLUS
 		A2D_Channel[3].sumOfSamples += ADC1BUF3;	//A2D_AN3_TEMP2
-//		A2D_Channel[4].sumOfSamples += ADC1BUF4;	//A2D_AN4_UNUSED
-//		A2D_Channel[5].sumOfSamples += ADC1BUF5;	//A2D_AN5_UNUSED
-		A2D_Channel[6].sumOfSamples += ADC1BUF6;	//A2D_AN6_TEMP1
-		A2D_Channel[7].sumOfSamples += ADC1BUF7;	//A2D_AN7_TEMP3
-		A2D_Channel[8].sumOfSamples += ADC1BUF8;	//A2D_AN8_TEMP4
-		A2D_Channel[9].sumOfSamples += ADC1BUF9;	//A2D_AN9_INPUT_CURRENT
-		A2D_Channel[10].sumOfSamples += ADC1BUFA;	//A2D_AN10_OUTPUT_CURRENT
-		A2D_Channel[11].sumOfSamples += ADC1BUFB;	//A2D_AN11_TEMP5
-		A2D_Channel[12].sumOfSamples += ADC1BUFC;	//A2D_AN12_VDC_BUS_PLUS
-		A2D_Channel[13].sumOfSamples += ADC1BUFD;	//A2D_AN13_TRANSFORMER_SECONDARY_PLUS
-		A2D_Channel[14].sumOfSamples += ADC1BUFE;	//A2D_AN14_VOUT_PLUS
-		A2D_Channel[15].sumOfSamples += ADC1BUFF;	//A2D_AN15_VOUT_MINUS
+//		A2D_Channel[4].sumOfSamples += ADC1BUF;		//A2D_AN4_UNUSED
+//		A2D_Channel[5].sumOfSamples += ADC1BUF;		//A2D_AN5_UNUSED
+		A2D_Channel[6].sumOfSamples += ADC1BUF4;	//A2D_AN6_TEMP1
+		A2D_Channel[7].sumOfSamples += ADC1BUF5;	//A2D_AN7_TEMP3
+		A2D_Channel[8].sumOfSamples += ADC1BUF6;	//A2D_AN8_TEMP4
+			A2D_Channel[9].sumOfSamples += ADC1BUF9;	//A2D_AN9_INPUT_CURRENT
+		A2D_Channel[10].sumOfSamples += ADC1BUF8;	//A2D_AN10_OUTPUT_CURRENT
+		A2D_Channel[11].sumOfSamples += ADC1BUF7;	//A2D_AN11_TEMP5
+			A2D_Channel[12].sumOfSamples += ADC1BUFA;	//A2D_AN12_VDC_BUS_PLUS
+			A2D_Channel[13].sumOfSamples += ADC1BUFB;	//A2D_AN13_TRANSFORMER_SECONDARY_PLUS
+			A2D_Channel[14].sumOfSamples += ADC1BUFC;	//A2D_AN14_VOUT_PLUS
+			A2D_Channel[15].sumOfSamples += ADC1BUFD;	//A2D_AN15_VOUT_MINUS
 
 		//Increment the number of samples read in
 		A2D_Channel[0].samplesTaken++;	//A2D_AN0_TRANSFORMER_PRIMARY_MINUS

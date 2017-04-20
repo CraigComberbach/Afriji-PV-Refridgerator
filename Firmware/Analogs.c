@@ -17,7 +17,7 @@ v0.0.0	2017-04-15  Craig Comberbach
 /************Arbitrary Functionality*************/
 /*************   Magic  Numbers   ***************/
 #define SLR_LoV		2	//Slew Rate Limiter for the Lo-Voltage format, includes one decimal place of resolution
-#define SLR_HiV		2	//Slew Rate Limiter for the Hi-Voltage format, includes one decimal place of resolution
+#define SLR_HiV		5	//Slew Rate Limiter for the Hi-Voltage format, includes one decimal place of resolution
 #define SLR_LoI		5	//Slew Rate Limiter for the Lo-Current format, includes one decimal place of resolution
 #define SLR_HiI		5	//Slew Rate Limiter for the Hi-Current format, includes one decimal place of resolution
 
