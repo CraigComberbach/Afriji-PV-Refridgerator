@@ -35,5 +35,7 @@ void Set_Target_Delay_uS(int newDelay_uS, enum INVERTERS_SUPPORTED inverter);
 int Get_Target_Delay_uS(enum INVERTERS_SUPPORTED inverter);
 void Set_Frequency_Hz(int newFrequency_Hz, enum INVERTERS_SUPPORTED inverter);
 int Get_Frequency_Hz(enum INVERTERS_SUPPORTED inverter);
+void Set_Voltage_Target(int newTarget, enum INVERTERS_SUPPORTED inverter);
+int Get_Voltage_Target(enum INVERTERS_SUPPORTED inverter);
 
 #endif

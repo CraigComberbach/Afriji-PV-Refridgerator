@@ -24,6 +24,7 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 #define	SIZE_OF_ARRAY				10
 #define	DEADBAND					2	//Period resolution is 62.5nS; This is the delay between turning on/off one and turning on/off the other
 #define NUMBER_OF_uS_IN_ONE_SECOND	1000000
+#define VOLTAGE_TARGET_DEADBAND		10	//Voltage with one decimal of accuracy
 
 /*************    Enumeration     ***************/
 enum SINE_WAVE_STAGES
@@ -46,6 +47,7 @@ struct INVERTER_VARIABLES
 } Invertahoy[NUMBER_OF_INVERTERS_SUPPORTED];
 /***********State Machine Definitions************/
 /*************  Global Variables  ***************/
+int targetVoltage[NUMBER_OF_INVERTERS_SUPPORTED];	//Peak voltage with one decimal of accuracy
 unsigned int inverterOnPeriod[SIZE_OF_ARRAY] =
 {
 //100kHz @ 10 points (0-90º of a sine wave) Note: This series factors in the Rise/Fall times buffer, Min on time, AND zero crossing
@@ -89,6 +91,7 @@ void Initialize_Inverter(void)
 		Invertahoy[loop].divider = 100;
 		Invertahoy[loop].delayCounter_uS = 0;
 		Invertahoy[loop].targetDelay_uS = 416;//60Hz
+		targetVoltage[loop] = 566;	//Peak voltage with one decimal of accuracy
 	}
 	
 	//OC1 - LOA HiA
@@ -506,8 +509,6 @@ int Get_Frequency_Hz(enum INVERTERS_SUPPORTED inverter)
 void Peaks(enum INVERTERS_SUPPORTED inverter)
 {
 	int currentVoltage;
-	int targetVoltage = 1700;
-	int deadband;
 
 	//Take a sample; it won't give me a result for THIS calculation, but will be ready by the next one
 	Trigger_A2D_Scan();
@@ -528,11 +529,9 @@ void Peaks(enum INVERTERS_SUPPORTED inverter)
 	}
 
 	//Check if voltage control is required
-//	deadband = targetVoltage / 10;//If we are within 10% do nothing
-	deadband = 10;//If we are within 10% do nothing
-	if(currentVoltage < (targetVoltage - deadband))//Voltage is too low
+	if(currentVoltage < (targetVoltage[inverter] - VOLTAGE_TARGET_DEADBAND))//Voltage is too low
 		Invertahoy[inverter].multiplier++;
-	else if(currentVoltage > (targetVoltage + deadband))//Voltage is too high
+	else if(currentVoltage > (targetVoltage[inverter] + VOLTAGE_TARGET_DEADBAND))//Voltage is too high
 		Invertahoy[inverter].multiplier--;
 
 	//Apply caps to multiplier as required
@@ -542,4 +541,17 @@ void Peaks(enum INVERTERS_SUPPORTED inverter)
 		Invertahoy[inverter].multiplier = 1;
 	
 	return;
+}
+
+void Set_Voltage_Target(int newTarget, enum INVERTERS_SUPPORTED inverter)
+{
+	if((inverter >= 0) && (inverter < NUMBER_OF_INVERTERS_SUPPORTED))
+		targetVoltage[inverter] = newTarget;
+
+	return;
+}
+
+int Get_Voltage_Target(enum INVERTERS_SUPPORTED inverter)
+{
+	return targetVoltage[inverter];
 }
