@@ -25,6 +25,7 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 #define	DEADBAND					2	//Period resolution is 62.5nS; This is the delay between turning on/off one and turning on/off the other
 #define NUMBER_OF_uS_IN_ONE_SECOND	1000000
 #define VOLTAGE_TARGET_DEADBAND		10	//Voltage with one decimal of accuracy
+#define MULTIPLIER_MAXIMUM			100
 
 /*************    Enumeration     ***************/
 enum SINE_WAVE_STAGES
@@ -88,7 +89,7 @@ void Initialize_Inverter(void)
 	{
 		Invertahoy[loop].phaseRange = SINE_0_TO_90;
 		Invertahoy[loop].currentStep = 0;
-		Invertahoy[loop].multiplier = 10;
+		Invertahoy[loop].multiplier = 100;
 		Invertahoy[loop].divider = 100;
 		Invertahoy[loop].delayCounter_uS = 0;
 		Invertahoy[loop].targetDelay_uS = 416;//60Hz
@@ -529,8 +530,8 @@ void Peaks(enum INVERTERS_SUPPORTED inverter)
 		Invertahoy[inverter].multiplier--;
 
 	//Apply caps to multiplier as required
-	if(Invertahoy[inverter].multiplier > 100)
-		Invertahoy[inverter].multiplier = 100;
+	if(Invertahoy[inverter].multiplier > MULTIPLIER_MAXIMUM)
+		Invertahoy[inverter].multiplier = MULTIPLIER_MAXIMUM;
 	else if(Invertahoy[inverter].multiplier <= 0)
 		Invertahoy[inverter].multiplier = 1;
 	
