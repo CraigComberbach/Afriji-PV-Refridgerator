@@ -60,6 +60,7 @@ unsigned int inverterOnPeriod[SIZE_OF_ARRAY] =
 void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter);
 void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter);
 void Peaks(enum INVERTERS_SUPPORTED inverter);
+void Calculate_Sine_Wave(int step, enum INVERTERS_SUPPORTED inverter, int *conductingCurrentPeriod, int *circulatingCurrentPeriod);
 
 /************* Device Definitions ***************/	
 /************* Module Definitions ***************/
@@ -335,21 +336,7 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 	int circulatingCurrentPeriod;
 	int conductingCurrentPeriod;
 
-	//Precalculate periods
-	circulatingCurrentPeriod	= PERIOD - (inverterOnPeriod[step]*Invertahoy[inverter].multiplier)/Invertahoy[inverter].divider - DEADBAND;
-	conductingCurrentPeriod		= PERIOD - (inverterOnPeriod[step]*Invertahoy[inverter].multiplier)/Invertahoy[inverter].divider;
-
-	//Check to see if the circulating current period is valid and cap it if is not
-	if(circulatingCurrentPeriod < inverterOnPeriod[0])
-		circulatingCurrentPeriod = inverterOnPeriod[0];
-	else if(circulatingCurrentPeriod > inverterOnPeriod[SIZE_OF_ARRAY-1])
-		circulatingCurrentPeriod = inverterOnPeriod[SIZE_OF_ARRAY-1];
-
-	//Check to see if the conducting current period is valid and cap it if is not
-	if(conductingCurrentPeriod < inverterOnPeriod[0])
-		conductingCurrentPeriod = inverterOnPeriod[0];
-	else if(conductingCurrentPeriod > inverterOnPeriod[SIZE_OF_ARRAY-1])
-		conductingCurrentPeriod = inverterOnPeriod[SIZE_OF_ARRAY-1];
+	Calculate_Sine_Wave(step, inverter, &conductingCurrentPeriod, &circulatingCurrentPeriod);
 
 	switch(inverter)
 	{
@@ -410,22 +397,8 @@ void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 {
 	int circulatingCurrentPeriod;
 	int conductingCurrentPeriod;
-
-	//Precalculate periods
-	circulatingCurrentPeriod	= PERIOD - (inverterOnPeriod[step]*Invertahoy[inverter].multiplier)/Invertahoy[inverter].divider - DEADBAND;
-	conductingCurrentPeriod		= PERIOD - (inverterOnPeriod[step]*Invertahoy[inverter].multiplier)/Invertahoy[inverter].divider;
-
-	//Check to see if the circulating current period is valid and cap it if is not
-	if(circulatingCurrentPeriod < inverterOnPeriod[0])
-		circulatingCurrentPeriod = inverterOnPeriod[0];
-	else if(circulatingCurrentPeriod > inverterOnPeriod[SIZE_OF_ARRAY-1])
-		circulatingCurrentPeriod = inverterOnPeriod[SIZE_OF_ARRAY-1];
-
-	//Check to see if the conducting current period is valid and cap it if is not
-	if(conductingCurrentPeriod < inverterOnPeriod[0])
-		conductingCurrentPeriod = inverterOnPeriod[0];
-	else if(conductingCurrentPeriod > inverterOnPeriod[SIZE_OF_ARRAY-1])
-		conductingCurrentPeriod = inverterOnPeriod[SIZE_OF_ARRAY-1];
+	
+	Calculate_Sine_Wave(step, inverter, &conductingCurrentPeriod, &circulatingCurrentPeriod);
 
 	switch(inverter)
 	{
@@ -472,6 +445,27 @@ void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 		default:
 			break;
 	}
+
+	return;
+}
+
+void Calculate_Sine_Wave(int step, enum INVERTERS_SUPPORTED inverter, int *conductingCurrentPeriod, int *circulatingCurrentPeriod)
+{
+	//Precalculate periods
+	*circulatingCurrentPeriod	= PERIOD - (inverterOnPeriod[step]*Invertahoy[inverter].multiplier)/Invertahoy[inverter].divider - DEADBAND;
+	*conductingCurrentPeriod	= PERIOD - (inverterOnPeriod[step]*Invertahoy[inverter].multiplier)/Invertahoy[inverter].divider;
+	
+	//Check to see if the circulating current period is valid and cap it if is not
+	if(*circulatingCurrentPeriod < (PERIOD - inverterOnPeriod[SIZE_OF_ARRAY-1] - DEADBAND))
+		*circulatingCurrentPeriod = PERIOD - inverterOnPeriod[SIZE_OF_ARRAY-1] - DEADBAND;
+	else if(*circulatingCurrentPeriod > (PERIOD - inverterOnPeriod[0]) - DEADBAND)
+		*circulatingCurrentPeriod = PERIOD - inverterOnPeriod[0] - DEADBAND;
+
+	//Check to see if the conducting current period is valid and cap it if is not
+	if(*conductingCurrentPeriod < (PERIOD - inverterOnPeriod[SIZE_OF_ARRAY-1]))
+		*conductingCurrentPeriod = PERIOD - inverterOnPeriod[SIZE_OF_ARRAY-1];
+	else if(*conductingCurrentPeriod > (PERIOD - inverterOnPeriod[0]))
+		*conductingCurrentPeriod = PERIOD - inverterOnPeriod[0];
 
 	return;
 }
@@ -555,3 +549,4 @@ int Get_Voltage_Target(enum INVERTERS_SUPPORTED inverter)
 {
 	return targetVoltage[inverter];
 }
+
