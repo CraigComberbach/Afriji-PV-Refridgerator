@@ -6,6 +6,7 @@
 #include <stdint.h>
 
 //System Variables
+
 //Clock Frequency
 #define FOSC_Hz			32000000			//32MHz
 #define FOSC_kHz		FOSC_Hz/1000		//32MHz

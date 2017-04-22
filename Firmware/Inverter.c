@@ -505,17 +505,19 @@ void Peaks(enum INVERTERS_SUPPORTED inverter)
 {
 	int currentVoltage;
 
-	//Take a sample; it won't give me a result for THIS calculation, but will be ready by the next one
-	Trigger_A2D_Scan();
 
 	switch(inverter)
 	{
 		case HIGH_CURRENT:
+			//Take a sample; it won't give me a result for THIS calculation, but will be ready by the next one
+			Trigger_A2D_Scan();
+
 			//Check if the voltage needs to be adjusted
 			currentVoltage = A2D_Value(A2D_AN12_VDC_BUS_PLUS);
 			break;
 		#ifdef DUAL_INVERTER
 		case HIGH_VOLTAGE:
+			return;
 //			currentVoltage = A2D_Value(A2D_AN13_TRANSFORMER_SECONDARY_PLUS);
 			break;
 		#endif
