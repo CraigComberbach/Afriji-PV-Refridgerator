@@ -6,6 +6,7 @@
 #include <stdint.h>
 
 //System Variables
+#define DUAL_INVERTER
 
 //Clock Frequency
 #define FOSC_Hz			32000000			//32MHz
