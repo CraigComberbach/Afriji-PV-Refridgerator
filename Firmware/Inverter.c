@@ -276,6 +276,7 @@ void Inverter_Routine(unsigned long time_uS)
 					//Cycle current through the top FETs and prepare to start back at zero degrees
 					switch(currentInverter)
 					{
+						#ifdef HiI_INVERTER_ENABLED
 						case HIGH_CURRENT:
 							//HOA - 100% High
 							OC2R				= 0;
@@ -294,7 +295,8 @@ void Inverter_Routine(unsigned long time_uS)
 							OC1R				= PERIOD+1;
 
 							break;
-						#ifdef DUAL_INVERTER
+						#endif
+						#ifdef HiV_INVERTER_ENABLED
 						case HIGH_VOLTAGE:
 							//HOA - 100% High
 							OC7R				= 0;
@@ -341,6 +343,7 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 
 	switch(inverter)
 	{
+		#ifdef HiI_INVERTER_ENABLED
 		case HIGH_CURRENT:
 			//LOA - 100% Low
 			OC1RS				= 0;
@@ -359,7 +362,8 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 			OC4RS				= PERIOD;
 
 			break;
-		#ifdef DUAL_INVERTER
+		#endif
+		#ifdef HiV_INVERTER_ENABLED
 		case HIGH_VOLTAGE:
 			//LOA - 100% Low
 			OC6RS				= 0;
@@ -403,9 +407,8 @@ void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 
 	switch(inverter)
 	{
+		#ifdef HiI_INVERTER_ENABLED
 		case HIGH_CURRENT:
-				
-			
 			//HOA - Circulating Current
 			OC2R				= DEADBAND;
 			OC2RS				= circulatingCurrentPeriod;
@@ -423,7 +426,8 @@ void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 			OC3RS				= PERIOD+1;
 
 			break;
-		#ifdef DUAL_INVERTER
+		#endif
+		#ifdef HiV_INVERTER_ENABLED
 		case HIGH_VOLTAGE:
 			//HOA - Circulating Current
 			OC7R				= DEADBAND;
@@ -505,9 +509,9 @@ void Peaks(enum INVERTERS_SUPPORTED inverter)
 {
 	int currentVoltage;
 
-
 	switch(inverter)
 	{
+		#ifdef HiI_INVERTER_ENABLED
 		case HIGH_CURRENT:
 			//Take a sample; it won't give me a result for THIS calculation, but will be ready by the next one
 			Trigger_A2D_Scan();
@@ -515,10 +519,13 @@ void Peaks(enum INVERTERS_SUPPORTED inverter)
 			//Check if the voltage needs to be adjusted
 			currentVoltage = A2D_Value(A2D_AN12_VDC_BUS_PLUS);
 			break;
-		#ifdef DUAL_INVERTER
+		#endif
+		#ifdef HiV_INVERTER_ENABLED
 		case HIGH_VOLTAGE:
-			return;
-//			currentVoltage = A2D_Value(A2D_AN13_TRANSFORMER_SECONDARY_PLUS);
+			//Take a sample; it won't give me a result for THIS calculation, but will be ready by the next one
+			Trigger_A2D_Scan();
+
+			currentVoltage = A2D_Value(A2D_AN13_TRANSFORMER_SECONDARY_PLUS);
 			break;
 		#endif
 		default:

@@ -185,13 +185,15 @@ void Configure_For_Afriji(void)
 	/************* PeripheralPinSelect***************/
 
 	//Input Inverter (Hi-I Lo-V)
+	#ifdef HiI_INVERTER_ENABLED
 	RPOR10bits.RP20R	= 18;	//OC1	LOA
 	RPOR1bits.RP2R		= 19;	//OC2	HOA
 	RPOR5bits.RP11R		= 20;	//OC3	HOB
 	RPOR12bits.RP25R	= 21;	//OC4	LOB
+	#endif
 
 	//Output Inverter (Hi-V Lo-A)
-	#ifdef DUAL_INVERTER
+	#ifdef HiV_INVERTER_ENABLED
 	RPOR5bits.RP10R		= 23;	//OC6	LOA
 	RPOR8bits.RP16R		= 24;	//OC7	HOA
 	RPOR15bits.RP30R	= 25;	//OC8	HOB

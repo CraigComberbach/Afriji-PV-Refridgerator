@@ -6,7 +6,8 @@
 #include <stdint.h>
 
 //System Variables
-#define DUAL_INVERTER
+#define HiI_INVERTER_ENABLED
+#define HiV_INVERTER_ENABLED
 
 //Clock Frequency
 #define FOSC_Hz			32000000			//32MHz
@@ -25,15 +26,6 @@ extern const char compiledAtTime[];
 #define MINOR_FIRMWARE_VERSION	1
 #define PATCH_FIRMWARE_VERSION	0
 
-//UART Modules
-#define	UART_TERMINAL		1
-
-//OCM Modules
-#define OCM_BUZZER			1
-#define OCM_RED_BACKLIGHT	4
-#define OCM_GREEN_BACKLIGHT	5
-#define OCM_BLUE_BACKLIGHT	6
-
 enum SCHEDULER_DEFINITIONS
 {
 	STARTUP_TASK,
@@ -46,8 +38,10 @@ enum SCHEDULER_DEFINITIONS
 
 enum INVERTERS_SUPPORTED
 {
+	#ifdef HiI_INVERTER_ENABLED
 	HIGH_CURRENT,
-	#ifdef DUAL_INVERTER
+	#endif
+	#ifdef HiV_INVERTER_ENABLED
 	HIGH_VOLTAGE,
 	#endif
 	NUMBER_OF_INVERTERS_SUPPORTED
