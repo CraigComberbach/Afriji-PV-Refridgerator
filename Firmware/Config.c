@@ -244,6 +244,12 @@ void Configure_For_Afriji(void)
 	return;
 }
 
+void Heart_Beat_Task(unsigned long time_mS)
+{
+	Pin_Toggle(PIN_RD9_GREEN_LED);
+	return;
+}
+
 //Error Traps
 //Oscillator Failed
 void __attribute__((interrupt, auto_psv)) _OscillatorFail(void)

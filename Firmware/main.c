@@ -35,9 +35,6 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 /*************  Global Variables  ***************/
 /*************Interrupt Prototypes***************/
 /*************Function  Prototypes***************/
-void Heart_Beat_Task(unsigned long time_mS);
-void Frequency_Ramp(unsigned long time_mS);
-
 /************* Device Definitions ***************/
 /************* Module Definitions ***************/
 /************* Other  Definitions ***************/
@@ -59,9 +56,6 @@ int main(void)
 	Schedule_Task(A2D_TASK,			&A2D_Routine,		1000666/*uS Delay*/,	1000/*uS Period*/,		PERMANENT_TASK);//No longer than once ever 8mS will allow the result to be captured in time to be used with a 60Hz waveform
 	Schedule_Task(FREQUENCY_RAMP,	&Frequency_Ramp,	2000000/*uS Delay*/,	100000/*uS Period*/,	40/*Repetitions*/);
 
-	Set_Frequency_Hz(20, HIGH_CURRENT);
-	Set_Voltage_Target(282, HIGH_CURRENT);
-
 	while(1)
 	{
 		ClrWdt();
@@ -75,26 +69,4 @@ int main(void)
 	}
 
 	return 1;
-}
-
-void Heart_Beat_Task(unsigned long time_mS)
-{
-	Pin_Toggle(PIN_RD9_GREEN_LED);
-	return;
-}
-
-void Frequency_Ramp(unsigned long time_mS)
-{
-	static int frequency = 20;
-
-	#ifdef HiI_INVERTER_ENABLED
-	Set_Frequency_Hz(frequency++,		HIGH_CURRENT);
-	Set_Voltage_Target(frequency*28,	HIGH_CURRENT);	//Voltage is frequency *2 * 2^0.5, hence 1.41*2 become 28 in interger math
-	#endif
-	#ifdef HiV_INVERTER_ENABLED
-	Set_Frequency_Hz(60/*Hz*/,			HIGH_VOLTAGE);
-	Set_Voltage_Target(1697/*169.7V*/,	HIGH_VOLTAGE);	//Peak voltage of a 120Vrms sine wave
-	#endif
-
-	return;
 }

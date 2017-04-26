@@ -89,12 +89,22 @@ void Initialize_Inverter(void)
 	{
 		Invertahoy[loop].phaseRange = SINE_0_TO_90;
 		Invertahoy[loop].currentStep = 0;
-		Invertahoy[loop].multiplier = 100;
+		Invertahoy[loop].multiplier = 10;
 		Invertahoy[loop].divider = 100;
 		Invertahoy[loop].delayCounter_uS = 0;
 		Invertahoy[loop].targetDelay_uS = 416;//60Hz
-		targetVoltage[loop] = 566;	//Peak voltage with one decimal of accuracy
+		targetVoltage[loop] = 1697;	//Peak voltage with one decimal of accuracy
 	}
+	
+	//Set initial starting conditions
+	#ifdef HiI_INVERTER_ENABLED
+	Set_Frequency_Hz(60/*Hz*/,			HIGH_CURRENT);	//Ideal frequency of transformer
+	Set_Voltage_Target(1697/*169.7V*/,	HIGH_CURRENT);	//Peak voltage of a 40Vrms sine wave
+	#endif
+	#ifdef HiV_INVERTER_ENABLED
+	Set_Frequency_Hz(20/*Hz*/,			HIGH_VOLTAGE);	//Low starting frequency for the motor
+	Set_Voltage_Target(566/*56.6V*/,	HIGH_VOLTAGE);	//Peak voltage of a 120Vrms sine wave
+	#endif
 	
 	//OC1 - LOA HiA
 	OC1RS				= 0;		//Ensures it is off until needed
@@ -390,14 +400,6 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 	return;
 }
 
-//100% Low
-//	OCxRS				= 0;
-//	OCxR				= PERIOD+1;
-//	
-//100% High
-//	OCxR				= 0;
-//	OCxRS				= PERIOD+1;
-
 void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 {
 	int circulatingCurrentPeriod;
@@ -560,3 +562,18 @@ int Get_Voltage_Target(enum INVERTERS_SUPPORTED inverter)
 	return targetVoltage[inverter];
 }
 
+void Frequency_Ramp(unsigned long time_mS)
+{
+	static int frequency = 20;
+
+	#ifdef HiI_INVERTER_ENABLED
+	Set_Frequency_Hz(frequency++,		HIGH_CURRENT);
+	Set_Voltage_Target(frequency*28,	HIGH_CURRENT);	//Voltage is frequency *2 * 2^0.5, hence 1.41*2 become 28 in interger math
+	#endif
+	#ifdef HiV_INVERTER_ENABLED
+	Set_Frequency_Hz(60/*Hz*/,			HIGH_VOLTAGE);
+	Set_Voltage_Target(1697/*169.7V*/,	HIGH_VOLTAGE);	//Peak voltage of a 120Vrms sine wave
+	#endif
+
+	return;
+}

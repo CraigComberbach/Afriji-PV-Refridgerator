@@ -146,5 +146,6 @@ enum A2D_PIN_DEFINITIONS
 
 //Function Prototype
 void Configure_For_Afriji(void);
+void Heart_Beat_Task(unsigned long time_mS);
 
 #endif	/* CONFIG_H */
