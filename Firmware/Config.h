@@ -6,7 +6,7 @@
 #include <stdint.h>
 
 //System Variables
-#define HiI_INVERTER_ENABLED
+//#define HiI_INVERTER_ENABLED
 #define HiV_INVERTER_ENABLED
 
 //Clock Frequency

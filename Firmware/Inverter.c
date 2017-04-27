@@ -527,7 +527,8 @@ void Peaks(enum INVERTERS_SUPPORTED inverter)
 			//Take a sample; it won't give me a result for THIS calculation, but will be ready by the next one
 			Trigger_A2D_Scan();
 
-			currentVoltage = A2D_Value(A2D_AN13_TRANSFORMER_SECONDARY_PLUS);
+			currentVoltage = A2D_Value(A2D_AN14_VOUT_PLUS);
+			currentVoltage = A2D_Value(A2D_AN15_VOUT_MINUS);
 			break;
 		#endif
 		default:
@@ -567,12 +568,12 @@ void Frequency_Ramp(unsigned long time_mS)
 	static int frequency = 20;
 
 	#ifdef HiI_INVERTER_ENABLED
-	Set_Frequency_Hz(frequency++,		HIGH_CURRENT);
-	Set_Voltage_Target(frequency*28,	HIGH_CURRENT);	//Voltage is frequency *2 * 2^0.5, hence 1.41*2 become 28 in interger math
+	Set_Frequency_Hz(60/*Hz*/,			HIGH_CURRENT);
+	Set_Voltage_Target(1697/*169.7V*/,	HIGH_CURRENT);	//Peak voltage of a 120Vrms sine wave
 	#endif
 	#ifdef HiV_INVERTER_ENABLED
-	Set_Frequency_Hz(60/*Hz*/,			HIGH_VOLTAGE);
-	Set_Voltage_Target(1697/*169.7V*/,	HIGH_VOLTAGE);	//Peak voltage of a 120Vrms sine wave
+	Set_Frequency_Hz(frequency++,		HIGH_VOLTAGE);
+	Set_Voltage_Target(frequency*28,	HIGH_VOLTAGE);	//Voltage is frequency *2 * 2^0.5, hence 1.41*2 become 28 in interger math
 	#endif
 
 	return;
