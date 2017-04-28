@@ -7,7 +7,7 @@
 
 //System Variables
 #define HiI_INVERTER_ENABLED
-#define HiV_INVERTER_ENABLED
+#define HiVolt_INVERTER_ENABLED
 
 //Clock Frequency
 #define FOSC_Hz			32000000			//32MHz
@@ -41,7 +41,7 @@ enum INVERTERS_SUPPORTED
 	#ifdef HiI_INVERTER_ENABLED
 	HIGH_CURRENT,
 	#endif
-	#ifdef HiV_INVERTER_ENABLED
+	#ifdef HiVolt_INVERTER_ENABLED
 	HIGH_VOLTAGE,
 	#endif
 	NUMBER_OF_INVERTERS_SUPPORTED
@@ -118,8 +118,8 @@ enum A2D_PIN_DEFINITIONS
 	A2D_AN1_TRANSFORMER_PRIMARY_PLUS = 1,		//A1
 	A2D_AN2_SOLAR_PLUS = 2,						//A2
 	A2D_AN3_TEMP2 = 3,							//A3
-	A2D_AN4_UNUSED = 4,							//A4
-	A2D_AN5_UNUSED = 5,							//A5
+	A2D_AN4_UNUSED = 4,							//A4, used as programming line
+	A2D_AN5_UNUSED = 5,							//A5, used as programming line
 	A2D_AN6_TEMP1 = 6,							//A6
 	A2D_AN7_TEMP3 = 7,							//A7
 	A2D_AN8_TEMP4 = 8,							//A8
