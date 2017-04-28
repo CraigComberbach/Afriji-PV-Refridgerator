@@ -299,14 +299,14 @@ void Inverter_Routine(unsigned long time_uS)
 							OC3R				= 0;
 							OC3RS				= PERIOD+1;
 
-							//LOB - 100% Low
-							OC4RS				= 0;
-							OC4R				= PERIOD+1;
-
-							//LOA - 100% Low
-							OC1RS				= 0;
+                            //LOA - 100% Low
 							OC1R				= PERIOD+1;
-
+                            OC1RS				= 0;
+                            
+							//LOB - 100% Low
+							OC4R				= PERIOD+1;
+                            OC4RS				= 0;
+							
 							break;
 						#endif
 						#ifdef HiVolt_INVERTER_ENABLED
@@ -359,8 +359,8 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 		#ifdef HiI_INVERTER_ENABLED
 		case HIGH_CURRENT:
 			//LOA - Low for entire Period
-			OC1RS				= 0;
 			OC1R				= PERIOD+1;
+            OC1RS				= 0;
 
 			//HOA - High for entire Period
 			OC2R				= 0;
@@ -380,8 +380,8 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 		#ifdef HiVolt_INVERTER_ENABLED
 		case HIGH_VOLTAGE:
 			//LOA - 100% Low
-			OC6RS				= 0;
 			OC6R				= PERIOD+1;
+            OC6RS				= 0;
 
 			//HOA - 100% High
 			OC7R				= 0;
