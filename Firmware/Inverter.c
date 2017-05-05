@@ -527,8 +527,10 @@ void Peaks(enum INVERTERS_SUPPORTED inverter)
 			//Take a sample; it won't give me a result for THIS calculation, but will be ready by the next one
 			Trigger_A2D_Scan();
 
-			currentVoltage = A2D_Value(A2D_AN14_VOUT_PLUS);
-			currentVoltage = A2D_Value(A2D_AN15_VOUT_MINUS);
+			if(A2D_Value(A2D_AN14_VOUT_PLUS) > A2D_Value(A2D_AN15_VOUT_MINUS))
+				currentVoltage = A2D_Value(A2D_AN14_VOUT_PLUS);
+			else
+				currentVoltage = A2D_Value(A2D_AN15_VOUT_MINUS);
 			break;
 		#endif
 		default:
