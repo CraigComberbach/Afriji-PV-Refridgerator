@@ -20,43 +20,30 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 /*************Library Dependencies***************/
 /************Arbitrary Functionality*************/
 /*************   Magic  Numbers   ***************/
-#define	PERIOD						159
-#define	SIZE_OF_ARRAY				10
+#define	PERIOD						159	//
+//#define	SIZE_OF_ARRAY				10
 #define	DEADBAND					2	//Period resolution is 62.5nS; This is the delay between turning on/off one and turning on/off the other
 #define NUMBER_OF_uS_IN_ONE_SECOND	1000000
 #define VOLTAGE_TARGET_DEADBAND		10	//Voltage with one decimal of accuracy
 #define MULTIPLIER_MAXIMUM			100
 
 /*************    Enumeration     ***************/
-enum SINE_WAVE_STAGES
-{
-	SINE_0_TO_90,
-	SINE_90_TO_180,
-	SINE_180_TO_270,
-	SINE_270_TO_360,
-};
 
 /***********  Structure Definitions  ************/
 struct INVERTER_VARIABLES
 {
 	int multiplier;
 	int divider;
-	enum SINE_WAVE_STAGES phaseRange;
 	int currentStep;
-	int counterToNextInverterStep_uS;
-	int delayToNextInverterStep_uS;
+	int counterToNextPWM_Period_Cyc;
+	int PWM_Period_Cyc;
 } InverterConfigData[NUMBER_OF_INVERTERS_SUPPORTED];
 
 /***********State Machine Definitions************/
 
 /*************  Global Variables  ***************/
-int targetVoltage[NUMBER_OF_INVERTERS_SUPPORTED];	//Peak voltage with one decimal of accuracy
-unsigned int inverterOnPeriod[SIZE_OF_ARRAY] =
-{
-//100kHz @ 10 points (0-90º of a sine wave) Note: This series factors in the Rise/Fall times buffer, Min on time, AND zero crossing
-5,		30,		55,		79,		100,
-118,	133,	144,	150,	153
-};
+int targetVoltage[NUMBER_OF_INVERTERS_SUPPORTED];	//Peak voltage scaled by a factor of 10
+int targetFrequency[NUMBER_OF_INVERTERS_SUPPORTED]; //Frequency of inverter output sine wave 
 
 /*************Interrupt Prototypes***************/
 /*************Function  Prototypes***************/
@@ -94,7 +81,7 @@ void Initialize_Inverter(void)
 		InverterConfigData[loop].multiplier = 1;
 		InverterConfigData[loop].divider = 1;
 		InverterConfigData[loop].counterToNextInverterStep_uS = 0;
-		InverterConfigData[loop].delayToNextInverterStep_uS = 50;
+		InverterConfigData[loop].delayBetweenInverterStep_Cyc = 50;
 		targetVoltage[loop] = 1697;	//Peak voltage with one decimal of accuracy
 	}
 	
@@ -231,7 +218,7 @@ void Inverter_Routine(unsigned long time_uS)
 		InverterConfigData[currentInverter].counterToNextInverterStep_uS += time_uS;
 
 		//Check to see if we are due to update the waveform
-		if(InverterConfigData[currentInverter].counterToNextInverterStep_uS >= InverterConfigData[currentInverter].delayToNextInverterStep_uS)
+		if(InverterConfigData[currentInverter].counterToNextInverterStep_uS >= InverterConfigData[currentInverter].delayBetweenInverterStep_Cyc)
 		{
 			//Reset the counter for the next waveform update
 			InverterConfigData[currentInverter].counterToNextInverterStep_uS = 0;
@@ -463,7 +450,7 @@ void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 
 void Calculate_Sine_Wave(int step, enum INVERTERS_SUPPORTED inverter, int *conductingCurrentPeriod, int *circulatingCurrentPeriod)
 {
-	//Precalculate periods
+	//Precalculate Duty Cycle Periods
 	*circulatingCurrentPeriod	= PERIOD - (inverterOnPeriod[step]*InverterConfigData[inverter].multiplier)/InverterConfigData[inverter].divider;
 	*conductingCurrentPeriod	= (inverterOnPeriod[step]*InverterConfigData[inverter].multiplier)/InverterConfigData[inverter].divider - DEADBAND;
 	
@@ -482,24 +469,30 @@ void Calculate_Sine_Wave(int step, enum INVERTERS_SUPPORTED inverter, int *condu
 	return;
 }
 
+//Get & Set Functions for Global Variables
+
 void Set_Target_Delay_uS(int newDelay_uS, enum INVERTERS_SUPPORTED inverter)
 {
-	InverterConfigData[inverter].delayToNextInverterStep_uS = newDelay_uS;
+	InverterConfigData[inverter].delayBetweenInverterStep_Cyc = newDelay_uS;
 	return;
 }
 
 int Get_Target_Delay_uS(enum INVERTERS_SUPPORTED inverter)
 {
-	return InverterConfigData[inverter].delayToNextInverterStep_uS;
+	return InverterConfigData[inverter].delayBetweenInverterStep_Cyc;
 }
 
 void Set_Frequency_Hz(int newFrequency_Hz, enum INVERTERS_SUPPORTED inverter)
 {
-	long temp;
-	temp = NUMBER_OF_uS_IN_ONE_SECOND;	//Number of uS in one second
-	temp /= newFrequency_Hz;			//Divide by frequency to get number of uS per full cycle
-	temp /= SIZE_OF_ARRAY * 4;			//Divide by number of distinct steps in a full wave
-	InverterConfigData[inverter].delayToNextInverterStep_uS = (int)temp;
+
+	
+	
+	
+	//	long temp;
+//	temp = NUMBER_OF_uS_IN_ONE_SECOND;	//Number of uS in one second
+//	temp /= newFrequency_Hz;			//Divide by frequency to get number of uS per full cycle
+//	temp /= SIZE_OF_ARRAY * 4;			//Divide by number of distinct steps in a full wave
+//	InverterConfigData[inverter].delayBetweenInverterStep_Cyc = (int)temp;
 	return;
 }
 
@@ -508,7 +501,7 @@ int Get_Frequency_Hz(enum INVERTERS_SUPPORTED inverter)
 	long temp;
 	temp = NUMBER_OF_uS_IN_ONE_SECOND;			//Number of uS in one second
 	temp /= SIZE_OF_ARRAY * 4;					//Divide by number of distinct steps in a full wave
-	temp /= InverterConfigData[inverter].delayToNextInverterStep_uS;//Divide by current delay
+	temp /= InverterConfigData[inverter].delayBetweenInverterStep_Cyc;//Divide by current delay
 	return (int)temp;
 }
 
