@@ -515,7 +515,7 @@ int Get_Frequency_Hz(enum INVERTERS_SUPPORTED inverter)
 void Peaks(enum INVERTERS_SUPPORTED inverter)
 {
 	int currentVoltage;
-
+	
 	switch(inverter)
 	{
 		#ifdef HiI_INVERTER_ENABLED
