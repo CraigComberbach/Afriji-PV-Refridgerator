@@ -567,7 +567,9 @@ int Get_Voltage_Target(enum INVERTERS_SUPPORTED inverter)
 
 void Frequency_Ramp(unsigned long time_mS)
 {
+	#ifdef HiV_INVERTER_ENABLED
 	static int frequency = 20;
+	#endif
 
 	#ifdef HiI_INVERTER_ENABLED
 	Set_Frequency_Hz(60/*Hz*/,			HIGH_CURRENT);
@@ -575,7 +577,7 @@ void Frequency_Ramp(unsigned long time_mS)
 	#endif
 	#ifdef HiV_INVERTER_ENABLED
 	Set_Frequency_Hz(frequency++,		HIGH_VOLTAGE);
-	Set_Voltage_Target(frequency*28,	HIGH_VOLTAGE);	//Voltage is frequency *2 * 2^0.5, hence 1.41*2 become 28 in interger math
+	Set_Voltage_Target(frequency*28,	HIGH_VOLTAGE);	//Voltage is frequency *2 * 2^0.5, hence 1.41*2 becomes 28 in integer math
 	#endif
 
 	return;
