@@ -355,14 +355,6 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 	{
 		#ifdef HiI_INVERTER_ENABLED
 		case HIGH_CURRENT:
-			//LOA - 100% Low
-			OC1RS				= 0;
-			OC1R				= PERIOD+1;
-
-			//HOA - 100% High
-			OC2R				= 0;
-			OC2RS				= PERIOD+1;
-
 			//HOB - Circulating current
 			OC3R				= DEADBAND;
 			OC3RS				= circulatingCurrentPeriod;
@@ -371,18 +363,18 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 			OC4R				= conductingCurrentPeriod;
 			OC4RS				= PERIOD;
 
+			//LOA - 100% Low
+			OC1RS				= 0;
+			OC1R				= PERIOD+1;
+
+			//HOA - 100% High
+			OC2R				= 0;
+			OC2RS				= PERIOD+1;
+
 			break;
 		#endif
 		#ifdef HiV_INVERTER_ENABLED
 		case HIGH_VOLTAGE:
-			//LOA - 100% Low
-			OC6RS				= 0;
-			OC6R				= PERIOD+1;
-
-			//HOA - 100% High
-			OC7R				= 0;
-			OC7RS				= PERIOD+1;
-
 			//HOB - Circulating current
 			OC8R				= DEADBAND;
 			OC8RS				= circulatingCurrentPeriod;
@@ -390,6 +382,14 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 			//LOB - Conducting current
 			OC9R				= conductingCurrentPeriod;
 			OC9RS				= PERIOD;
+
+			//LOA - 100% Low
+			OC6RS				= 0;
+			OC6R				= PERIOD+1;
+
+			//HOA - 100% High
+			OC7R				= 0;
+			OC7RS				= PERIOD+1;
 
 			break;
 		#endif
