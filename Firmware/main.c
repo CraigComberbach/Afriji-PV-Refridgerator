@@ -49,10 +49,10 @@ int main(void)
 	Configure_For_Afriji();
 
 	//Scheduled Tasks
-	Initialize_Scheduler(40/*uS*/);
+	Initialize_Scheduler(100/*uS*/);
 	Schedule_Task(STARTUP_TASK,		&Heart_Beat_Task,	1000/*uS Delay*/,		50000/*uS Period*/,		20/*Repetitions*/);
 	Schedule_Task(HEART_BEAT_TASK,	&Heart_Beat_Task,	1000000/*uS Delay*/,	500000/*uS Period*/,	PERMANENT_TASK);
-	Schedule_Task(INVERTER_TASK,	&Inverter_Routine,	1000000/*uS Delay*/,	40/*uS Period*/,		PERMANENT_TASK);
+	Schedule_Task(INVERTER_TASK,	&Inverter_Routine,	1000000/*uS Delay*/,	100/*uS Period*/,		PERMANENT_TASK);
 	Schedule_Task(A2D_TASK,			&A2D_Routine,		1000666/*uS Delay*/,	1000/*uS Period*/,		PERMANENT_TASK);//No longer than once ever 8mS will allow the result to be captured in time to be used with a 60Hz waveform
 	Schedule_Task(FREQUENCY_RAMP,	&Frequency_Ramp,	2000000/*uS Delay*/,	200000/*uS Period*/,	40/*Repetitions*/);
 

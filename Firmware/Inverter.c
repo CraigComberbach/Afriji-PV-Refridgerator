@@ -20,31 +20,29 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 /*************Library Dependencies***************/
 /************Arbitrary Functionality*************/
 /*************   Magic  Numbers   ***************/
-#define	PERIOD						159	//
-//#define	SIZE_OF_ARRAY				10
+#define	PWM_PERIOD_CYCLES			159	//# of operations between PWM module resets
 #define	DEADBAND					2	//Period resolution is 62.5nS; This is the delay between turning on/off one and turning on/off the other
 #define NUMBER_OF_uS_IN_ONE_SECOND	1000000
 #define VOLTAGE_TARGET_DEADBAND		10	//Voltage with one decimal of accuracy
-#define MULTIPLIER_MAXIMUM			100
+//#define MULTIPLIER_MAXIMUM			100
 
 /*************    Enumeration     ***************/
 
 /***********  Structure Definitions  ************/
 struct INVERTER_VARIABLES
 {
-	int multiplier;
-	int divider;
-	int currentStep;
-	int counterToNextPWM_Period_Cyc;
-	int PWM_Period_Cyc;
+	int targetOutputVoltage;
+	int timeSinceLastPWMStep_us;
+	int angle_degx10;
+	int counterToNextPWM_Period_Reset;
+	int targetOutputPeriod_cycles;
+	int ratedOutputPeriod_cycles;
+	
 } InverterConfigData[NUMBER_OF_INVERTERS_SUPPORTED];
 
 /***********State Machine Definitions************/
 
 /*************  Global Variables  ***************/
-int targetVoltage[NUMBER_OF_INVERTERS_SUPPORTED];	//Peak voltage scaled by a factor of 10
-int targetFrequency[NUMBER_OF_INVERTERS_SUPPORTED]; //Frequency of inverter output sine wave 
-
 /*************Interrupt Prototypes***************/
 /*************Function  Prototypes***************/
 void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter);
@@ -76,28 +74,30 @@ void Initialize_Inverter(void)
 	
 	for(loop = 0; loop < NUMBER_OF_INVERTERS_SUPPORTED; ++loop)
 	{
-		InverterConfigData[loop].phaseRange = SINE_0_TO_90;
-		InverterConfigData[loop].currentStep = 0;
-		InverterConfigData[loop].multiplier = 1;
-		InverterConfigData[loop].divider = 1;
-		InverterConfigData[loop].counterToNextInverterStep_uS = 0;
-		InverterConfigData[loop].delayBetweenInverterStep_Cyc = 50;
-		targetVoltage[loop] = 1697;	//Peak voltage with one decimal of accuracy
+		InverterConfigData[loop].timeSinceLastPWMStep_us = 0;
+		InverterConfigData[loop].angle_degx10 = 0;
+		InverterConfigData[loop].targetOutputVoltage = 1697;
+		InverterConfigData[loop].counterToNextPWM_Period_Reset = 0;
+		InverterConfigData[loop].targetOutputPeriod_cycles = 0;
+		InverterConfigData[loop].ratedOutputPeriod_cycles = 0;
 	}
 	
 	//Set initial starting conditions
 	#ifdef HiI_INVERTER_ENABLED
-	Set_Frequency_Hz(60/*Hz*/,			HIGH_CURRENT);	//Ideal frequency of transformer
-	Set_Voltage_Target(1700/*170V*/,	HIGH_CURRENT);	//Peak voltage of a (2V/Hz*f + 100V/Hz*e^((-f+20Hz)/10Hz)=120Vrms sine wave
+	Set_Output_Hz (60 /*Hz*/, HIGH_CURRENT);
+	Set_Rated_Hz (60 /*Hz*/ , HIGH_CURRENT );
+	Set_Rated_RMS_Voltage (1200/*120.0 Vrms*/,	HIGH_CURRENT);	//Peak voltage of a (2V/Hz*f + 10 V * e^((-f+20Hz)/10Hz)=120Vrms sine wave
 	#endif
+	
 	#ifdef HiVolt_INVERTER_ENABLED
-	Set_Frequency_Hz(20/*Hz*/,			HIGH_VOLTAGE);	//Low starting frequency for the motor
-	Set_Voltage_Target(707/*70.7V*/,	HIGH_VOLTAGE);	//Peak voltage of a (2V/Hz*f + 100V/Hz*e^((-f+20Hz)/10Hz)=50Vrms sine wave
+	Set_Output_Hz (20/*Hz*/,	HIGH_CURRENT);	//Motor min starting speed is 20 Hz
+	Set_Rated_Hz (60, HIGH_CURRENT );	//Motor rated speed is 60 Hz / 1800 rpm
+	Set_Rated_RMS_Voltage (1200/*120.0 Vrms*/,	HIGH_CURRENT);	//Peak voltage of a (2V/Hz*f + 10 V * e^((-f+20Hz)/10Hz)=120Vrms sine wave
 	#endif
 	
 	//OC1 - LOA Hi Current
 	OC1RS				= 0;		//Ensures it is off until needed
-	OC1R				= PERIOD+1;	//Ensures it is off until needed
+	OC1R				= PWM_PERIOD_CYCLES+1;	//Ensures it is off until needed
 	OC1CON1				= 0;
 	OC1CON2				= 0;
 	OC1CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
@@ -109,7 +109,7 @@ void Initialize_Inverter(void)
 	
 	//OC2 - HOA Hi Current
 	OC2RS				= 0;		//Ensures it is off until needed
-	OC2R				= PERIOD+1;	//Ensures it is off until needed
+	OC2R				= PWM_PERIOD_CYCLES+1;	//Ensures it is off until needed
 	OC2CON1				= 0;
 	OC2CON2				= 0;
 	OC2CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
@@ -121,7 +121,7 @@ void Initialize_Inverter(void)
 
 	//OC3 - HOB Hi Current
 	OC3RS				= 0;		//Ensures it is off until needed
-	OC3R				= PERIOD+1;	//Ensures it is off until needed
+	OC3R				= PWM_PERIOD_CYCLES+1;	//Ensures it is off until needed
 	OC3CON1				= 0;
 	OC3CON2				= 0;
 	OC3CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
@@ -133,7 +133,7 @@ void Initialize_Inverter(void)
 
 	//OC4 - LOB Hi Current
 	OC4RS				= 0;		//Ensures it is off until needed
-	OC4R				= PERIOD+1;	//Ensures it is off until needed
+	OC4R				= PWM_PERIOD_CYCLES+1;	//Ensures it is off until needed
 	OC4CON1				= 0;
 	OC4CON2				= 0;
 	OC4CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
@@ -146,7 +146,7 @@ void Initialize_Inverter(void)
 	//OC5 - Master Timer 
 	/* !!! One reference timer to rule them all and in the darkness bind them [together] !!! */
 	OC5R = 0;
-	OC5RS = PERIOD;
+	OC5RS = PWM_PERIOD_CYCLES;
 	OC5CON1				= 0;
 	OC5CON2				= 0;
 	OC5CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
@@ -158,7 +158,7 @@ void Initialize_Inverter(void)
 	
 	//OC6 - LOA Hi Voltage
 	OC6RS				= 0;		//Ensures it is off until needed
-	OC6R				= PERIOD+1;	//Ensures it is off until needed
+	OC6R				= PWM_PERIOD_CYCLES+1;	//Ensures it is off until needed
 	OC6CON1				= 0;
 	OC6CON2				= 0;
 	OC6CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
@@ -170,7 +170,7 @@ void Initialize_Inverter(void)
 	
 	//OC7 - HOA Hi Voltage
 	OC7RS				= 0;		//Ensures it is off until needed
-	OC7R				= PERIOD+1;	//Ensures it is off until needed
+	OC7R				= PWM_PERIOD_CYCLES+1;	//Ensures it is off until needed
 	OC7CON1				= 0;
 	OC7CON2				= 0;
 	OC7CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
@@ -182,7 +182,7 @@ void Initialize_Inverter(void)
 
 	//OC8 - HOB Hi Voltage
 	OC8RS				= 0;		//Ensures it is off until needed
-	OC8R				= PERIOD+1;	//Ensures it is off until needed
+	OC8R				= PWM_PERIOD_CYCLES+1;	//Ensures it is off until needed
 	OC8CON1				= 0;
 	OC8CON2				= 0;
 	OC8CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
@@ -194,7 +194,7 @@ void Initialize_Inverter(void)
 
 	//OC9 - LOB Hi Voltage
 	OC9RS				= 0;		//Ensures it is off until needed
-	OC9R				= PERIOD+1;	//Ensures it is off until needed
+	OC9R				= PWM_PERIOD_CYCLES+1;	//Ensures it is off until needed
 	OC9CON1				= 0;
 	OC9CON2				= 0;
 	OC9CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
@@ -215,10 +215,10 @@ void Inverter_Routine(unsigned long time_uS)
 	for(currentInverter = 0; currentInverter < NUMBER_OF_INVERTERS_SUPPORTED; ++currentInverter)
 	{
 		//Update the amount of time since the waveform was last updated
-		InverterConfigData[currentInverter].counterToNextInverterStep_uS += time_uS;
+		InverterConfigData[currentInverter].currentStep_us += time_uS;
 
 		//Check to see if we are due to update the waveform
-		if(InverterConfigData[currentInverter].counterToNextInverterStep_uS >= InverterConfigData[currentInverter].delayBetweenInverterStep_Cyc)
+		if(InverterConfigData[currentInverter].currentStep_us >= InverterConfigData[currentInverter].delayBetweenInverterStep_Cyc)
 		{
 			//Reset the counter for the next waveform update
 			InverterConfigData[currentInverter].counterToNextInverterStep_uS = 0;
@@ -471,38 +471,37 @@ void Calculate_Sine_Wave(int step, enum INVERTERS_SUPPORTED inverter, int *condu
 
 //Get & Set Functions for Global Variables
 
-void Set_Target_Delay_uS(int newDelay_uS, enum INVERTERS_SUPPORTED inverter)
+void Set_Output_Hz(int newFrequency_Hz, enum INVERTERS_SUPPORTED inverter)
 {
-	InverterConfigData[inverter].delayBetweenInverterStep_Cyc = newDelay_uS;
+	InverterConfigData[inverter].targetOutputPeriod_cycles = FCY_Hz / newFrequency_Hz;
 	return;
 }
 
-int Get_Target_Delay_uS(enum INVERTERS_SUPPORTED inverter)
+int Get_Output_Hz(enum INVERTERS_SUPPORTED inverter)
 {
-	return InverterConfigData[inverter].delayBetweenInverterStep_Cyc;
+	return InverterConfigData[inverter].targetOutputPeriod_cycles;
 }
 
-void Set_Frequency_Hz(int newFrequency_Hz, enum INVERTERS_SUPPORTED inverter)
+void Set_Rated_Hz (int newFrequency_Hz, enum INVERTERS_SUPPORTED inverter)
 {
-
-	
-	
-	
-	//	long temp;
-//	temp = NUMBER_OF_uS_IN_ONE_SECOND;	//Number of uS in one second
-//	temp /= newFrequency_Hz;			//Divide by frequency to get number of uS per full cycle
-//	temp /= SIZE_OF_ARRAY * 4;			//Divide by number of distinct steps in a full wave
-//	InverterConfigData[inverter].delayBetweenInverterStep_Cyc = (int)temp;
+	InverterConfigData[inverter].ratedOutputPeriod_cycles = FCY_Hz / newFrequency_Hz;
 	return;
 }
 
-int Get_Frequency_Hz(enum INVERTERS_SUPPORTED inverter)
+int Get_Rated_Hz(enum INVERTERS_SUPPORTED inverter)
 {
-	long temp;
-	temp = NUMBER_OF_uS_IN_ONE_SECOND;			//Number of uS in one second
-	temp /= SIZE_OF_ARRAY * 4;					//Divide by number of distinct steps in a full wave
-	temp /= InverterConfigData[inverter].delayBetweenInverterStep_Cyc;//Divide by current delay
-	return (int)temp;
+	return FCY_Hz / InverterConfigData[inverter].ratedOutputPeriod_cycles;
+}
+
+void Set_Rated_RMS_Voltage (int newRatedVoltage_Vx10, enum INVERTERS_SUPPORTED inverter)
+{
+	InverterConfigData[inverter].targetOutputVoltage = newRatedVoltage_Vx10 * 1414 / 1000;
+	return;
+}
+
+int Get_Rated_RMS_Voltage (enum INVERTERS_SUPPORTED inverter)
+{
+	return InverterConfigData[inverter].targetOutputVoltage * 1000 / 1414;
 }
 
 void Peaks(enum INVERTERS_SUPPORTED inverter)
@@ -547,7 +546,7 @@ void Peaks(enum INVERTERS_SUPPORTED inverter)
 	return;
 }
 
-void Set_Voltage_Target(int newTarget, enum INVERTERS_SUPPORTED inverter)
+void Set_Rated_Voltage(int newTarget, enum INVERTERS_SUPPORTED inverter)
 {
 	if((inverter >= 0) && (inverter < NUMBER_OF_INVERTERS_SUPPORTED))
 		targetVoltage[inverter] = newTarget;
