@@ -43,15 +43,17 @@ struct INVERTER_VARIABLES
 	int divider;
 	enum SINE_WAVE_STAGES phaseRange;
 	int currentStep;
-	int delayCounter_uS;
-	int targetDelay_uS;
-} Invertahoy[NUMBER_OF_INVERTERS_SUPPORTED];
+	int counterToNextInverterStep_uS;
+	int delayToNextInverterStep_uS;
+} InverterConfigData[NUMBER_OF_INVERTERS_SUPPORTED];
+
 /***********State Machine Definitions************/
+
 /*************  Global Variables  ***************/
 int targetVoltage[NUMBER_OF_INVERTERS_SUPPORTED];	//Peak voltage with one decimal of accuracy
 unsigned int inverterOnPeriod[SIZE_OF_ARRAY] =
 {
-//100kHz @ 10 points (0-90บ of a sine wave) Note: This series factors in the Rise/Fall times buffer, Min on time, AND zero crossing
+//100kHz @ 10 points (0-90ยบ of a sine wave) Note: This series factors in the Rise/Fall times buffer, Min on time, AND zero crossing
 5,		30,		55,		79,		100,
 118,	133,	144,	150,	153
 };
@@ -75,7 +77,7 @@ void Initialize_Inverter(void)
 //	  |HOA|         |HOB|
 //	  +-+-+         +-+-+
 //		|             |
-//		+-------------+
+//		+---|LOAD|----+
 //		|             |
 //	  +-+-+         +-+-+
 //	  |LOA|         |LOB|
@@ -87,26 +89,26 @@ void Initialize_Inverter(void)
 	
 	for(loop = 0; loop < NUMBER_OF_INVERTERS_SUPPORTED; ++loop)
 	{
-		Invertahoy[loop].phaseRange = SINE_0_TO_90;
-		Invertahoy[loop].currentStep = 0;
-		Invertahoy[loop].multiplier = 10;
-		Invertahoy[loop].divider = 100;
-		Invertahoy[loop].delayCounter_uS = 0;
-		Invertahoy[loop].targetDelay_uS = 416;//60Hz
+		InverterConfigData[loop].phaseRange = SINE_0_TO_90;
+		InverterConfigData[loop].currentStep = 0;
+		InverterConfigData[loop].multiplier = 1;
+		InverterConfigData[loop].divider = 1;
+		InverterConfigData[loop].counterToNextInverterStep_uS = 0;
+		InverterConfigData[loop].delayToNextInverterStep_uS = 50;
 		targetVoltage[loop] = 1697;	//Peak voltage with one decimal of accuracy
 	}
 	
 	//Set initial starting conditions
 	#ifdef HiI_INVERTER_ENABLED
 	Set_Frequency_Hz(60/*Hz*/,			HIGH_CURRENT);	//Ideal frequency of transformer
-	Set_Voltage_Target(1697/*169.7V*/,	HIGH_CURRENT);	//Peak voltage of a 40Vrms sine wave
+	Set_Voltage_Target(1700/*170V*/,	HIGH_CURRENT);	//Peak voltage of a (2V/Hz*f + 100V/Hz*e^((-f+20Hz)/10Hz)=120Vrms sine wave
 	#endif
-	#ifdef HiV_INVERTER_ENABLED
+	#ifdef HiVolt_INVERTER_ENABLED
 	Set_Frequency_Hz(20/*Hz*/,			HIGH_VOLTAGE);	//Low starting frequency for the motor
-	Set_Voltage_Target(566/*56.6V*/,	HIGH_VOLTAGE);	//Peak voltage of a 120Vrms sine wave
+	Set_Voltage_Target(707/*70.7V*/,	HIGH_VOLTAGE);	//Peak voltage of a (2V/Hz*f + 100V/Hz*e^((-f+20Hz)/10Hz)=50Vrms sine wave
 	#endif
 	
-	//OC1 - LOA HiA
+	//OC1 - LOA Hi Current
 	OC1RS				= 0;		//Ensures it is off until needed
 	OC1R				= PERIOD+1;	//Ensures it is off until needed
 	OC1CON1				= 0;
@@ -118,7 +120,7 @@ void Initialize_Inverter(void)
 	OC1CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC1CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 	
-	//OC2 - HOA HiA
+	//OC2 - HOA Hi Current
 	OC2RS				= 0;		//Ensures it is off until needed
 	OC2R				= PERIOD+1;	//Ensures it is off until needed
 	OC2CON1				= 0;
@@ -130,7 +132,7 @@ void Initialize_Inverter(void)
 	OC2CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC2CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
-	//OC3 - HOB HiA
+	//OC3 - HOB Hi Current
 	OC3RS				= 0;		//Ensures it is off until needed
 	OC3R				= PERIOD+1;	//Ensures it is off until needed
 	OC3CON1				= 0;
@@ -142,7 +144,7 @@ void Initialize_Inverter(void)
 	OC3CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC3CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
-	//OC4 - LOB HiA
+	//OC4 - LOB Hi Current
 	OC4RS				= 0;		//Ensures it is off until needed
 	OC4R				= PERIOD+1;	//Ensures it is off until needed
 	OC4CON1				= 0;
@@ -154,7 +156,20 @@ void Initialize_Inverter(void)
 	OC4CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC4CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 	
-	//OC6 - LOA HiV
+	//OC5 - Master Timer 
+	/* !!! One reference timer to rule them all and in the darkness bind them [together] !!! */
+	OC5R = 0;
+	OC5RS = PERIOD;
+	OC5CON1				= 0;
+	OC5CON2				= 0;
+	OC5CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
+	OC5CON1bits.OCM		= 0b110;	//110= Edge-Aligned PWM mode on OCx
+	OC5CON2bits.SYNCSEL	= 0b11111;	//11111= This OC module
+	OC5CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+	OC5CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
+	OC5CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+	
+	//OC6 - LOA Hi Voltage
 	OC6RS				= 0;		//Ensures it is off until needed
 	OC6R				= PERIOD+1;	//Ensures it is off until needed
 	OC6CON1				= 0;
@@ -166,7 +181,7 @@ void Initialize_Inverter(void)
 	OC6CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC6CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 	
-	//OC7 - HOA HiV
+	//OC7 - HOA Hi Voltage
 	OC7RS				= 0;		//Ensures it is off until needed
 	OC7R				= PERIOD+1;	//Ensures it is off until needed
 	OC7CON1				= 0;
@@ -178,7 +193,7 @@ void Initialize_Inverter(void)
 	OC7CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC7CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
-	//OC8 - HOB HiV
+	//OC8 - HOB Hi Voltage
 	OC8RS				= 0;		//Ensures it is off until needed
 	OC8R				= PERIOD+1;	//Ensures it is off until needed
 	OC8CON1				= 0;
@@ -190,7 +205,7 @@ void Initialize_Inverter(void)
 	OC8CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC8CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
-	//OC9 - LOB HiV
+	//OC9 - LOB Hi Voltage
 	OC9RS				= 0;		//Ensures it is off until needed
 	OC9R				= PERIOD+1;	//Ensures it is off until needed
 	OC9CON1				= 0;
@@ -201,18 +216,6 @@ void Initialize_Inverter(void)
 	OC9CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
 	OC9CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC9CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
-
-	//OC5 - One Reference to rule them all and in the darkness bind them [together]
-	OC5R = 0;
-	OC5RS = PERIOD;
-	OC5CON1				= 0;
-	OC5CON2				= 0;
-	OC5CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
-	OC5CON1bits.OCM		= 0b110;	//110= Edge-Aligned PWM mode on OCx
-	OC5CON2bits.SYNCSEL	= 0b11111;	//11111= This OC module
-	OC5CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
-	OC5CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
-	OC5CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
 	return;
 }
@@ -225,61 +228,61 @@ void Inverter_Routine(unsigned long time_uS)
 	for(currentInverter = 0; currentInverter < NUMBER_OF_INVERTERS_SUPPORTED; ++currentInverter)
 	{
 		//Update the amount of time since the waveform was last updated
-		Invertahoy[currentInverter].delayCounter_uS += time_uS;
+		InverterConfigData[currentInverter].counterToNextInverterStep_uS += time_uS;
 
 		//Check to see if we are due to update the waveform
-		if(Invertahoy[currentInverter].delayCounter_uS >= Invertahoy[currentInverter].targetDelay_uS)
+		if(InverterConfigData[currentInverter].counterToNextInverterStep_uS >= InverterConfigData[currentInverter].delayToNextInverterStep_uS)
 		{
 			//Reset the counter for the next waveform update
-			Invertahoy[currentInverter].delayCounter_uS = 0;
+			InverterConfigData[currentInverter].counterToNextInverterStep_uS = 0;
 
 			//Update the waveform as required
-			switch(Invertahoy[currentInverter].phaseRange)
+			switch(InverterConfigData[currentInverter].phaseRange)
 			{
 				case SINE_0_TO_90:
-					Positive_Sine(Invertahoy[currentInverter].currentStep, currentInverter);
+					Positive_Sine(InverterConfigData[currentInverter].currentStep, currentInverter);
 
 					//Advance in step or state
-					++Invertahoy[currentInverter].currentStep;
-					if(Invertahoy[currentInverter].currentStep >= (SIZE_OF_ARRAY))
+					++InverterConfigData[currentInverter].currentStep;
+					if(InverterConfigData[currentInverter].currentStep >= (SIZE_OF_ARRAY))
 					{
 						Peaks(currentInverter);
-						Invertahoy[currentInverter].currentStep = SIZE_OF_ARRAY-1;
-						Invertahoy[currentInverter].phaseRange = SINE_90_TO_180;
+						InverterConfigData[currentInverter].currentStep = SIZE_OF_ARRAY-1;
+						InverterConfigData[currentInverter].phaseRange = SINE_90_TO_180;
 					}
 					break;
 				case SINE_90_TO_180:
-					Positive_Sine(Invertahoy[currentInverter].currentStep, currentInverter);
+					Positive_Sine(InverterConfigData[currentInverter].currentStep, currentInverter);
 
 					//Advance in step or state
-					--Invertahoy[currentInverter].currentStep;
-					if(--Invertahoy[currentInverter].currentStep < 0)
+					--InverterConfigData[currentInverter].currentStep;
+					if(--InverterConfigData[currentInverter].currentStep < 0)
 					{
-						Invertahoy[currentInverter].currentStep = 0;
-						Invertahoy[currentInverter].phaseRange = SINE_180_TO_270;
+						InverterConfigData[currentInverter].currentStep = 0;
+						InverterConfigData[currentInverter].phaseRange = SINE_180_TO_270;
 					}
 					break;
 				case SINE_180_TO_270:
-					Negative_Sine(Invertahoy[currentInverter].currentStep, currentInverter);
+					Negative_Sine(InverterConfigData[currentInverter].currentStep, currentInverter);
 
 					//Advance in step or state
-					++Invertahoy[currentInverter].currentStep;
-					if(Invertahoy[currentInverter].currentStep >= (SIZE_OF_ARRAY))
+					++InverterConfigData[currentInverter].currentStep;
+					if(InverterConfigData[currentInverter].currentStep >= (SIZE_OF_ARRAY))
 					{
 						Peaks(currentInverter);
-						Invertahoy[currentInverter].currentStep = SIZE_OF_ARRAY-1;
-						Invertahoy[currentInverter].phaseRange = SINE_270_TO_360;
+						InverterConfigData[currentInverter].currentStep = SIZE_OF_ARRAY-1;
+						InverterConfigData[currentInverter].phaseRange = SINE_270_TO_360;
 					}
 					break;
 				case SINE_270_TO_360:
-					Negative_Sine(Invertahoy[currentInverter].currentStep, currentInverter);
+					Negative_Sine(InverterConfigData[currentInverter].currentStep, currentInverter);
 
 					//Advance in step or state
-					--Invertahoy[currentInverter].currentStep;
-					if(--Invertahoy[currentInverter].currentStep < 0)
+					--InverterConfigData[currentInverter].currentStep;
+					if(--InverterConfigData[currentInverter].currentStep < 0)
 					{
-						Invertahoy[currentInverter].currentStep = 0;
-						Invertahoy[currentInverter].phaseRange = SINE_0_TO_90;
+						InverterConfigData[currentInverter].currentStep = 0;
+						InverterConfigData[currentInverter].phaseRange = SINE_0_TO_90;
 					}
 					break;
 				default://How did we get here?
@@ -296,17 +299,17 @@ void Inverter_Routine(unsigned long time_uS)
 							OC3R				= 0;
 							OC3RS				= PERIOD+1;
 
-							//LOB - 100% Low
-							OC4RS				= 0;
-							OC4R				= PERIOD+1;
-
-							//LOA - 100% Low
-							OC1RS				= 0;
+                            //LOA - 100% Low
 							OC1R				= PERIOD+1;
-
+                            OC1RS				= 0;
+                            
+							//LOB - 100% Low
+							OC4R				= PERIOD+1;
+                            OC4RS				= 0;
+							
 							break;
 						#endif
-						#ifdef HiV_INVERTER_ENABLED
+						#ifdef HiVolt_INVERTER_ENABLED
 						case HIGH_VOLTAGE:
 							//HOA - 100% High
 							OC7R				= 0;
@@ -329,8 +332,8 @@ void Inverter_Routine(unsigned long time_uS)
 						default:
 							break;
 					}
-					Invertahoy[currentInverter].currentStep = 0;
-					Invertahoy[currentInverter].phaseRange = SINE_0_TO_90;
+					InverterConfigData[currentInverter].currentStep = 0;
+					InverterConfigData[currentInverter].phaseRange = SINE_0_TO_90;
 					break;
 			}
 		}
@@ -359,7 +362,7 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 			OC3R				= DEADBAND;
 			OC3RS				= circulatingCurrentPeriod;
 
-			//LOB - Conducting current
+			//LOB - Firing (conducting current)
 			OC4R				= conductingCurrentPeriod;
 			OC4RS				= PERIOD;
 
@@ -393,6 +396,7 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 
 			break;
 		#endif
+		
 		default:
 			break;
 	}
@@ -429,7 +433,7 @@ void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 
 			break;
 		#endif
-		#ifdef HiV_INVERTER_ENABLED
+		#ifdef HiVolt_INVERTER_ENABLED
 		case HIGH_VOLTAGE:
 			//HOA - Circulating Current
 			OC7R				= DEADBAND;
@@ -459,8 +463,8 @@ void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 void Calculate_Sine_Wave(int step, enum INVERTERS_SUPPORTED inverter, int *conductingCurrentPeriod, int *circulatingCurrentPeriod)
 {
 	//Precalculate periods
-	*circulatingCurrentPeriod	= PERIOD - (inverterOnPeriod[step]*Invertahoy[inverter].multiplier)/Invertahoy[inverter].divider - DEADBAND;
-	*conductingCurrentPeriod	= PERIOD - (inverterOnPeriod[step]*Invertahoy[inverter].multiplier)/Invertahoy[inverter].divider;
+	*circulatingCurrentPeriod	= PERIOD - (inverterOnPeriod[step]*InverterConfigData[inverter].multiplier)/InverterConfigData[inverter].divider;
+	*conductingCurrentPeriod	= (inverterOnPeriod[step]*InverterConfigData[inverter].multiplier)/InverterConfigData[inverter].divider - DEADBAND;
 	
 	//Check to see if the circulating current period is valid and cap it if is not
 	if(*circulatingCurrentPeriod < (PERIOD - inverterOnPeriod[SIZE_OF_ARRAY-1] - DEADBAND))
@@ -479,13 +483,13 @@ void Calculate_Sine_Wave(int step, enum INVERTERS_SUPPORTED inverter, int *condu
 
 void Set_Target_Delay_uS(int newDelay_uS, enum INVERTERS_SUPPORTED inverter)
 {
-	Invertahoy[inverter].targetDelay_uS = newDelay_uS;
+	InverterConfigData[inverter].delayToNextInverterStep_uS = newDelay_uS;
 	return;
 }
 
 int Get_Target_Delay_uS(enum INVERTERS_SUPPORTED inverter)
 {
-	return Invertahoy[inverter].targetDelay_uS;
+	return InverterConfigData[inverter].delayToNextInverterStep_uS;
 }
 
 void Set_Frequency_Hz(int newFrequency_Hz, enum INVERTERS_SUPPORTED inverter)
@@ -494,7 +498,7 @@ void Set_Frequency_Hz(int newFrequency_Hz, enum INVERTERS_SUPPORTED inverter)
 	temp = NUMBER_OF_uS_IN_ONE_SECOND;	//Number of uS in one second
 	temp /= newFrequency_Hz;			//Divide by frequency to get number of uS per full cycle
 	temp /= SIZE_OF_ARRAY * 4;			//Divide by number of distinct steps in a full wave
-	Invertahoy[inverter].targetDelay_uS = (int)temp;
+	InverterConfigData[inverter].delayToNextInverterStep_uS = (int)temp;
 	return;
 }
 
@@ -503,7 +507,7 @@ int Get_Frequency_Hz(enum INVERTERS_SUPPORTED inverter)
 	long temp;
 	temp = NUMBER_OF_uS_IN_ONE_SECOND;			//Number of uS in one second
 	temp /= SIZE_OF_ARRAY * 4;					//Divide by number of distinct steps in a full wave
-	temp /= Invertahoy[inverter].targetDelay_uS;//Divide by current delay
+	temp /= InverterConfigData[inverter].delayToNextInverterStep_uS;//Divide by current delay
 	return (int)temp;
 }
 
@@ -522,7 +526,7 @@ void Peaks(enum INVERTERS_SUPPORTED inverter)
 			currentVoltage = A2D_Value(A2D_AN12_VDC_BUS_PLUS);
 			break;
 		#endif
-		#ifdef HiV_INVERTER_ENABLED
+		#ifdef HiVolt_INVERTER_ENABLED
 		case HIGH_VOLTAGE:
 			//Take a sample; it won't give me a result for THIS calculation, but will be ready by the next one
 			Trigger_A2D_Scan();
@@ -539,15 +543,15 @@ void Peaks(enum INVERTERS_SUPPORTED inverter)
 
 	//Check if voltage control is required
 	if(currentVoltage < (targetVoltage[inverter] - VOLTAGE_TARGET_DEADBAND))//Voltage is too low
-		Invertahoy[inverter].multiplier++;
+		InverterConfigData[inverter].multiplier++;
 	else if(currentVoltage > (targetVoltage[inverter] + VOLTAGE_TARGET_DEADBAND))//Voltage is too high
-		Invertahoy[inverter].multiplier--;
+		InverterConfigData[inverter].multiplier--;
 
 	//Apply caps to multiplier as required
-	if(Invertahoy[inverter].multiplier > MULTIPLIER_MAXIMUM)
-		Invertahoy[inverter].multiplier = MULTIPLIER_MAXIMUM;
-	else if(Invertahoy[inverter].multiplier <= 0)
-		Invertahoy[inverter].multiplier = 1;
+	if(InverterConfigData[inverter].multiplier > MULTIPLIER_MAXIMUM)
+		InverterConfigData[inverter].multiplier = MULTIPLIER_MAXIMUM;
+	else if(InverterConfigData[inverter].multiplier <= 0)
+		InverterConfigData[inverter].multiplier = 1;
 	
 	return;
 }
