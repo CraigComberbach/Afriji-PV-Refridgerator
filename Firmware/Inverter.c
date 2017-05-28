@@ -28,23 +28,133 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 
 /*************    Enumeration     ***************/
 
-/***********  Structure Definitions  ************/
+
+/***********	Structure Definitions	***********/
+struct ERROR_FLAGS
+{
+    int overCurrent;
+    int maxSlopeExceeded;
+    int targetExceededSupply;
+} inverterErrorFlags[NUMBER_OF_INVERTERS_SUPPORTED];
+
 struct INVERTER_VARIABLES
 {
-	int targetOutputVoltage;
-	int timeSinceLastPWMStep_us;
+	int targetOutputVoltage_Vx10;
+	int targetOutputVoltageShadow_Vx10;
+	int targetOutputFrequency_Hz;
+	int targetOutputFrequencyShadow_Hz;
+	unsigned long targetOutputPeriod_us;
+	int ratedOutputVoltage_Vx10;
+	int ratedOutputFrequency_Hz;
+	int ratedOutputPeriod_us;
+	unsigned long currentTime_us;	//Time is referenced to last zero degrees
 	int angle_degx10;
-	int counterToNextPWM_Period_Reset;
-	int targetOutputPeriod_cycles;
-	int ratedOutputPeriod_cycles;
+	int maxCurrentTripPickup_mA;
+	int maxCurrentTripDelay_us;
+	int lastPeakPosCurrent_mA;
+	int lastPeakNegCurrent_mA;
 	
 } InverterConfigData[NUMBER_OF_INVERTERS_SUPPORTED];
-
+ 
+void Set_Target_Output_Voltage_Vx10(int input, enum INVERTERS_SUPPORTED inverter)
+{
+	InverterConfigData[inverter].targetOutputVoltageShadow_Vx10 = input;
+}
+ 
+int Get_Target_Output_Voltage_Vx10(enum INVERTERS_SUPPORTED inverter)
+{
+	return InverterConfigData[inverter].targetOutputVoltage_Vx10;
+}
+ 
+int Get_Target_Output_Voltage_Shadow_Vx10(enum INVERTERS_SUPPORTED inverter)
+{
+	return InverterConfigData[inverter].targetOutputVoltageShadow_Vx10;
+}
+ 
+void Set_Target_Output_Frequency_Hz (int input, enum INVERTERS_SUPPORTED inverter)
+{
+	InverterConfigData[inverter].targetOutputFrequencyShadow_Hz = input;
+}
+ 
+int Get_Target_Output_Frequency_Hz(enum INVERTERS_SUPPORTED inverter)
+{
+	return InverterConfigData[inverter].targetOutputFrequency_Hz;
+}
+ 
+int Get_Target_Output_Frequency_Shadow_Hz(enum INVERTERS_SUPPORTED inverter)
+{
+	return InverterConfigData[inverter].targetOutputFrequencyShadow_Hz;
+}
+ 
+int Get_Target_Output_Period_us (enum INVERTERS_SUPPORTED inverter)
+{
+	return InverterConfigData[inverter].targetOutputPeriod_us;
+}
+ 
+void Set_Rated_Output_Voltage_Vx10(int input, enum INVERTERS_SUPPORTED inverter)
+{
+	InverterConfigData[inverter].ratedOutputVoltage_Vx10 = input;
+}
+ 
+int Get_Rated_Output_Voltage_Vx10(enum INVERTERS_SUPPORTED inverter)
+{
+	return InverterConfigData[inverter].ratedOutputVoltage_Vx10;
+}
+ 
+void Set_Rated_Output_Frequency_Hz (int input, enum INVERTERS_SUPPORTED inverter)
+{
+	InverterConfigData[inverter].ratedOutputFrequency_Hz = input;
+}
+ 
+int Get_Rated_Output_Frequency_Hz(enum INVERTERS_SUPPORTED inverter)
+{
+	return InverterConfigData[inverter].ratedOutputFrequency_Hz;
+}
+ 
+int Get_Rated_Output_Period_us (enum INVERTERS_SUPPORTED inverter)
+{
+	return InverterConfigData[inverter].ratedOutputPeriod_us;
+}
+ 
+void Set_Max_Current_Trip_Pickup_mA (int input, enum INVERTERS_SUPPORTED inverter)
+{
+	InverterConfigData[inverter].maxCurrentTripPickup_mA = input;
+}
+ 
+int Get_Max_Current_Trip_Pickup_mA(enum INVERTERS_SUPPORTED inverter)
+{
+	return InverterConfigData[inverter].maxCurrentTripPickup_mA;
+}
+ 
+void Set_Max_Current_Trip_Delay_ms (int input, enum INVERTERS_SUPPORTED inverter)
+{
+	InverterConfigData[inverter].maxCurrentTripDelay_us = input;
+}
+ 
+int Get_Max_Current_Trip_Delay_ms (enum INVERTERS_SUPPORTED inverter)
+{
+	return InverterConfigData[inverter].maxCurrentTripDelay_us;
+}
+ 
+ 
 /***********State Machine Definitions************/
+ /*************	Global Variables	**************/
+int pwmPeriod_us;
+ 
+ 
+void Set_PWM_Period_us(int input)
+{
+	pwmPeriod_us = input;
+}
+ 
+int Get_PWM_Period_us(void)
+{
+	return pwmPeriod_us;
+}
 
-/*************  Global Variables  ***************/
 /*************Interrupt Prototypes***************/
 /*************Function  Prototypes***************/
+int Converter_Time_To_Angle(int currentInverter, unsigned int currentTime, unsigned int outputPeriod);
 void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter);
 void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter);
 void Peaks(enum INVERTERS_SUPPORTED inverter);
@@ -76,7 +186,7 @@ void Initialize_Inverter(void)
 	{
 		InverterConfigData[loop].timeSinceLastPWMStep_us = 0;
 		InverterConfigData[loop].angle_degx10 = 0;
-		InverterConfigData[loop].targetOutputVoltage = 1697;
+		InverterConfigData[loop].targetOutputVoltage_Vx10 = 1697;
 		InverterConfigData[loop].counterToNextPWM_Period_Reset = 0;
 		InverterConfigData[loop].targetOutputPeriod_cycles = 0;
 		InverterConfigData[loop].ratedOutputPeriod_cycles = 0;
@@ -84,15 +194,15 @@ void Initialize_Inverter(void)
 	
 	//Set initial starting conditions
 	#ifdef HiI_INVERTER_ENABLED
-	Set_Output_Hz (60 /*Hz*/, HIGH_CURRENT);
-	Set_Rated_Hz (60 /*Hz*/ , HIGH_CURRENT );
-	Set_Rated_RMS_Voltage (1200/*120.0 Vrms*/,	HIGH_CURRENT);	//Peak voltage of a (2V/Hz*f + 10 V * e^((-f+20Hz)/10Hz)=120Vrms sine wave
+	Set_Output_Hz (60 /*Hz*/, HIGH_CURRENT_INVERTER);
+	Set_Rated_Hz (60 /*Hz*/ , HIGH_CURRENT_INVERTER );
+	Set_Rated_RMS_Voltage (1200/*120.0 Vrms*/,	HIGH_CURRENT_INVERTER);	//Peak voltage of a (2V/Hz*f + 10 V * e^((-f+20Hz)/10Hz)=120Vrms sine wave
 	#endif
 	
 	#ifdef HiVolt_INVERTER_ENABLED
-	Set_Output_Hz (20/*Hz*/,	HIGH_CURRENT);	//Motor min starting speed is 20 Hz
-	Set_Rated_Hz (60, HIGH_CURRENT );	//Motor rated speed is 60 Hz / 1800 rpm
-	Set_Rated_RMS_Voltage (1200/*120.0 Vrms*/,	HIGH_CURRENT);	//Peak voltage of a (2V/Hz*f + 10 V * e^((-f+20Hz)/10Hz)=120Vrms sine wave
+	Set_Output_Hz (20/*Hz*/,	HIGH_CURRENT_INVERTER);	//Motor min starting speed is 20 Hz
+	Set_Rated_Hz (60, HIGH_CURRENT_INVERTER );	//Motor rated speed is 60 Hz / 1800 rpm
+	Set_Rated_RMS_Voltage (1200/*120.0 Vrms*/,	HIGH_CURRENT_INVERTER);	//Peak voltage of a (2V/Hz*f + 10 V * e^((-f+20Hz)/10Hz)=120Vrms sine wave
 	#endif
 	
 	//OC1 - LOA Hi Current
@@ -209,123 +319,179 @@ void Initialize_Inverter(void)
 
 void Inverter_Routine(unsigned long time_uS)
 {
-	int currentInverter;
+    int currentInverter;
+    int theta;
 
-	//Cycle through the inverters
-	for(currentInverter = 0; currentInverter < NUMBER_OF_INVERTERS_SUPPORTED; ++currentInverter)
-	{
-		//Update the amount of time since the waveform was last updated
-		InverterConfigData[currentInverter].currentStep_us += time_uS;
+    for(currentInverter = 0; currentInverter < NUMBER_OF_INVERTERS_SUPPORTED; ++currentInverter)
+    {
+        //Update Timer
+        InverterConfigData[currentInverter].currentTime_uS += time_uS;
 
-		//Check to see if we are due to update the waveform
-		if(InverterConfigData[currentInverter].currentStep_us >= InverterConfigData[currentInverter].delayBetweenInverterStep_Cyc)
-		{
-			//Reset the counter for the next waveform update
-			InverterConfigData[currentInverter].counterToNextInverterStep_uS = 0;
+        //Convert Time to Angle
+        theta = Converter_Time_To_Angle(currentInverter, InverterConfigData[currentInerter].currentTime_uS, InverterConfigData[currentInerter].targetOutputPeriod_uS);
 
-			//Update the waveform as required
-			switch(InverterConfigData[currentInverter].phaseRange)
-			{
-				case SINE_0_TO_90:
-					Positive_Sine(InverterConfigData[currentInverter].currentStep, currentInverter);
+        //Over-Current Detection
+        Over_Current_Watch(currentInverter);
 
-					//Advance in step or state
-					++InverterConfigData[currentInverter].currentStep;
-					if(InverterConfigData[currentInverter].currentStep >= (SIZE_OF_ARRAY))
-					{
-						Peaks(currentInverter);
-						InverterConfigData[currentInverter].currentStep = SIZE_OF_ARRAY-1;
-						InverterConfigData[currentInverter].phaseRange = SINE_90_TO_180;
-					}
-					break;
-				case SINE_90_TO_180:
-					Positive_Sine(InverterConfigData[currentInverter].currentStep, currentInverter);
+        //Calculate Amplitude Factor
+        //Calculate PWM Duty Percent
+        //Update PWM Registers
+        //The big If
+//        if that thing be true
+//        {
+//            Shadow registers need setting;
+//            InverterConfigData[currentInverter].currentTime_uS = 0;
+//        }
+    }
+    
+//	int currentInverter;
+//
+//	//Cycle through the inverters
+//	for(currentInverter = 0; currentInverter < NUMBER_OF_INVERTERS_SUPPORTED; ++currentInverter)
+//	{
+//		//Update the amount of time since the waveform was last updated
+//		InverterConfigData[currentInverter].currentStep_us += time_uS;
+//
+//		//Check to see if we are due to update the waveform
+//		if(InverterConfigData[currentInverter].currentStep_us >= InverterConfigData[currentInverter].delayBetweenInverterStep_Cyc)
+//		{
+//			//Reset the counter for the next waveform update
+//			InverterConfigData[currentInverter].counterToNextInverterStep_uS = 0;
+//
+//			//Update the waveform as required
+//			switch(InverterConfigData[currentInverter].phaseRange)
+//			{
+//				case SINE_0_TO_90:
+//					Positive_Sine(InverterConfigData[currentInverter].currentStep, currentInverter);
+//
+//					//Advance in step or state
+//					++InverterConfigData[currentInverter].currentStep;
+//					if(InverterConfigData[currentInverter].currentStep >= (SIZE_OF_ARRAY))
+//					{
+//						Peaks(currentInverter);
+//						InverterConfigData[currentInverter].currentStep = SIZE_OF_ARRAY-1;
+//						InverterConfigData[currentInverter].phaseRange = SINE_90_TO_180;
+//					}
+//					break;
+//				case SINE_90_TO_180:
+//					Positive_Sine(InverterConfigData[currentInverter].currentStep, currentInverter);
+//
+//					//Advance in step or state
+//					--InverterConfigData[currentInverter].currentStep;
+//					if(--InverterConfigData[currentInverter].currentStep < 0)
+//					{
+//						InverterConfigData[currentInverter].currentStep = 0;
+//						InverterConfigData[currentInverter].phaseRange = SINE_180_TO_270;
+//					}
+//					break;
+//				case SINE_180_TO_270:
+//					Negative_Sine(InverterConfigData[currentInverter].currentStep, currentInverter);
+//
+//					//Advance in step or state
+//					++InverterConfigData[currentInverter].currentStep;
+//					if(InverterConfigData[currentInverter].currentStep >= (SIZE_OF_ARRAY))
+//					{
+//						Peaks(currentInverter);
+//						InverterConfigData[currentInverter].currentStep = SIZE_OF_ARRAY-1;
+//						InverterConfigData[currentInverter].phaseRange = SINE_270_TO_360;
+//					}
+//					break;
+//				case SINE_270_TO_360:
+//					Negative_Sine(InverterConfigData[currentInverter].currentStep, currentInverter);
+//
+//					//Advance in step or state
+//					--InverterConfigData[currentInverter].currentStep;
+//					if(--InverterConfigData[currentInverter].currentStep < 0)
+//					{
+//						InverterConfigData[currentInverter].currentStep = 0;
+//						InverterConfigData[currentInverter].phaseRange = SINE_0_TO_90;
+//					}
+//					break;
+//				default://How did we get here?
+//					//Cycle current through the top FETs and prepare to start back at zero degrees
+//					switch(currentInverter)
+//					{
+//						#ifdef HiI_INVERTER_ENABLED
+//						case HIGH_CURRENT:
+//							//HOA - 100% High
+//							OC2R				= 0;
+//							OC2RS				= PERIOD+1;
+//
+//							//HOB - 100% High
+//							OC3R				= 0;
+//							OC3RS				= PERIOD+1;
+//
+//                            //LOA - 100% Low
+//							OC1R				= PERIOD+1;
+//                            OC1RS				= 0;
+//                            
+//							//LOB - 100% Low
+//							OC4R				= PERIOD+1;
+//                            OC4RS				= 0;
+//							
+//							break;
+//						#endif
+//						#ifdef HiVolt_INVERTER_ENABLED
+//						case HIGH_VOLTAGE:
+//							//HOA - 100% High
+//							OC7R				= 0;
+//							OC7RS				= PERIOD+1;
+//
+//							//HOB - 100% High
+//							OC8R				= 0;
+//							OC8RS				= PERIOD+1;
+//
+//							//LOB - 100% Low
+//							OC9RS				= 0;
+//							OC9R				= PERIOD+1;
+//
+//							//LOA - 100% Low
+//							OC6RS				= 0;
+//							OC6R				= PERIOD+1;
+//
+//							break;
+//						#endif
+//						default:
+//							break;
+//					}
+//					InverterConfigData[currentInverter].currentStep = 0;
+//					InverterConfigData[currentInverter].phaseRange = SINE_0_TO_90;
+//					break;
+//			}
+//		}
+//	}
 
-					//Advance in step or state
-					--InverterConfigData[currentInverter].currentStep;
-					if(--InverterConfigData[currentInverter].currentStep < 0)
-					{
-						InverterConfigData[currentInverter].currentStep = 0;
-						InverterConfigData[currentInverter].phaseRange = SINE_180_TO_270;
-					}
-					break;
-				case SINE_180_TO_270:
-					Negative_Sine(InverterConfigData[currentInverter].currentStep, currentInverter);
+    return;
+}
 
-					//Advance in step or state
-					++InverterConfigData[currentInverter].currentStep;
-					if(InverterConfigData[currentInverter].currentStep >= (SIZE_OF_ARRAY))
-					{
-						Peaks(currentInverter);
-						InverterConfigData[currentInverter].currentStep = SIZE_OF_ARRAY-1;
-						InverterConfigData[currentInverter].phaseRange = SINE_270_TO_360;
-					}
-					break;
-				case SINE_270_TO_360:
-					Negative_Sine(InverterConfigData[currentInverter].currentStep, currentInverter);
+int Converter_Time_To_Angle(int currentInverter, unsigned int currentTime, unsigned int outputPeriod)
+{
+    return (long)(currentTime * 3600) / outputPeriod;
+}
 
-					//Advance in step or state
-					--InverterConfigData[currentInverter].currentStep;
-					if(--InverterConfigData[currentInverter].currentStep < 0)
-					{
-						InverterConfigData[currentInverter].currentStep = 0;
-						InverterConfigData[currentInverter].phaseRange = SINE_0_TO_90;
-					}
-					break;
-				default://How did we get here?
-					//Cycle current through the top FETs and prepare to start back at zero degrees
-					switch(currentInverter)
-					{
-						#ifdef HiI_INVERTER_ENABLED
-						case HIGH_CURRENT:
-							//HOA - 100% High
-							OC2R				= 0;
-							OC2RS				= PERIOD+1;
+void Over_Current_Watch(int currentInverter)
+{
+    int measuredCurrent;
 
-							//HOB - 100% High
-							OC3R				= 0;
-							OC3RS				= PERIOD+1;
+    //Retrieve the circuit currents
+    switch(currentInverter)
+    {
+        case HIGH_CURRENT_INVERTER:
+            measuredCurrent = A2D_Value(A2D_AN9_INPUT_CURRENT);
+            break;
+        case HIGH_VOLTAGE_INVERTER:
+            measuredCurrent = A2D_Value(A2D_AN10_OUTPUT_CURRENT);
+            break;
+        default:
+            //Put in terminal window error logging
+            break;
+    }
 
-                            //LOA - 100% Low
-							OC1R				= PERIOD+1;
-                            OC1RS				= 0;
-                            
-							//LOB - 100% Low
-							OC4R				= PERIOD+1;
-                            OC4RS				= 0;
-							
-							break;
-						#endif
-						#ifdef HiVolt_INVERTER_ENABLED
-						case HIGH_VOLTAGE:
-							//HOA - 100% High
-							OC7R				= 0;
-							OC7RS				= PERIOD+1;
-
-							//HOB - 100% High
-							OC8R				= 0;
-							OC8RS				= PERIOD+1;
-
-							//LOB - 100% Low
-							OC9RS				= 0;
-							OC9R				= PERIOD+1;
-
-							//LOA - 100% Low
-							OC6RS				= 0;
-							OC6R				= PERIOD+1;
-
-							break;
-						#endif
-						default:
-							break;
-					}
-					InverterConfigData[currentInverter].currentStep = 0;
-					InverterConfigData[currentInverter].phaseRange = SINE_0_TO_90;
-					break;
-			}
-		}
-	}
-
+    //Check for an over-current condition
+    if(measuredCurrent >= InverterConfigData[currentInverter].maxCurrentTripPickup_mA)
+    {
+        inverterErrorFlags[currentInverter].overCurrent = 1;
+    }
     return;
 }
 
@@ -344,7 +510,7 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 	switch(inverter)
 	{
 		#ifdef HiI_INVERTER_ENABLED
-		case HIGH_CURRENT:
+		case HIGH_CURRENT_INVERTER:
 			//LOA - Low for entire Period
 			OC1R				= PERIOD+1;
             OC1RS				= 0;
@@ -365,7 +531,7 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 		#endif
 		
 		#ifdef HiVolt_INVERTER_ENABLED
-		case HIGH_VOLTAGE:
+		case HIGH_VOLTAGE_INVERTER:
 			//LOA - 100% Low
 			OC6R				= PERIOD+1;
             OC6RS				= 0;
@@ -402,7 +568,7 @@ void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 	switch(inverter)
 	{
 		#ifdef HiI_INVERTER_ENABLED
-		case HIGH_CURRENT:
+		case HIGH_CURRENT_INVERTER:
 			//HOA - Circulating Current
 			OC2R				= DEADBAND;
 			OC2RS				= circulatingCurrentPeriod;
@@ -422,7 +588,7 @@ void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 			break;
 		#endif
 		#ifdef HiVolt_INVERTER_ENABLED
-		case HIGH_VOLTAGE:
+		case HIGH_VOLTAGE_INVERTER:
 			//HOA - Circulating Current
 			OC7R				= DEADBAND;
 			OC7RS				= circulatingCurrentPeriod;
@@ -495,13 +661,13 @@ int Get_Rated_Hz(enum INVERTERS_SUPPORTED inverter)
 
 void Set_Rated_RMS_Voltage (int newRatedVoltage_Vx10, enum INVERTERS_SUPPORTED inverter)
 {
-	InverterConfigData[inverter].targetOutputVoltage = newRatedVoltage_Vx10 * 1414 / 1000;
+	InverterConfigData[inverter].targetOutputVoltage_Vx10 = newRatedVoltage_Vx10 * 1414 / 1000;
 	return;
 }
 
 int Get_Rated_RMS_Voltage (enum INVERTERS_SUPPORTED inverter)
 {
-	return InverterConfigData[inverter].targetOutputVoltage * 1000 / 1414;
+	return InverterConfigData[inverter].targetOutputVoltage_Vx10 * 1000 / 1414;
 }
 
 void Peaks(enum INVERTERS_SUPPORTED inverter)
@@ -511,7 +677,7 @@ void Peaks(enum INVERTERS_SUPPORTED inverter)
 	switch(inverter)
 	{
 		#ifdef HiI_INVERTER_ENABLED
-		case HIGH_CURRENT:
+		case HIGH_CURRENT_INVERTER:
 			//Take a sample; it won't give me a result for THIS calculation, but will be ready by the next one
 			Trigger_A2D_Scan();
 
@@ -520,7 +686,7 @@ void Peaks(enum INVERTERS_SUPPORTED inverter)
 			break;
 		#endif
 		#ifdef HiVolt_INVERTER_ENABLED
-		case HIGH_VOLTAGE:
+		case HIGH_VOLTAGE_INVERTER:
 			//Take a sample; it won't give me a result for THIS calculation, but will be ready by the next one
 			Trigger_A2D_Scan();
 
@@ -564,13 +730,14 @@ void Frequency_Ramp(unsigned long time_mS)
 	static int frequency = 20;
 
 	#ifdef HiI_INVERTER_ENABLED
-	Set_Frequency_Hz(frequency++,		HIGH_CURRENT);
-	Set_Voltage_Target(frequency*28,	HIGH_CURRENT);	//Voltage is frequency *2 * 2^0.5, hence 1.41*2 become 28 in interger math
+	Set_Frequency_Hz(frequency++,		HIGH_CURRENT_INVERTER);
+	Set_Voltage_Target(frequency*28,	HIGH_CURRENT_INVERTER);	//Voltage is frequency *2 * 2^0.5, hence 1.41*2 become 28 in interger math
 	#endif
 	#ifdef HiVolt_INVERTER_ENABLED
-	Set_Frequency_Hz(60/*Hz*/,			HIGH_VOLTAGE);
-	Set_Voltage_Target(1697/*169.7V*/,	HIGH_VOLTAGE);	//Peak voltage of a 120Vrms sine wave
+	Set_Frequency_Hz(60/*Hz*/,			HIGH_VOLTAGE_INVERTER);
+	Set_Voltage_Target(1697/*169.7V*/,	HIGH_VOLTAGE_INVERTER);	//Peak voltage of a 120Vrms sine wave
 	#endif
 
 	return;
 }
+
