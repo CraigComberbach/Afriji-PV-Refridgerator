@@ -32,11 +32,10 @@ enum INVERTERS_SUPPORTED
 void Initialize_Inverter(void);
 void Inverter_Routine(unsigned long time_mS);
 void Frequency_Ramp(unsigned long time_mS);
-void Set_Target_Delay_uS(int newDelay_uS, enum INVERTERS_SUPPORTED inverter);
-int Get_Target_Delay_uS(enum INVERTERS_SUPPORTED inverter);
-void Set_Frequency_Hz(int newFrequency_Hz, enum INVERTERS_SUPPORTED inverter);
-int Get_Frequency_Hz(enum INVERTERS_SUPPORTED inverter);
-void Set_Voltage_Target(int newTarget, enum INVERTERS_SUPPORTED inverter);
-int Get_Voltage_Target(enum INVERTERS_SUPPORTED inverter);
-
+void Set_Output_Hz(int newFrequency_Hz, enum INVERTERS_SUPPORTED inverter);
+int Get_Output_Hz(enum INVERTERS_SUPPORTED inverter);
+void Set_Rated_Hz (int newFrequency_Hz, enum INVERTERS_SUPPORTED inverter);
+int Get_Rated_Hz(enum INVERTERS_SUPPORTED inverter);
+void Set_Rated_RMS_Voltage (int newRatedVoltage_Vx10, enum INVERTERS_SUPPORTED inverter);
+int Get_Rated_RMS_Voltage (enum INVERTERS_SUPPORTED inverter);
 #endif

@@ -11,13 +11,17 @@
 
 //Clock Frequency
 #define FOSC_Hz			32000000			//32MHz
+#define TOSC_ps			31250				//32MHz
 #define FOSC_kHz		FOSC_Hz/1000		//32MHz
+#define TOSC_ns			TOSC_ps/1000		//32MHz
 #define FOSC_MHz		FOSC_kHz/1000		//32MHz
+#define TOSC_us			TOSC_ns/1000		//32MHz
 #define FCY_Hz			FOSC_Hz/2			//16MHz
+#define TCY_ps			TOSC_ps*2			//16MHz
 #define FCY_kHz			FCY_Hz/1000			//16MHz
+#define TCY_ns			TCY_ps/1000			//16MHz
 #define FCY_MHz			FCY_kHz/1000		//16MHz
-#define FCY_PERIOD_nS	1000000000/FCY_Hz	//250nS
-#define FCY_PERIOD_pS	1000000000/FCY_kHz	//250000pS
+#define TCY_us			TCY_ns/1000			//16MHz
 
 //Compiled information
 extern const char compiledOnDate[];
