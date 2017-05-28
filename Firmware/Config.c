@@ -17,6 +17,7 @@ v0.0.0	2013-07-11  Craig Comberbach
 #include "Scheduler.h"
 #include "Analogs.h"
 #include "Inverter.h"
+#include "Debug.h"
 
 /*************Semantic  Versioning***************/
 /*************Library Dependencies***************/
@@ -204,10 +205,15 @@ void Configure_For_Afriji(void)
 	RPOR1bits.RP3R		= 23;	//Red LED (Green on Schematic)
 	RPOR6bits.RP12R		= 18;	//Blue LED (Blue on schematic)
 
-//	RPOR12bits.RP24R 	= 3;	//UART1 - Terminal Tx 
+	//Feedback UART
+	RPOR12bits.RP24R 	= 3;	//UART1 - Terminal Tx 
+
 	__builtin_write_OSCCONL(OSCCON | 0x40);
 
-//	/*************        A2D         ***************/
+	/*************  Terminal Window   ***************/
+	Debug_Initialize();
+	
+	/*************        A2D         ***************/
 	A2D_Initialize();
 	A2D_Channel_Settings(A2D_AN0_TRANSFORMER_PRIMARY_MINUS,		RESOLUTION_10_BIT,	1,	&LoV_Formating_AN0);
 	A2D_Channel_Settings(A2D_AN1_TRANSFORMER_PRIMARY_PLUS,		RESOLUTION_10_BIT,	1,	&LoV_Formating_AN1);

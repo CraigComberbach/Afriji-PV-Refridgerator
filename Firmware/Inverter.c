@@ -53,7 +53,7 @@ struct INVERTER_VARIABLES
 int targetVoltage[NUMBER_OF_INVERTERS_SUPPORTED];	//Peak voltage with one decimal of accuracy
 unsigned int inverterOnPeriod[SIZE_OF_ARRAY] =
 {
-//100kHz @ 10 points (0-90บ of a sine wave) Note: This series factors in the Rise/Fall times buffer, Min on time, AND zero crossing
+//100kHz @ 10 points (0-90ยบ of a sine wave) Note: This series factors in the Rise/Fall times buffer, Min on time, AND zero crossing
 5,		30,		55,		79,		100,
 118,	133,	144,	150,	153
 };
@@ -358,15 +358,7 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 	{
 		#ifdef HiI_INVERTER_ENABLED
 		case HIGH_CURRENT:
-			//LOA - Low for entire Period
-			OC1R				= PERIOD+1;
-            OC1RS				= 0;
-
-			//HOA - High for entire Period
-			OC2R				= 0;
-			OC2RS				= PERIOD+1;
-
-			//HOB - Firing (circulating current)
+			//HOB - Circulating current
 			OC3R				= DEADBAND;
 			OC3RS				= circulatingCurrentPeriod;
 
@@ -374,19 +366,18 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 			OC4R				= conductingCurrentPeriod;
 			OC4RS				= PERIOD;
 
-			break;
-		#endif
-		
-		#ifdef HiVolt_INVERTER_ENABLED
-		case HIGH_VOLTAGE:
 			//LOA - 100% Low
-			OC6R				= PERIOD+1;
-            OC6RS				= 0;
+			OC1RS				= 0;
+			OC1R				= PERIOD+1;
 
 			//HOA - 100% High
-			OC7R				= 0;
-			OC7RS				= PERIOD+1;
+			OC2R				= 0;
+			OC2RS				= PERIOD+1;
 
+			break;
+		#endif
+		#ifdef HiV_INVERTER_ENABLED
+		case HIGH_VOLTAGE:
 			//HOB - Circulating current
 			OC8R				= DEADBAND;
 			OC8RS				= circulatingCurrentPeriod;
@@ -394,6 +385,14 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter)
 			//LOB - Conducting current
 			OC9R				= conductingCurrentPeriod;
 			OC9RS				= PERIOD;
+
+			//LOA - 100% Low
+			OC6RS				= 0;
+			OC6R				= PERIOD+1;
+
+			//HOA - 100% High
+			OC7R				= 0;
+			OC7RS				= PERIOD+1;
 
 			break;
 		#endif
@@ -532,7 +531,10 @@ void Peaks(enum INVERTERS_SUPPORTED inverter)
 			//Take a sample; it won't give me a result for THIS calculation, but will be ready by the next one
 			Trigger_A2D_Scan();
 
-			currentVoltage = A2D_Value(A2D_AN13_TRANSFORMER_SECONDARY_PLUS);
+			if(A2D_Value(A2D_AN14_VOUT_PLUS) > A2D_Value(A2D_AN15_VOUT_MINUS))
+				currentVoltage = A2D_Value(A2D_AN14_VOUT_PLUS);
+			else
+				currentVoltage = A2D_Value(A2D_AN15_VOUT_MINUS);
 			break;
 		#endif
 		default:
@@ -569,15 +571,17 @@ int Get_Voltage_Target(enum INVERTERS_SUPPORTED inverter)
 
 void Frequency_Ramp(unsigned long time_mS)
 {
+	#ifdef HiV_INVERTER_ENABLED
 	static int frequency = 20;
+	#endif
 
 	#ifdef HiI_INVERTER_ENABLED
-	Set_Frequency_Hz(frequency++,		HIGH_CURRENT);
-	Set_Voltage_Target(frequency*28,	HIGH_CURRENT);	//Voltage is frequency *2 * 2^0.5, hence 1.41*2 become 28 in interger math
+	Set_Frequency_Hz(60/*Hz*/,			HIGH_CURRENT);
+	Set_Voltage_Target(1697/*169.7V*/,	HIGH_CURRENT);	//Peak voltage of a 120Vrms sine wave
 	#endif
-	#ifdef HiVolt_INVERTER_ENABLED
-	Set_Frequency_Hz(60/*Hz*/,			HIGH_VOLTAGE);
-	Set_Voltage_Target(1697/*169.7V*/,	HIGH_VOLTAGE);	//Peak voltage of a 120Vrms sine wave
+	#ifdef HiV_INVERTER_ENABLED
+	Set_Frequency_Hz(frequency++,		HIGH_VOLTAGE);
+	Set_Voltage_Target(frequency*28,	HIGH_VOLTAGE);	//Voltage is frequency *2 * 2^0.5, hence 1.41*2 becomes 28 in integer math
 	#endif
 
 	return;
