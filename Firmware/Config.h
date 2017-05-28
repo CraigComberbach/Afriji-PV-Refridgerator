@@ -7,7 +7,6 @@
 
 //System Variables
 //#define HiI_INVERTER_ENABLED
-#define HiV_INVERTER_ENABLED
 
 //Clock Frequency
 #define FOSC_Hz			32000000			//32MHz
@@ -33,6 +32,7 @@ enum SCHEDULER_DEFINITIONS
 	INVERTER_TASK,
 	A2D_TASK,
 	FREQUENCY_RAMP,
+	TERMINAL_TASK,
 	NUMBER_OF_SCHEDULED_TASKS
 };
 
