@@ -34,5 +34,13 @@ void Initialize_Scheduler(uint32_t newPeriod_uS);
 void Schedule_Task(enum SCHEDULER_DEFINITIONS taskDuJour, void (*newTask)(uint32_t), uint32_t newInitialDelay_uS, uint32_t newPeriod_uS, uint16_t newRepetitions);
 int8_t Waiting_To_Run_Tasks(void);
 
+/**
+ * 
+ * @param taskName
+ * @return 
+ */
+uint32_t Get_Task_Period(enum SCHEDULER_DEFINITIONS taskName);
+void Set_Task_Period(enum SCHEDULER_DEFINITIONS taskName, uint32_t newPeriod_uS);
+
 #endif	/* SCHEDULER_H */
 
