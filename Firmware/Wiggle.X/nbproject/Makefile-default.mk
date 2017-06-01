@@ -45,17 +45,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=../A2D.c ../Config.c ../Inverter.c ../main.c ../Pins.c ../Scheduler.c ../Analogs.c
+SOURCEFILES_QUOTED_IF_SPACED=../A2D.c ../Config.c ../Inverter.c ../main.c ../Pins.c ../Scheduler.c ../Analogs.c ../Debug.c ../SineFunctionLookup.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/_ext/1472/A2D.o ${OBJECTDIR}/_ext/1472/Config.o ${OBJECTDIR}/_ext/1472/Inverter.o ${OBJECTDIR}/_ext/1472/main.o ${OBJECTDIR}/_ext/1472/Pins.o ${OBJECTDIR}/_ext/1472/Scheduler.o ${OBJECTDIR}/_ext/1472/Analogs.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/_ext/1472/A2D.o.d ${OBJECTDIR}/_ext/1472/Config.o.d ${OBJECTDIR}/_ext/1472/Inverter.o.d ${OBJECTDIR}/_ext/1472/main.o.d ${OBJECTDIR}/_ext/1472/Pins.o.d ${OBJECTDIR}/_ext/1472/Scheduler.o.d ${OBJECTDIR}/_ext/1472/Analogs.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/_ext/1472/A2D.o ${OBJECTDIR}/_ext/1472/Config.o ${OBJECTDIR}/_ext/1472/Inverter.o ${OBJECTDIR}/_ext/1472/main.o ${OBJECTDIR}/_ext/1472/Pins.o ${OBJECTDIR}/_ext/1472/Scheduler.o ${OBJECTDIR}/_ext/1472/Analogs.o ${OBJECTDIR}/_ext/1472/Debug.o ${OBJECTDIR}/_ext/1472/SineFunctionLookup.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/_ext/1472/A2D.o.d ${OBJECTDIR}/_ext/1472/Config.o.d ${OBJECTDIR}/_ext/1472/Inverter.o.d ${OBJECTDIR}/_ext/1472/main.o.d ${OBJECTDIR}/_ext/1472/Pins.o.d ${OBJECTDIR}/_ext/1472/Scheduler.o.d ${OBJECTDIR}/_ext/1472/Analogs.o.d ${OBJECTDIR}/_ext/1472/Debug.o.d ${OBJECTDIR}/_ext/1472/SineFunctionLookup.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/_ext/1472/A2D.o ${OBJECTDIR}/_ext/1472/Config.o ${OBJECTDIR}/_ext/1472/Inverter.o ${OBJECTDIR}/_ext/1472/main.o ${OBJECTDIR}/_ext/1472/Pins.o ${OBJECTDIR}/_ext/1472/Scheduler.o ${OBJECTDIR}/_ext/1472/Analogs.o
+OBJECTFILES=${OBJECTDIR}/_ext/1472/A2D.o ${OBJECTDIR}/_ext/1472/Config.o ${OBJECTDIR}/_ext/1472/Inverter.o ${OBJECTDIR}/_ext/1472/main.o ${OBJECTDIR}/_ext/1472/Pins.o ${OBJECTDIR}/_ext/1472/Scheduler.o ${OBJECTDIR}/_ext/1472/Analogs.o ${OBJECTDIR}/_ext/1472/Debug.o ${OBJECTDIR}/_ext/1472/SineFunctionLookup.o
 
 # Source Files
-SOURCEFILES=../A2D.c ../Config.c ../Inverter.c ../main.c ../Pins.c ../Scheduler.c ../Analogs.c
+SOURCEFILES=../A2D.c ../Config.c ../Inverter.c ../main.c ../Pins.c ../Scheduler.c ../Analogs.c ../Debug.c ../SineFunctionLookup.c
 
 
 CFLAGS=
@@ -131,6 +131,20 @@ ${OBJECTDIR}/_ext/1472/Analogs.o: ../Analogs.c  nbproject/Makefile-${CND_CONF}.m
 	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Analogs.c  -o ${OBJECTDIR}/_ext/1472/Analogs.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Analogs.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/Analogs.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
+${OBJECTDIR}/_ext/1472/Debug.o: ../Debug.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
+	@${RM} ${OBJECTDIR}/_ext/1472/Debug.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1472/Debug.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Debug.c  -o ${OBJECTDIR}/_ext/1472/Debug.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Debug.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/Debug.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/_ext/1472/SineFunctionLookup.o: ../SineFunctionLookup.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
+	@${RM} ${OBJECTDIR}/_ext/1472/SineFunctionLookup.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1472/SineFunctionLookup.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../SineFunctionLookup.c  -o ${OBJECTDIR}/_ext/1472/SineFunctionLookup.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/SineFunctionLookup.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/SineFunctionLookup.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
 else
 ${OBJECTDIR}/_ext/1472/A2D.o: ../A2D.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
@@ -180,6 +194,20 @@ ${OBJECTDIR}/_ext/1472/Analogs.o: ../Analogs.c  nbproject/Makefile-${CND_CONF}.m
 	@${RM} ${OBJECTDIR}/_ext/1472/Analogs.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Analogs.c  -o ${OBJECTDIR}/_ext/1472/Analogs.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Analogs.o.d"        -g -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/Analogs.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/_ext/1472/Debug.o: ../Debug.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
+	@${RM} ${OBJECTDIR}/_ext/1472/Debug.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1472/Debug.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Debug.c  -o ${OBJECTDIR}/_ext/1472/Debug.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/Debug.o.d"        -g -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/Debug.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/_ext/1472/SineFunctionLookup.o: ../SineFunctionLookup.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/_ext/1472" 
+	@${RM} ${OBJECTDIR}/_ext/1472/SineFunctionLookup.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1472/SineFunctionLookup.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../SineFunctionLookup.c  -o ${OBJECTDIR}/_ext/1472/SineFunctionLookup.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/1472/SineFunctionLookup.o.d"        -g -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/_ext/1472/SineFunctionLookup.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 endif
 

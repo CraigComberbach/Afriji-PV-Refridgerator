@@ -198,7 +198,7 @@ void Schedule_Task(enum SCHEDULER_DEFINITIONS taskName, void (*newTask)(uint32_t
 	return;
 }
 
-void Get_Task_Period(enum SCHEDULER_DEFINITIONS taskName)
+uint32_t Get_Task_Period(enum SCHEDULER_DEFINITIONS taskName)
 {
 	return scheduledTasks[taskName].period_uS;
 }
