@@ -72,7 +72,7 @@ void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter);
 int Calculate_Amplitude_Factor(enum INVERTERS_SUPPORTED currentInverter, unsigned int current_mA, unsigned int a_Percent);
 int Calculate_PWM_Duty_Percent(enum INVERTERS_SUPPORTED currentInverter, unsigned int a_percent);
 unsigned int Converter_Time_To_Angle(unsigned int currentTime, unsigned int outputPeriod);
-void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int theta);
+void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int theta, int dutyCyclePercent);
 
 /************* Device Definitions ***************/	
 /************* Module Definitions ***************/
@@ -211,9 +211,8 @@ void Inverter_Routine(unsigned long time_uS)
 	enum INVERTERS_SUPPORTED currentInverter;
 	unsigned int theta;
 	int current_mA;
-	int amplitudeFactor;
+	int amplitudeFactor_Percent;
 	int dutyCyclePercent;
-	int whatAmI = 0;
 
 	for(currentInverter = 0; currentInverter < NUMBER_OF_INVERTERS_SUPPORTED; ++currentInverter)
 	{
@@ -227,10 +226,10 @@ void Inverter_Routine(unsigned long time_uS)
 		current_mA = Over_Current_Watch(currentInverter);
 
 		//Calculate Amplitude Factor
-		amplitudeFactor = Calculate_Amplitude_Factor(currentInverter, current_mA, whatAmI);
+		amplitudeFactor_Percent = Calculate_Amplitude_Factor(currentInverter, current_mA, theta);
 
 		//Calculate PWM Duty Percent
-		dutyCyclePercent = Calculate_PWM_Duty_Percent(currentInverter, whatAmI);
+		dutyCyclePercent = Calculate_PWM_Duty_Percent(currentInverter, amplitudeFactor_Percent);
 
 		//Update PWM Registers
 		Update_PWM_Register(currentInverter, theta, dutyCyclePercent);
@@ -356,22 +355,45 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 	//HOB	__/-\_______...------------
 	//LOB	\_____/-----...____________
 
+	unsigned long onTime;
 	unsigned int circulatingCurrentPeriod;
 	unsigned int conductingCurrentPeriod;
-
-	//Calculate Circulating Period
-	circulatingCurrentPeriod;
-
-	//Calculate Conducting Period
-	conductingCurrentPeriod;
 
 	//Variable Sentinels
 	if(theta >= THREE_HUNDRED_SIXTY_DEGREES)
 		theta %= THREE_HUNDRED_SIXTY_DEGREES;
-	if(circulatingCurrentPeriod > PWM_PERIOD_CLOCK_CYCLES)
-		circulatingCurrentPeriod %= PWM_PERIOD_CLOCK_CYCLES;
-	if(conductingCurrentPeriod > PWM_PERIOD_CLOCK_CYCLES)
-		conductingCurrentPeriod %= PWM_PERIOD_CLOCK_CYCLES;
+
+	//Calculate On Time
+	onTime = PWM_PERIOD_CLOCK_CYCLES;
+	onTime *= dutyCyclePercent;
+	onTime /= ONE_HUNDRED_PERCENT;
+	if(onTime > PWM_PERIOD_CLOCK_CYCLES)
+	{
+		onTime %= PWM_PERIOD_CLOCK_CYCLES;
+		#ifdef TERMINAL_WINDOW_DEBUG_ENABLED
+			//TODO - Add debug Terminal code
+		#endif
+	}
+
+	//Calculate Circulating Period
+	circulatingCurrentPeriod = PWM_PERIOD_CLOCK_CYCLES - (unsigned int)onTime - DEADBAND;
+	if((circulatingCurrentPeriod > PWM_PERIOD_CLOCK_CYCLES) || (circulatingCurrentPeriod < (2 * DEADBAND)))
+	{
+		circulatingCurrentPeriod = 2 * DEADBAND;
+		#ifdef TERMINAL_WINDOW_DEBUG_ENABLED
+			//TODO - Add debug Terminal code
+		#endif
+	}
+
+	//Calculate Conducting Period
+	conductingCurrentPeriod = PWM_PERIOD_CLOCK_CYCLES - (unsigned int)onTime;
+	if(conductingCurrentPeriod < (3 * DEADBAND))
+	{
+		conductingCurrentPeriod = 3 * DEADBAND;
+		#ifdef TERMINAL_WINDOW_DEBUG_ENABLED
+			//TODO - Add debug Terminal code
+		#endif
+	}
 
 	//Set registers
 	if(theta == 0)
