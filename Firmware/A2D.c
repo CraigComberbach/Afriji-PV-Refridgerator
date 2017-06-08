@@ -65,7 +65,6 @@ void A2D_Routine(uint32_t time_mS)
 		scanIsComplete = 0;
 
 		//Add the sample to the sum of the samples in the raw variable
-		#ifdef ADC_FIX
 		A2D_Channel[0].sumOfSamples += ADC1BUF0;	//A2D_AN0_TRANSFORMER_PRIMARY_MINUS
 		A2D_Channel[1].sumOfSamples += ADC1BUF1;	//A2D_AN1_TRANSFORMER_PRIMARY_PLUS
 		A2D_Channel[2].sumOfSamples += ADC1BUF2;	//A2D_AN2_SOLAR_PLUS
@@ -82,24 +81,7 @@ void A2D_Routine(uint32_t time_mS)
 		A2D_Channel[13].sumOfSamples += ADC1BUFB;	//A2D_AN13_TRANSFORMER_SECONDARY_PLUS
 		A2D_Channel[14].sumOfSamples += ADC1BUFC;	//A2D_AN14_VOUT_PLUS
 		A2D_Channel[15].sumOfSamples += ADC1BUFD;	//A2D_AN15_VOUT_MINUS
-		#else
-			A2D_Channel[0].sumOfSamples += ADC1BUF0;	//A2D_AN0_TRANSFORMER_PRIMARY_MINUS
-			A2D_Channel[1].sumOfSamples += ADC1BUF1;	//A2D_AN1_TRANSFORMER_PRIMARY_PLUS
-			A2D_Channel[2].sumOfSamples += ADC1BUF2;	//A2D_AN2_SOLAR_PLUS
-		A2D_Channel[3].sumOfSamples += ADC1BUF3;	//A2D_AN3_TEMP2
-//		A2D_Channel[4].sumOfSamples += ADC1BUF;		//A2D_AN4_UNUSED
-//		A2D_Channel[5].sumOfSamples += ADC1BUF;		//A2D_AN5_UNUSED
-		A2D_Channel[6].sumOfSamples += ADC1BUF4;	//A2D_AN6_TEMP1
-		A2D_Channel[7].sumOfSamples += ADC1BUF5;	//A2D_AN7_TEMP3
-		A2D_Channel[8].sumOfSamples += ADC1BUF6;	//A2D_AN8_TEMP4
-			A2D_Channel[9].sumOfSamples += ADC1BUF9;	//A2D_AN9_INPUT_CURRENT
-		A2D_Channel[10].sumOfSamples += ADC1BUF8;	//A2D_AN10_OUTPUT_CURRENT
-		A2D_Channel[11].sumOfSamples += ADC1BUF7;	//A2D_AN11_TEMP5
-			A2D_Channel[12].sumOfSamples += ADC1BUFA;	//A2D_AN12_VDC_BUS_PLUS
-			A2D_Channel[13].sumOfSamples += ADC1BUFB;	//A2D_AN13_TRANSFORMER_SECONDARY_PLUS
-			A2D_Channel[14].sumOfSamples += ADC1BUFC;	//A2D_AN14_VOUT_PLUS
-			A2D_Channel[15].sumOfSamples += ADC1BUFD;	//A2D_AN15_VOUT_MINUS
-		#endif
+
 		//Increment the number of samples read in
 		A2D_Channel[0].samplesTaken++;	//A2D_AN0_TRANSFORMER_PRIMARY_MINUS
 		A2D_Channel[1].samplesTaken++;	//A2D_AN1_TRANSFORMER_PRIMARY_PLUS
@@ -179,10 +161,10 @@ void A2D_Initialize(void)
 	IEC0bits.AD1IE = 1;				//1 = Interrupt request is enabled
 
 	//A/D Input Scan Select Register (Low)
-	AD1CSSL = 0b1111001111111111;	//0 = Analog channel omitted from input scan
+	AD1CSSL	 = 0b1111111111001111;	//0 = Analog channel omitted from input scan
 
 	//A/D Port Configuration Register
-	AD1PCFGL = 0b0000110000000000;	//0 = Pin configured in Analog mode; I/O port read disabled, A/D samples pin voltage
+	AD1PCFGL = 0b0000000000110000;	//0 = Pin configured in Analog mode; I/O port read disabled, A/D samples pin voltage
 	AD1PCFGH = 0;
 
 	//A/D Input Select Register
@@ -192,18 +174,15 @@ void A2D_Initialize(void)
 	AD1CHSbits.CH0NB = 0;			//0 = Channel 0 negative input is VR-
 
 	//A/D Control Register 3
-	AD1CON3bits.ADCS = 0b0011111;	//00111111 = 64 * TCY
+	AD1CON3bits.ADCS = 0b11111;		//111111 = 64 * TCY
 	AD1CON3bits.SAMC = 0b11111;		//11111 = 31 TAD
 	AD1CON3bits.ADRC = 1;			//1 = A/D internal RC clock
 
 	//A/D Control Register 2
 	AD1CON2bits.ALTS = 0;			//0 = Always uses MUX A input multiplexer settings
 	AD1CON2bits.BUFM = 0;			//0 = Buffer is configured as one 16-word buffer (ADC1BUFn<15:0>)
-	#ifdef ADC_FIX
 	AD1CON2bits.SMPI = 0b1101;		//1101 = Interrupts at the completion of conversion for each 14th sample/convert sequence
-	#else
-	AD1CON2bits.SMPI = 0b1111;		//1101 = Interrupts at the completion of conversion for each 14th sample/convert sequence
-	#endif
+
 	//AD1CON2bits.BUFS is Read Only
 	AD1CON2bits.CSCNA = 1;			//1 = Scan inputs
 	AD1CON2bits.VCFG = 0b000;		//000 = Vr+ = AVDD, Vr- = AVSS

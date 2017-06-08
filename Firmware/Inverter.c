@@ -22,7 +22,7 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 /*************Library Dependencies***************/
 /************Arbitrary Functionality*************/
 /*************   Magic  Numbers   ***************/
-#define	PWM_PERIOD_CLOCK_CYCLES			159	//# of operations between PWM module resets
+#define	PWM_PERIOD_CLOCK_CYCLES		159	//# of operations between PWM module resets
 #define	DEADBAND					2	//Period resolution is 62.5nS; This is the delay between turning on/off one and turning on/off the other
 #define NUMBER_OF_uS_IN_ONE_SECOND	1000000
 #define VOLTAGE_TARGET_DEADBAND		10	//Voltage with one decimal of accuracy
