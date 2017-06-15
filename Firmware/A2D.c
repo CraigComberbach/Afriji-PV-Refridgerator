@@ -117,6 +117,7 @@ void A2D_Routine(uint32_t time_mS)
 			}
 		}
 	}
+	Trigger_A2D_Scan();
 
 	return;
 }

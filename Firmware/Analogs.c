@@ -228,3 +228,21 @@ int HiV_Formating_AN15(int value)
 	return previousMeasurement;
 }
 
+int Hz_Formatting(int value)
+{
+//	return value;
+	//Hz = 60 @ A2D = 1000
+	value *= 6;
+	value /= 77;
+	
+	//The pot is reverse acting :(
+	value = 60 - value;
+	
+	//Don't dip below 10.0Hz
+	if(value < 10)
+		value = 10;
+	if(value > 60)
+		value = 60;
+
+	return value;
+}

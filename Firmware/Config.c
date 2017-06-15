@@ -179,7 +179,7 @@ void Configure_For_Afriji(void)
 	Pin_Initialize(PIN_RG2,								LOW, PUSH_PULL, INPUT);	//RG2
 	Pin_Initialize(PIN_RG3,								LOW, PUSH_PULL, INPUT);	//RG3
 	Pin_Initialize(PIN_RG6_SWITCHED_GROUND1,			LOW, OPEN_DRAIN, OUTPUT);//RG6
-	Pin_Initialize(PIN_RG7_SWITCHED_GROUND2,			LOW, OPEN_DRAIN, OUTPUT);//RG7
+	Pin_Initialize(PIN_RG7_SWITCHED_GROUND2,			LOW, PUSH_PULL, OUTPUT);//RG7
 	Pin_Initialize(PIN_RG8,								LOW, PUSH_PULL, INPUT);	//RG8
 	Pin_Initialize(PIN_RG9,								LOW, PUSH_PULL, INPUT);	//RG9
 
@@ -226,7 +226,7 @@ void Configure_For_Afriji(void)
 	A2D_Channel_Settings(A2D_AN8_TEMP4,							RESOLUTION_10_BIT,	1,	&Afriji_Celcius_Formating);
 	A2D_Channel_Settings(A2D_AN9_INPUT_CURRENT,					RESOLUTION_10_BIT,	1,	&HiI_Formating);
 	A2D_Channel_Settings(A2D_AN10_OUTPUT_CURRENT,				RESOLUTION_10_BIT,	1,	&LoI_Formating);
-	A2D_Channel_Settings(A2D_AN11_TEMP5,						RESOLUTION_10_BIT,	1,	&Afriji_Celcius_Formating);
+	A2D_Channel_Settings(A2D_AN11_TEMP5,						RESOLUTION_10_BIT,	1,	&Hz_Formatting);
 	A2D_Channel_Settings(A2D_AN12_VDC_BUS_PLUS,					RESOLUTION_10_BIT,	1,	&HiV_Formating_AN12);
 	A2D_Channel_Settings(A2D_AN13_TRANSFORMER_SECONDARY_PLUS,	RESOLUTION_10_BIT,	1,	&HiV_Formating_AN13);
 	A2D_Channel_Settings(A2D_AN14_VOUT_PLUS,					RESOLUTION_10_BIT,	1,	&HiV_Formating_AN14);

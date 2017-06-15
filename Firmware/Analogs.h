@@ -11,6 +11,7 @@ int HiV_Formating_AN12(int value);
 int HiV_Formating_AN13(int value);
 int HiV_Formating_AN14(int value);
 int HiV_Formating_AN15(int value);
+int Hz_Formatting(int value);
 
 void Switched_Ground_On(int channel);
 void Switched_Ground_Off(int channel);
