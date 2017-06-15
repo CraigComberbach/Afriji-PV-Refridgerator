@@ -97,10 +97,10 @@ void Initialize_Inverter(void)
 
 	for(loop = 0; loop < NUMBER_OF_INVERTERS_SUPPORTED; ++loop)
 	{
-		InverterConfigData[loop].targetOutputPeriod_uS = 16667;
+		InverterConfigData[loop].targetOutputPeriod_uS = 100000;
 		InverterConfigData[loop].currentTime_uS = 0;
-		InverterConfigData[loop].targetOutputFrequency_Hz = 60;
-		InverterConfigData[loop].targetOutputVoltage_Vx10 = 100;
+		InverterConfigData[loop].targetOutputFrequency_Hz = 10;
+		InverterConfigData[loop].targetOutputVoltage_Vx10 = 490;
 		#ifdef HiI_INVERTER_ENABLED
 		if(loop == HIGH_CURRENT_INVERTER)
 			InverterConfigData[loop].maxCurrentTripPickup_mA = 10000;
@@ -254,9 +254,13 @@ void Inverter_Routine(unsigned long time_uS)
 		//The big If
 		if((InverterConfigData[currentInverter].targetOutputPeriod_uS - InverterConfigData[currentInverter].currentTime_uS) < Get_Task_Period(INVERTER_TASK))
 		{
+			Nop();
+			Pin_Toggle(PIN_RG7_SWITCHED_GROUND2);
 			InverterConfigData[currentInverter].currentTime_uS = 0;
+			InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz = A2D_Value(A2D_AN11_TEMP5);
 			InverterConfigData[currentInverter].targetOutputFrequency_Hz = InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz;
-			InverterConfigData[currentInverter].targetOutputVoltage_Vx10 = InverterConfigData[currentInverter].targetOutputVoltageShadow_Vx10;
+			InverterConfigData[currentInverter].targetOutputPeriod_uS = 1000000 / InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz;
+			InverterConfigData[currentInverter].targetOutputVoltage_Vx10 = (InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz * 2 + (60 - InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz) * 10 / 3) * 14;
 		}
 	}
 
@@ -585,7 +589,7 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 
 void Frequency_Ramp(unsigned long time_mS)
 {
-	//Do stuff here
+
 	return;
 }
 
@@ -672,6 +676,11 @@ int Get_Target_Output_Frequency_Shadow_Hz(enum INVERTERS_SUPPORTED inverter)
 int Get_Target_Output_Period_us (enum INVERTERS_SUPPORTED inverter)
 {
 	return InverterConfigData[inverter].targetOutputPeriod_uS;
+}
+
+void Set_Target_Output_Period_us(unsigned long value, enum INVERTERS_SUPPORTED inverter)
+{
+	InverterConfigData[inverter].targetOutputPeriod_uS = value;
 }
  
 void Set_Rated_Output_Voltage_Vx10(int input, enum INVERTERS_SUPPORTED inverter)
