@@ -23,7 +23,7 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 /************Arbitrary Functionality*************/
 /*************   Magic  Numbers   ***************/
 #define	PWM_PERIOD_CLOCK_CYCLES		159	//# of operations between PWM module resets
-#define	DEADBAND					2	//Period resolution is 62.5nS; This is the delay between turning on/off one and turning on/off the other
+#define	DEADBAND					5	//Period resolution is 62.5nS; This is the delay between turning on/off one and turning on/off the other
 #define NUMBER_OF_uS_IN_ONE_SECOND	1000000
 #define VOLTAGE_TARGET_DEADBAND		10	//Voltage with one decimal of accuracy
 #define ONE_HUNDRED_PERCENT			1000
@@ -226,9 +226,8 @@ void Initialize_Inverter(void)
 void Inverter_Routine(unsigned long time_uS)
 {
 	enum INVERTERS_SUPPORTED currentInverter;
-	unsigned int theta;
 	int current_mA;
-	int a_Percent;
+	unsigned int a_Percent;
 	int dutyCyclePercent;
 
 	for(currentInverter = 0; currentInverter < NUMBER_OF_INVERTERS_SUPPORTED; ++currentInverter)
@@ -237,8 +236,8 @@ void Inverter_Routine(unsigned long time_uS)
 		InverterConfigData[currentInverter].currentTime_uS += time_uS;
 
 		//Convert Time to Angle
-		theta = Converter_Time_To_Angle(InverterConfigData[currentInverter].currentTime_uS, InverterConfigData[currentInverter].targetOutputPeriod_uS);
-
+		InverterConfigData[currentInverter].angle_degx10 = Converter_Time_To_Angle(InverterConfigData[currentInverter].currentTime_uS, InverterConfigData[currentInverter].targetOutputPeriod_uS);
+		
 		//Over-Current Detection
 		current_mA = Over_Current_Watch(currentInverter);
 
@@ -249,12 +248,11 @@ void Inverter_Routine(unsigned long time_uS)
 		dutyCyclePercent = Calculate_PWM_Duty_Percent(currentInverter, a_Percent);
 
 		//Update PWM Registers
-		Update_PWM_Register(currentInverter, theta, dutyCyclePercent);
+		Update_PWM_Register(currentInverter, InverterConfigData[currentInverter].angle_degx10, dutyCyclePercent);
 			
 		//The big If
 		if((InverterConfigData[currentInverter].targetOutputPeriod_uS - InverterConfigData[currentInverter].currentTime_uS) < Get_Task_Period(INVERTER_TASK))
 		{
-			Nop();
 			Pin_Toggle(PIN_RG7_SWITCHED_GROUND2);
 			InverterConfigData[currentInverter].currentTime_uS = 0;
 			InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz = A2D_Value(A2D_AN11_TEMP5);
@@ -347,7 +345,10 @@ int Calculate_Amplitude_Factor(enum INVERTERS_SUPPORTED currentInverter)
 
 	//Check if we are exceeding 100%
 	if(alpha > ONE_HUNDRED_PERCENT)
+	{
+		alpha = ONE_HUNDRED_PERCENT;
 		inverterErrorFlags[currentInverter].targetExceededSupply = 1;
+	}
 	
 	a = alpha;
 	
@@ -365,9 +366,15 @@ int Calculate_PWM_Duty_Percent(enum INVERTERS_SUPPORTED currentInverter, unsigne
 			//TODO - Add debug Terminal code
 		#endif
 	}
-
+	Nop();
 	beta_Percentx10 = (long int)a_percent * (long int)Sine(InverterConfigData[currentInverter].angle_degx10);
 	beta_Percentx10 /= (long int)1000;//Remove the bonus *1000 used to maintain integer resolution increase
+	
+	if(beta_Percentx10 < 0)
+		beta_Percentx10 *= -1;
+	
+	if(beta_Percentx10 > ONE_HUNDRED_PERCENT)
+		beta_Percentx10 = ONE_HUNDRED_PERCENT;
 
 	return (int)beta_Percentx10;
 }
@@ -384,6 +391,7 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 	unsigned int circulatingCurrentPeriod;
 	unsigned int conductingCurrentPeriod;
 
+	dutyCyclePercent = 100;
 	//Variable Sentinels
 	if(theta >= THREE_HUNDRED_SIXTY_DEGREES)
 		theta %= THREE_HUNDRED_SIXTY_DEGREES;
@@ -400,16 +408,6 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 		#endif
 	}
 
-	//Calculate Circulating Period
-	circulatingCurrentPeriod = PWM_PERIOD_CLOCK_CYCLES - (unsigned int)onTime - DEADBAND;
-	if((circulatingCurrentPeriod > PWM_PERIOD_CLOCK_CYCLES) || (circulatingCurrentPeriod < (2 * DEADBAND)))
-	{
-		circulatingCurrentPeriod = 2 * DEADBAND;
-		#ifdef TERMINAL_WINDOW_DEBUG_ENABLED
-			//TODO - Add debug Terminal code
-		#endif
-	}
-
 	//Calculate Conducting Period
 	conductingCurrentPeriod = PWM_PERIOD_CLOCK_CYCLES - (unsigned int)onTime;
 	if(conductingCurrentPeriod < (3 * DEADBAND))
@@ -419,6 +417,17 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 			//TODO - Add debug Terminal code
 		#endif
 	}
+
+	//Calculate Circulating Period
+	circulatingCurrentPeriod = PWM_PERIOD_CLOCK_CYCLES - ((unsigned int)onTime + DEADBAND);
+	if(circulatingCurrentPeriod < (2 * DEADBAND))
+	{
+		circulatingCurrentPeriod = 2 * DEADBAND;
+		#ifdef TERMINAL_WINDOW_DEBUG_ENABLED
+			//TODO - Add debug Terminal code
+		#endif
+	}
+
 
 	//Set registers
 	if(theta == 0)
