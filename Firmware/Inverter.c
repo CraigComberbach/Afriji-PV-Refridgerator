@@ -51,7 +51,7 @@ struct INVERTER_VARIABLES
 	int ratedOutputFrequency_Hz;
 	int ratedOutputPeriod_us;
 	unsigned long currentTime_uS;	//Time is referenced to the last zero degree crossing
-	int angle_degx10;
+	unsigned int angle_degx10;
 	int maxCurrentTripPickup_mA;
 	int maxCurrentTripDelay_us;
 	int lastPeakPosCurrent_mA;
@@ -237,11 +237,14 @@ void Inverter_Routine(unsigned long time_uS)
 		InverterConfigData[currentInverter].currentTime_uS += time_uS;
 
 		//Convert Time to Angle
-		theta = Converter_Time_To_Angle(InverterConfigData[currentInverter].currentTime_uS, InverterConfigData[currentInverter].targetOutputPeriod_uS);
+		theta = Converter_Time_To_Angle((unsigned int)InverterConfigData[currentInverter].currentTime_uS, 
+										(unsigned int) InverterConfigData[currentInverter].targetOutputPeriod_uS);
 
 		//Over-Current Detection
-		current_mA = Over_Current_Watch(currentInverter);
-
+		/* Needs to be implemented */
+		//current_mA = Over_Current_Watch(currentInverter);
+		/* ************************************** */
+		
 		//Calculate Amplitude Factor
 		a_Percent = Calculate_Amplitude_Factor(currentInverter);
 
@@ -269,10 +272,10 @@ void Inverter_Routine(unsigned long time_uS)
 
 unsigned int Converter_Time_To_Angle(unsigned int currentTime, unsigned int outputPeriod)
 {
-	unsigned long int temp;
-	temp = ((unsigned long int)currentTime * (unsigned long int)THREE_HUNDRED_SIXTY_DEGREES);
-	temp /= (unsigned long int)outputPeriod;
-	return (unsigned int)temp;
+	unsigned long temp;
+	temp = (currentTime * THREE_HUNDRED_SIXTY_DEGREES);
+	temp =/ outputPeriod;
+	return temp;
 }
 
 int Over_Current_Watch(enum INVERTERS_SUPPORTED currentInverter)
@@ -308,10 +311,10 @@ int Over_Current_Watch(enum INVERTERS_SUPPORTED currentInverter)
 
 int Calculate_Amplitude_Factor(enum INVERTERS_SUPPORTED currentInverter)
 {
-	long supplyVoltage_Vx10;
-	long alpha;
-	long gamma = Get_Task_Period(INVERTER_TASK);
-	static long a = 0;	//Alpha from last time through
+	unsigned int supplyVoltage_Vx10;
+	unsigned int alpha;
+	int gamma = Get_Task_Period(INVERTER_TASK);
+	static unsigned int a = 0;	//Alpha from last time through
 		
 	//Retrieve the circuit voltages
 	switch(currentInverter)
@@ -338,8 +341,8 @@ int Calculate_Amplitude_Factor(enum INVERTERS_SUPPORTED currentInverter)
 		supplyVoltage_Vx10 = 1;
 	
 	//Alpha = T/S * 100%
-	alpha = (long)InverterConfigData[currentInverter].targetOutputVoltage_Vx10 * (long)ONE_HUNDRED_PERCENT;
-	alpha /= (long)supplyVoltage_Vx10;
+	alpha = InverterConfigData[currentInverter].targetOutputVoltage_Vx10 * ONE_HUNDRED_PERCENT;
+	alpha /= supplyVoltage_Vx10;
 
 	//Check to see if we exceeded max slope
 	if((((alpha - a) * supplyVoltage_Vx10) / gamma) > InverterConfigData[currentInverter].targetOutputVoltage_Vx10)
@@ -356,7 +359,7 @@ int Calculate_Amplitude_Factor(enum INVERTERS_SUPPORTED currentInverter)
 
 int Calculate_PWM_Duty_Percent(enum INVERTERS_SUPPORTED currentInverter, unsigned int a_percent)
 {
-	long int beta_Percentx10;
+	int beta_Percentx10;
 
 	//Variable Sentinels
 	if(a_percent > ONE_HUNDRED_PERCENT)
@@ -364,12 +367,13 @@ int Calculate_PWM_Duty_Percent(enum INVERTERS_SUPPORTED currentInverter, unsigne
 		#ifdef TERMINAL_WINDOW_DEBUG_ENABLED
 			//TODO - Add debug Terminal code
 		#endif
+		a_percent = One_HUNDRED_PERCENT
 	}
 
-	beta_Percentx10 = (long int)a_percent * (long int)Sine(InverterConfigData[currentInverter].angle_degx10);
-	beta_Percentx10 /= (long int)1000;//Remove the bonus *1000 used to maintain integer resolution increase
+	beta_Percentx10 = a_percent * (Sine(InverterConfigData[currentInverter].angle_degx10) / 10);
+	beta_Percentx10 /= 100;//Remove the bonus *1000 used to maintain integer resolution increase
 
-	return (int)beta_Percentx10;
+	return beta_Percentx10;
 }
 
 void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int theta, int dutyCyclePercent)
