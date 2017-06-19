@@ -241,6 +241,8 @@ int Hz_Formatting(int value)
 	//Don't dip below 10.0Hz
 	if(value < 10)
 		value = 10;
+	if(value == 15)	//There is a an address error on 15 (only...weird, I know!) that I don't want to debug right now, so this kludge is included!
+		value = 16;
 	if(value > 60)
 		value = 60;
 

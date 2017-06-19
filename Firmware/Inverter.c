@@ -256,9 +256,11 @@ void Inverter_Routine(unsigned long time_uS)
 			Pin_Toggle(PIN_RG7_SWITCHED_GROUND2);
 			InverterConfigData[currentInverter].currentTime_uS = 0;
 			InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz = A2D_Value(A2D_AN11_TEMP5);
+			if(InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz == 0)
+				InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz = 10;				
 			InverterConfigData[currentInverter].targetOutputFrequency_Hz = InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz;
 			InverterConfigData[currentInverter].targetOutputPeriod_uS = 1000000 / InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz;
-			InverterConfigData[currentInverter].targetOutputVoltage_Vx10 = (InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz * 2 + (60 - InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz) * 10 / 3) * 14;
+			InverterConfigData[currentInverter].targetOutputVoltage_Vx10 = (InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz * 2 + (60 - InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz) * 3 / 10) * 14;
 		}
 	}
 
@@ -386,12 +388,20 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 	//LOA	____________...\_____/-----
 	//HOB	__/-\_______...------------
 	//LOB	\_____/-----...____________
+//	Limits		5					|	144	
+//	Angle		0-180º	180-360º	|	0-180º	180-360º
+//	HOA			N/A		5/149		|	N/A		5/10
+//	LOA			N/A		154/159		|	N/A	15/159
+//	HOB			5/149	N/A			|	5/10	N/A
+//	LOB			154/159	N/A			|	15/159	N/A
+//	Conducting	154					|	15	
+//	Circulating	149					|	10	
+//	This is why we have a 3x deadband upper limit!
 
 	unsigned long onTime;
 	unsigned int circulatingCurrentPeriod;
 	unsigned int conductingCurrentPeriod;
 
-	dutyCyclePercent = 100;
 	//Variable Sentinels
 	if(theta >= THREE_HUNDRED_SIXTY_DEGREES)
 		theta %= THREE_HUNDRED_SIXTY_DEGREES;
@@ -400,9 +410,16 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 	onTime = PWM_PERIOD_CLOCK_CYCLES;
 	onTime *= dutyCyclePercent;
 	onTime /= ONE_HUNDRED_PERCENT;
-	if(onTime > PWM_PERIOD_CLOCK_CYCLES)
+	if(onTime > (PWM_PERIOD_CLOCK_CYCLES - (3 * DEADBAND)))//Check to see if we have exceeded a maximum duty cycle
 	{
-		onTime %= PWM_PERIOD_CLOCK_CYCLES;
+		onTime = (PWM_PERIOD_CLOCK_CYCLES - (3 * DEADBAND));
+		#ifdef TERMINAL_WINDOW_DEBUG_ENABLED
+			//TODO - Add debug Terminal code
+		#endif
+	}
+	else if(onTime < DEADBAND)//Check to see if we have exceeded a minimum duty cycle
+	{
+		onTime = DEADBAND;
 		#ifdef TERMINAL_WINDOW_DEBUG_ENABLED
 			//TODO - Add debug Terminal code
 		#endif
@@ -410,27 +427,12 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 
 	//Calculate Conducting Period
 	conductingCurrentPeriod = PWM_PERIOD_CLOCK_CYCLES - (unsigned int)onTime;
-	if(conductingCurrentPeriod < (3 * DEADBAND))
-	{
-		conductingCurrentPeriod = 3 * DEADBAND;
-		#ifdef TERMINAL_WINDOW_DEBUG_ENABLED
-			//TODO - Add debug Terminal code
-		#endif
-	}
 
 	//Calculate Circulating Period
 	circulatingCurrentPeriod = PWM_PERIOD_CLOCK_CYCLES - ((unsigned int)onTime + DEADBAND);
-	if(circulatingCurrentPeriod < (2 * DEADBAND))
-	{
-		circulatingCurrentPeriod = 2 * DEADBAND;
-		#ifdef TERMINAL_WINDOW_DEBUG_ENABLED
-			//TODO - Add debug Terminal code
-		#endif
-	}
-
 
 	//Set registers
-	if(theta == 0)
+	if(theta < ONE_HUNDRED_EIGHTY_DEGREES)
 	{
 		//Set default values for positive waveform
 		switch(currentInverter)
@@ -459,8 +461,8 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 			#ifdef HiVolt_INVERTER_ENABLED
 			case HIGH_VOLTAGE_INVERTER:
 				//LOA - 100% Low
-				OC6R	= PWM_PERIOD_CLOCK_CYCLES+1;
 				OC6RS	= 0;
+				OC6R	= PWM_PERIOD_CLOCK_CYCLES+1;
 
 				//HOA - 100% High
 				OC7R	= 0;
@@ -481,38 +483,7 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 				break;
 		}
 	}
-	else if(theta < ONE_HUNDRED_EIGHTY_DEGREES)
-	{
-		//Only update the relevant registers (speed boost)
-		switch(currentInverter)
-		{
-			#ifdef HiI_INVERTER_ENABLED
-			case HIGH_CURRENT_INVERTER:
-				//HOB - Firing (circulating current)
-				OC3RS	= circulatingCurrentPeriod;
-
-				//LOB - Firing (conducting current)
-				OC4R	= conductingCurrentPeriod;
-
-				break;
-			#endif
-
-			#ifdef HiVolt_INVERTER_ENABLED
-			case HIGH_VOLTAGE_INVERTER:
-				//HOB - Circulating current
-				OC8RS	= circulatingCurrentPeriod;
-
-				//LOB - Conducting current
-				OC9R	= conductingCurrentPeriod;
-
-				break;
-			#endif
-
-			default:
-				break;
-		}
-	}
-	else if(theta == ONE_HUNDRED_EIGHTY_DEGREES)
+	else
 	{
 		//Set default values for negative waveform
 		switch(currentInverter)
@@ -555,36 +526,6 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 				//HOB - 100% High
 				OC8R	= 0;
 				OC8RS	= PWM_PERIOD_CLOCK_CYCLES+1;
-
-				break;
-			#endif
-			default:
-				break;
-		}
-	}
-	else
-	{
-		//Only update the relevant registers (speed boost)
-		switch(currentInverter)
-		{
-			#ifdef HiI_INVERTER_ENABLED
-			case HIGH_CURRENT_INVERTER:
-				//HOA - Circulating Current
-				OC2RS	= circulatingCurrentPeriod;
-
-				//LOA - Conducting Current
-				OC1R	= conductingCurrentPeriod;
-
-				break;
-			#endif
-
-			#ifdef HiVolt_INVERTER_ENABLED
-			case HIGH_VOLTAGE_INVERTER:
-				//HOA - Circulating Current
-				OC7RS	= circulatingCurrentPeriod;
-
-				//LOA - Conducting Current
-				OC6R	= conductingCurrentPeriod;
 
 				break;
 			#endif
