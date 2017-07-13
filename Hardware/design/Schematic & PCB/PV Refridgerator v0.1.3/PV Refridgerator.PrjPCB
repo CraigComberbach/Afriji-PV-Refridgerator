@@ -1650,6 +1650,8 @@ ProjectToDo5=Name=Add 15V Boost SMPS|State=1|UID=XSHCFYHL
 ProjectToDo6=Name=Add by-pass caps to analog inputs|State=1|UID=WSSTIWRO
 ProjectToDo7=Name=Add heatsink option to FETS|UID=LPAEIWPS
 ProjectToDo8=Name=Add Reverse Voltage Protection|UID=YJORWJSF
+ProjectToDo9=Name=Add footprints to new components|UID=GYQXTCBC
+ProjectToDo10=Name=Decouple from Integrated Library|UID=DWTFRHHA
 
 [Comparison Options]
 ComparisonOptions0=Kind=Net|MinPercent=75|MinMatch=3|ShowMatch=0|Confirm=0|UseName=-1|InclAllRules=0
