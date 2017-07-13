@@ -359,6 +359,74 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=
 
+[Document20]
+DocumentPath=15VDC 500mA Boost SMPS.SchDoc
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=-1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=1
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+GenerateClassCluster=0
+DocumentUniqueId=WCBFLUWL
+
+[Document21]
+DocumentPath=3.3VDC 250mA Linear PS.SchDoc
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=-1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=1
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+GenerateClassCluster=0
+DocumentUniqueId=KXWDOGGE
+
+[Document22]
+DocumentPath=5VDC 250mA Buck SMPS.SchDoc
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=-1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=1
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+GenerateClassCluster=0
+DocumentUniqueId=OBISAXUA
+
+[Document23]
+DocumentPath=Reverse Voltage Protection.SchDoc
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=-1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=1
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+GenerateClassCluster=0
+DocumentUniqueId=SUNDYSQB
+
 [Parameter1]
 Name=Designer
 Value=Craig Comberbach
@@ -1575,11 +1643,13 @@ ComponentIsDeviceSheet32=0
 
 [ToDoManager]
 ProjectToDo1=Name=Fix truth table on board~1|State=1|UID=WFRCJVOU
-ProjectToDo2=Name=Bigger boot strap capacitors for H-Bridge drivers|UID=VNEFXXGY
-ProjectToDo3=Name=Fix ground issue on second H-Bridge|UID=GINJEYGQ
-ProjectToDo4=Name=Add 5V Buck SMPS~1|UID=LRKNNYXO
-ProjectToDo5=Name=Add 15V Boost SMPS|UID=XSHCFYHL
-ProjectToDo6=Name=Add by-pass caps to analog inputs|UID=WSSTIWRO
+ProjectToDo2=Name=Bigger boot strap capacitors for H-Bridge drivers|State=1|UID=VNEFXXGY
+ProjectToDo3=Name=Fix ground issue on second H-Bridge|State=1|UID=GINJEYGQ
+ProjectToDo4=Name=Add 5V Buck SMPS~1|State=1|UID=LRKNNYXO
+ProjectToDo5=Name=Add 15V Boost SMPS|State=1|UID=XSHCFYHL
+ProjectToDo6=Name=Add by-pass caps to analog inputs|State=1|UID=WSSTIWRO
+ProjectToDo7=Name=Add heatsink option to FETS|UID=LPAEIWPS
+ProjectToDo8=Name=Add Reverse Voltage Protection|UID=YJORWJSF
 
 [Comparison Options]
 ComparisonOptions0=Kind=Net|MinPercent=75|MinMatch=3|ShowMatch=0|Confirm=0|UseName=-1|InclAllRules=0

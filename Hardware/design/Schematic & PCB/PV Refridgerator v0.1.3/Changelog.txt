@@ -30,5 +30,10 @@ H-Bridge drivers now control one side instead of kitty corner
 H-Bridge drivers now have two signal lines instead of one
 Each bridge has four control lines now instead of just two
 Removed ultimately ineffective but expensive 1uF 250V ceramic capacitors from the H-Bridges
-
-Add heatsink option to FETs
+Added by-pass caps to all analog inputs
+H-Bridge Drivers now have 44uF (2x 22uF) bootstrap capacitors
+Added a 5V buck SMPS to convert incoming voltage to provide a conditioned input for the 3.3V linear and 15V boost SMPS
+Added a 15V boost SMPS to convert 5VDC into the voltage required to power the H-Bridge drivers
+Fixed HVGND so that it references the rest of the circuit correctly
+Removed the DC- voltage rail sensor as it became circuit ground
+Added a 6th Temperature sensor as there was a free analog pin
