@@ -315,7 +315,7 @@ AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
 AnnotateSuffix=
 AnnotateScope=All
-AnnotateOrder=-1
+AnnotateOrder=19
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
 ClassGenCCAutoEnabled=1
@@ -340,7 +340,7 @@ ClassGenCCAutoRoomEnabled=1
 ClassGenNCAutoScope=None
 DItemRevisionGUID=
 GenerateClassCluster=0
-DocumentUniqueId=
+DocumentUniqueId=YEKMEKND
 
 [Document19]
 DocumentPath=Changelog.txt
@@ -366,7 +366,7 @@ AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
 AnnotateSuffix=
 AnnotateScope=All
-AnnotateOrder=-1
+AnnotateOrder=18
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
 ClassGenCCAutoEnabled=1
@@ -383,7 +383,7 @@ AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
 AnnotateSuffix=
 AnnotateScope=All
-AnnotateOrder=-1
+AnnotateOrder=16
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
 ClassGenCCAutoEnabled=1
@@ -400,7 +400,7 @@ AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
 AnnotateSuffix=
 AnnotateScope=All
-AnnotateOrder=-1
+AnnotateOrder=17
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
 ClassGenCCAutoEnabled=1
@@ -417,7 +417,7 @@ AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
 AnnotateSuffix=
 AnnotateScope=All
-AnnotateOrder=-1
+AnnotateOrder=20
 DoLibraryUpdate=1
 DoDatabaseUpdate=1
 ClassGenCCAutoEnabled=1
@@ -427,17 +427,34 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=SUNDYSQB
 
+[Document24]
+DocumentPath=Emergency Thermal Shutdown.SchDoc
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=-1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=1
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+GenerateClassCluster=0
+DocumentUniqueId=KNXUFSGK
+
 [Parameter1]
-Name=Designer
-Value=Craig Comberbach
+Name=ProjectTitle
+Value=PV Refridgerator
 
 [Parameter2]
 Name=ProjectRevision
-Value=v0.1.2
+Value=v0.1.3
 
 [Parameter3]
-Name=ProjectTitle
-Value=PV Refridgerator
+Name=Designer
+Value=Craig Comberbach
 
 [Configuration1]
 Name=Default Configuration
@@ -1651,7 +1668,6 @@ ProjectToDo6=Name=Add by-pass caps to analog inputs|State=1|UID=WSSTIWRO
 ProjectToDo7=Name=Add heatsink option to FETS|UID=LPAEIWPS
 ProjectToDo8=Name=Add Reverse Voltage Protection|UID=YJORWJSF
 ProjectToDo9=Name=Add footprints to new components|UID=GYQXTCBC
-ProjectToDo10=Name=Decouple from Integrated Library|UID=DWTFRHHA
 
 [Comparison Options]
 ComparisonOptions0=Kind=Net|MinPercent=75|MinMatch=3|ShowMatch=0|Confirm=0|UseName=-1|InclAllRules=0
