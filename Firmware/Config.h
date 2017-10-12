@@ -6,7 +6,7 @@
 #include <stdint.h>
 
 //System Variables
-//#define HiI_INVERTER_ENABLED
+#define HiI_INVERTER_ENABLED
 #define HiVolt_INVERTER_ENABLED
 //#define	TERMINAL_WINDOW_DEBUG_ENABLED
 

@@ -17,6 +17,11 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 #include "Scheduler.h"
 #include "SineFunctionLookup.h"
 
+/*************    Mike & Micah    ***************/
+const int InputStageFrequency = 60;
+const int OutputStageFrequency = 20;
+const int InputStak_x10geVp = 128;
+
 /************* Library Definition ***************/
 /************* Semantic Versioning***************/
 /*************Library Dependencies***************/
@@ -172,53 +177,53 @@ void Initialize_Inverter(void)
 	OC5CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC5CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 	
-	//OC6 - LOA Hi Voltage
-	OC6RS				= 0;		//Ensures it is off until needed
-	OC6R				= PWM_PERIOD_CLOCK_CYCLES+1;	//Ensures it is off until needed
-	OC6CON1				= 0;
-	OC6CON2				= 0;
-	OC6CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
-	OC6CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
-	OC6CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
-	OC6CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
-	OC6CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
-	OC6CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
-	
-	//OC7 - HOA Hi Voltage
-	OC7RS				= 0;		//Ensures it is off until needed
-	OC7R				= PWM_PERIOD_CLOCK_CYCLES+1;	//Ensures it is off until needed
-	OC7CON1				= 0;
-	OC7CON2				= 0;
-	OC7CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
-	OC7CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
-	OC7CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
-	OC7CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
-	OC7CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
-	OC7CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
-
-	//OC8 - HOB Hi Voltage
-	OC8RS				= 0;		//Ensures it is off until needed
-	OC8R				= PWM_PERIOD_CLOCK_CYCLES+1;	//Ensures it is off until needed
-	OC8CON1				= 0;
-	OC8CON2				= 0;
-	OC8CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
-	OC8CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
-	OC8CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
-	OC8CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
-	OC8CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
-	OC8CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
-
-	//OC9 - LOB Hi Voltage
-	OC9RS				= 0;		//Ensures it is off until needed
-	OC9R				= PWM_PERIOD_CLOCK_CYCLES+1;	//Ensures it is off until needed
-	OC9CON1				= 0;
-	OC9CON2				= 0;
-	OC9CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
-	OC9CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
-	OC9CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
-	OC9CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
-	OC9CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
-	OC9CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+//	//OC6 - LOA Hi Voltage
+//	OC6RS				= 0;		//Ensures it is off until needed
+//	OC6R				= PWM_PERIOD_CLOCK_CYCLES+1;	//Ensures it is off until needed
+//	OC6CON1				= 0;
+//	OC6CON2				= 0;
+//	OC6CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
+//	OC6CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
+//	OC6CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
+//	OC6CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+//	OC6CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
+//	OC6CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+//	
+//	//OC7 - HOA Hi Voltage
+//	OC7RS				= 0;		//Ensures it is off until needed
+//	OC7R				= PWM_PERIOD_CLOCK_CYCLES+1;	//Ensures it is off until needed
+//	OC7CON1				= 0;
+//	OC7CON2				= 0;
+//	OC7CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
+//	OC7CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
+//	OC7CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
+//	OC7CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+//	OC7CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
+//	OC7CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+//
+//	//OC8 - HOB Hi Voltage
+//	OC8RS				= 0;		//Ensures it is off until needed
+//	OC8R				= PWM_PERIOD_CLOCK_CYCLES+1;	//Ensures it is off until needed
+//	OC8CON1				= 0;
+//	OC8CON2				= 0;
+//	OC8CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
+//	OC8CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
+//	OC8CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
+//	OC8CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+//	OC8CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
+//	OC8CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+//
+//	//OC9 - LOB Hi Voltage
+//	OC9RS				= 0;		//Ensures it is off until needed
+//	OC9R				= PWM_PERIOD_CLOCK_CYCLES+1;	//Ensures it is off until needed
+//	OC9CON1				= 0;
+//	OC9CON2				= 0;
+//	OC9CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
+//	OC9CON1bits.OCM		= 0b111;	//111 = Center-Aligned PWM mode on OC
+//	OC9CON2bits.SYNCSEL	= 5;		//00101 = Output Compare 5
+//	OC9CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+//	OC9CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
+//	OC9CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 
 	return;
 }
@@ -255,12 +260,14 @@ void Inverter_Routine(unsigned long time_uS)
 		{
 			Pin_Toggle(PIN_RG7_SWITCHED_GROUND2);
 			InverterConfigData[currentInverter].currentTime_uS = 0;
-			InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz = A2D_Value(A2D_AN11_TEMP5);
+			InverterConfigData[HIGH_VOLTAGE_INVERTER].targetOutputFrequencyShadow_Hz = OutputStageFrequency;
+			InverterConfigData[HIGH_CURRENT_INVERTER].targetOutputFrequencyShadow_Hz = InputStageFrequency;
 			if(InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz == 0)
 				InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz = 10;				
 			InverterConfigData[currentInverter].targetOutputFrequency_Hz = InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz;
 			InverterConfigData[currentInverter].targetOutputPeriod_uS = 1000000 / InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz;
 			InverterConfigData[currentInverter].targetOutputVoltage_Vx10 = (InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz * 2 + (60 - InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz) * 3 / 10) * 14;
+			//InverterConfigData[HIGH_CURRENT_INVERTER].targetOutputVoltage_Vx10 = InputStak_x10geVp;
 		}
 	}
 

@@ -218,7 +218,7 @@ void Configure_For_Afriji(void)
 	A2D_Channel_Settings(A2D_AN0_TRANSFORMER_PRIMARY_MINUS,		RESOLUTION_10_BIT,	1,	&LoV_Formating_AN0);
 	A2D_Channel_Settings(A2D_AN1_TRANSFORMER_PRIMARY_PLUS,		RESOLUTION_10_BIT,	1,	&LoV_Formating_AN1);
 	A2D_Channel_Settings(A2D_AN2_SOLAR_PLUS,					RESOLUTION_10_BIT,	1,	&LoV_Formating_AN2);
-	A2D_Channel_Settings(A2D_AN3_TEMP2,							RESOLUTION_10_BIT,	1,	&Afriji_Celcius_Formating);
+	A2D_Channel_Settings(A2D_AN3_TEMP2,							RESOLUTION_10_BIT,	1,	&Hz_Formatting);
 //	A2D_Channel_Settings(A2D_AN4_UNUSED,						RESOLUTION_10_BIT,	1,	&);//Unused
 //	A2D_Channel_Settings(A2D_AN5_UNUSED,						RESOLUTION_10_BIT,	1,	&);//Unused
 	A2D_Channel_Settings(A2D_AN6_TEMP1,							RESOLUTION_10_BIT,	1,	&Afriji_Celcius_Formating);
