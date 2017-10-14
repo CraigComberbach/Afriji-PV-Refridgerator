@@ -62,6 +62,7 @@ struct INVERTER_VARIABLES
 	int lastPeakNegCurrent_mA;
 	int targetOutputPeriod_cycles;
 	int ratedOutputPeriod_cycles;
+	int32_t startupDelay_uS;
 } InverterConfigData[NUMBER_OF_INVERTERS_SUPPORTED];
  
 /***********State Machine Definitions************/
@@ -108,6 +109,7 @@ void Initialize_Inverter(void)
 		#ifdef HiI_INVERTER_ENABLED
 		if(loop == HIGH_CURRENT_INVERTER)
 		{
+			InverterConfigData[loop].startupDelay_uS = 0;
 			InverterConfigData[loop].targetOutputVoltage_Vx10 = 120;
 			InverterConfigData[loop].maxCurrentTripPickup_mA = 10000;
 		}
@@ -115,6 +117,7 @@ void Initialize_Inverter(void)
 		#ifdef HiVolt_INVERTER_ENABLED
 		if(loop == HIGH_VOLTAGE_INVERTER)
 		{
+			InverterConfigData[loop].startupDelay_uS = 100000;
 			InverterConfigData[loop].targetOutputVoltage_Vx10 = 2000;
 			InverterConfigData[loop].maxCurrentTripPickup_mA = 1000;
 		}
@@ -246,48 +249,55 @@ void Inverter_Routine(unsigned long time_uS)
 
 	for(currentInverter = 0; currentInverter < NUMBER_OF_INVERTERS_SUPPORTED; ++currentInverter)
 	{
-		//Update Timer
-		InverterConfigData[currentInverter].currentTime_uS += time_uS;
-
-		//Convert Time to Angle
-		InverterConfigData[currentInverter].angle_degx10 = Converter_Time_To_Angle(InverterConfigData[currentInverter].currentTime_uS, InverterConfigData[currentInverter].targetOutputPeriod_uS);
-		
-		//Over-Current Detection
-		current_mA = Over_Current_Watch(currentInverter);
-
-		//Calculate Amplitude Factor
-		a_Percent = Calculate_Amplitude_Factor(currentInverter);
-
-		//Calculate PWM Duty Percent
-		dutyCyclePercent = Calculate_PWM_Duty_Percent(currentInverter, a_Percent);
-
-		//Update PWM Registers
-		Update_PWM_Register(currentInverter, InverterConfigData[currentInverter].angle_degx10, dutyCyclePercent);
-			
-		//Once per cycle update the target frequency and voltage
-		if((InverterConfigData[currentInverter].targetOutputPeriod_uS - InverterConfigData[currentInverter].currentTime_uS) < Get_Task_Period(INVERTER_TASK))
+		if(InverterConfigData[currentInverter].startupDelay_uS >= time_uS)
 		{
-		#ifdef HiI_INVERTER_ENABLED
-			//SetThe new target voltage and frequency for the high current inverter
-			if(currentInverter == HIGH_CURRENT_INVERTER)
-			{
-				InverterConfigData[HIGH_CURRENT_INVERTER].targetOutputVoltage_Vx10 = InputStageVp_x10;
-				InverterConfigData[HIGH_CURRENT_INVERTER].targetOutputFrequency_Hz = InputStageFrequency;
-			}
-		#endif
-		#ifdef HiVolt_INVERTER_ENABLED
-			//SetThe new target voltage and frequency for the high voltage inverter
-			if(currentInverter == HIGH_VOLTAGE_INVERTER)
-			{
-				InverterConfigData[HIGH_VOLTAGE_INVERTER].targetOutputVoltage_Vx10 = (InverterConfigData[currentInverter].targetOutputFrequency_Hz * 2 + (60 - InverterConfigData[currentInverter].targetOutputFrequency_Hz) * 3 / 10) * 14;
-				InverterConfigData[HIGH_VOLTAGE_INVERTER].targetOutputFrequency_Hz = OutputStageFrequency;
-			}
-		#endif
+			InverterConfigData[currentInverter].startupDelay_uS -= time_uS;
+		}
+		else
+		{
+			//Update Timer
+			InverterConfigData[currentInverter].currentTime_uS += time_uS;
 
-			//Housekeeping
-			Pin_Toggle(PIN_RG7_SWITCHED_GROUND2);	//For triggering purposes
-			InverterConfigData[currentInverter].currentTime_uS = 0;
-			InverterConfigData[currentInverter].targetOutputPeriod_uS = NUMBER_OF_uS_IN_ONE_SECOND / InverterConfigData[currentInverter].targetOutputFrequency_Hz;
+			//Convert Time to Angle
+			InverterConfigData[currentInverter].angle_degx10 = Converter_Time_To_Angle(InverterConfigData[currentInverter].currentTime_uS, InverterConfigData[currentInverter].targetOutputPeriod_uS);
+
+			//Over-Current Detection
+			current_mA = Over_Current_Watch(currentInverter);
+
+			//Calculate Amplitude Factor
+			a_Percent = Calculate_Amplitude_Factor(currentInverter);
+
+			//Calculate PWM Duty Percent
+			dutyCyclePercent = Calculate_PWM_Duty_Percent(currentInverter, a_Percent);
+
+			//Update PWM Registers
+			Update_PWM_Register(currentInverter, InverterConfigData[currentInverter].angle_degx10, dutyCyclePercent);
+
+			//Once per cycle update the target frequency and voltage
+			if((InverterConfigData[currentInverter].targetOutputPeriod_uS - InverterConfigData[currentInverter].currentTime_uS) < Get_Task_Period(INVERTER_TASK))
+			{
+			#ifdef HiI_INVERTER_ENABLED
+				//SetThe new target voltage and frequency for the high current inverter
+				if(currentInverter == HIGH_CURRENT_INVERTER)
+				{
+					InverterConfigData[HIGH_CURRENT_INVERTER].targetOutputVoltage_Vx10 = InputStageVp_x10;
+					InverterConfigData[HIGH_CURRENT_INVERTER].targetOutputFrequency_Hz = InputStageFrequency;
+				}
+			#endif
+			#ifdef HiVolt_INVERTER_ENABLED
+				//SetThe new target voltage and frequency for the high voltage inverter
+				if(currentInverter == HIGH_VOLTAGE_INVERTER)
+				{
+					InverterConfigData[HIGH_VOLTAGE_INVERTER].targetOutputVoltage_Vx10 = (InverterConfigData[currentInverter].targetOutputFrequency_Hz * 2 + (60 - InverterConfigData[currentInverter].targetOutputFrequency_Hz) * 3 / 10) * 14;
+					InverterConfigData[HIGH_VOLTAGE_INVERTER].targetOutputFrequency_Hz = OutputStageFrequency;
+				}
+			#endif
+
+				//Housekeeping
+				Pin_Toggle(PIN_RG7_SWITCHED_GROUND2);	//For triggering purposes
+				InverterConfigData[currentInverter].currentTime_uS = 0;
+				InverterConfigData[currentInverter].targetOutputPeriod_uS = NUMBER_OF_uS_IN_ONE_SECOND / InverterConfigData[currentInverter].targetOutputFrequency_Hz;
+			}
 		}
 	}
 
