@@ -221,8 +221,6 @@ void __attribute__((interrupt, auto_psv)) _T1Interrupt(void)
 	IFS0bits.T1IF = 0;
 	delayFlag = 1;
 	TMR1 = 0;
-	Nop();
-	Nop();
-	Nop();
+
 	return;
 }

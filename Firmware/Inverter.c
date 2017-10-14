@@ -420,19 +420,19 @@ int Calculate_Amplitude_Factor(enum INVERTERS_SUPPORTED currentInverter)
 	return (int)amplitudeFactor_percentx10;
 }
 
-int Calculate_PWM_Duty_Percent(enum INVERTERS_SUPPORTED currentInverter, unsigned int a_percent)
+int Calculate_PWM_Duty_Percent(enum INVERTERS_SUPPORTED currentInverter, unsigned int amplitudeFactor_percentx10)
 {
 	long int dutyCycle_Percentx10;
 
 	//Variable Sentinels
-	if(a_percent > ONE_HUNDRED_PERCENT)
+	if(amplitudeFactor_percentx10 > ONE_HUNDRED_PERCENT)
 	{
 		#ifdef TERMINAL_WINDOW_DEBUG_ENABLED
 			//TODO - Add debug Terminal code
 		#endif
 	}
 
-	dutyCycle_Percentx10 = (long int)a_percent * (long int)Sine(InverterConfigData[currentInverter].angle_degx10);
+	dutyCycle_Percentx10 = (long int)amplitudeFactor_percentx10 * (long int)Sine(InverterConfigData[currentInverter].angle_degx10);
 	dutyCycle_Percentx10 /= (long int)1000;//Remove the bonus *1000 used to maintain integer resolution increase
 	
 	if(dutyCycle_Percentx10 < 0)
