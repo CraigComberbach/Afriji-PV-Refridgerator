@@ -34,6 +34,7 @@ const int InputStageVp_x10 = 120; //Ensure DC rail does not exceed 200 VDC
 #define ONE_HUNDRED_PERCENT			1000
 #define THREE_HUNDRED_SIXTY_DEGREES	3600
 #define ONE_HUNDRED_EIGHTY_DEGREES	1800
+const uint16_t NOMINAL_DC_RAIL_VOLTAGE_Vx10	= 2400;
 
 /*************	Enumeration	 ***************/
 /***********	Flag Definitions	*************/
@@ -347,7 +348,7 @@ int Over_Current_Watch(enum INVERTERS_SUPPORTED currentInverter)
 int Calculate_Amplitude_Factor(enum INVERTERS_SUPPORTED currentInverter)
 {
 	long supplyVoltage_Vx10;
-	long alpha;
+	long alpha_percentx10;
 	long gamma = Get_Task_Period(INVERTER_TASK);
 	static long a = 0;	//Alpha from last time through
 		
@@ -377,26 +378,35 @@ int Calculate_Amplitude_Factor(enum INVERTERS_SUPPORTED currentInverter)
 		supplyVoltage_Vx10 = 1;
 	}
 
-	//Alpha = T/S * 100%
-	alpha = (long)InverterConfigData[currentInverter].targetOutputVoltage_Vx10 * (long)ONE_HUNDRED_PERCENT;
-	alpha /= (long)supplyVoltage_Vx10;
+	//Check if we need to dump power
+	if((currentInverter == HIGH_CURRENT_INVERTER) && (A2D_Value(A2D_AN12_VDC_BUS_PLUS) < NOMINAL_DC_RAIL_VOLTAGE_Vx10))
+	{
+		alpha_percentx10 = ONE_HUNDRED_PERCENT;
+	}
+	else
+	{
+		//Alpha = T/S * 100%
+		alpha_percentx10 = (long)InverterConfigData[currentInverter].targetOutputVoltage_Vx10 * (long)ONE_HUNDRED_PERCENT;
+		alpha_percentx10 /= (long)supplyVoltage_Vx10;
+	}
+	
 
 	//Check to see if we exceeded max slope
-	if((((alpha - a) * supplyVoltage_Vx10) / gamma) > InverterConfigData[currentInverter].targetOutputVoltage_Vx10)
+	if((((alpha_percentx10 - a) * supplyVoltage_Vx10) / gamma) > InverterConfigData[currentInverter].targetOutputVoltage_Vx10)
 	{
 		inverterErrorFlags[currentInverter].maxSlopeExceeded = 1;
 	}
 
 	//Check if we are exceeding 100%
-	if(alpha > ONE_HUNDRED_PERCENT)
+	if(alpha_percentx10 > ONE_HUNDRED_PERCENT)
 	{
-		alpha = ONE_HUNDRED_PERCENT;
+		alpha_percentx10 = ONE_HUNDRED_PERCENT;
 		inverterErrorFlags[currentInverter].targetExceededSupply = 1;
 	}
 	
-	a = alpha;
+	a = alpha_percentx10;
 	
-	return (int)alpha;
+	return (int)alpha_percentx10;
 }
 
 int Calculate_PWM_Duty_Percent(enum INVERTERS_SUPPORTED currentInverter, unsigned int a_percent)
