@@ -185,6 +185,8 @@ void Configure_For_Afriji(void)
 
 	/************* PeripheralPinSelect***************/
 
+	__builtin_write_OSCCONL(OSCCON & 0xBF); 
+
 	//Input Inverter (Hi-I Lo-V)
 	#ifdef HiI_INVERTER_ENABLED
 	RPOR10bits.RP20R	= 18;	//OC1	LOA

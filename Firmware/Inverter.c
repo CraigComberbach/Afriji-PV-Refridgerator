@@ -16,6 +16,7 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 #include "Pins.h"
 #include "Scheduler.h"
 #include "SineFunctionLookup.h"
+#include "stdlib.h"
 
 /*************    Mike & Micah    ***************/
 const int InputStageFrequency = 60;
@@ -77,7 +78,7 @@ void Positive_Sine(int step, enum INVERTERS_SUPPORTED inverter);
 void Negative_Sine(int step, enum INVERTERS_SUPPORTED inverter);
 int Calculate_Amplitude_Factor(enum INVERTERS_SUPPORTED currentInverter);
 int Calculate_PWM_Duty_Percent(enum INVERTERS_SUPPORTED currentInverter, unsigned int a_percent);
-unsigned int Converter_Time_To_Angle(unsigned int currentTime, unsigned int outputPeriod);
+unsigned int Converter_Time_To_Angle_x10(unsigned int currentTime, unsigned int outputPeriod);
 void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int theta, int dutyCyclePercent);
 
 /************* Device Definitions ***************/	
@@ -247,7 +248,7 @@ void Inverter_Routine(unsigned long time_uS)
 {
 	enum INVERTERS_SUPPORTED currentInverter;
 	int current_mA;
-	unsigned int a_Percent;
+	unsigned int amplitudeFactor_Percent;
 	int dutyCyclePercent;
 
 	for(currentInverter = 0; currentInverter < NUMBER_OF_INVERTERS_SUPPORTED; ++currentInverter)
@@ -262,16 +263,16 @@ void Inverter_Routine(unsigned long time_uS)
 			InverterConfigData[currentInverter].currentTime_uS += time_uS;
 
 			//Convert Time to Angle
-			InverterConfigData[currentInverter].angle_degx10 = Converter_Time_To_Angle(InverterConfigData[currentInverter].currentTime_uS, InverterConfigData[currentInverter].targetOutputPeriod_uS);
+			InverterConfigData[currentInverter].angle_degx10 = Converter_Time_To_Angle_x10(InverterConfigData[currentInverter].currentTime_uS, InverterConfigData[currentInverter].targetOutputPeriod_uS);
 
 			//Over-Current Detection
 			current_mA = Over_Current_Watch(currentInverter);
 
 			//Calculate Amplitude Factor
-			a_Percent = Calculate_Amplitude_Factor(currentInverter);
+			amplitudeFactor_Percent = Calculate_Amplitude_Factor(currentInverter);
 
 			//Calculate PWM Duty Percent
-			dutyCyclePercent = Calculate_PWM_Duty_Percent(currentInverter, a_Percent);
+			dutyCyclePercent = Calculate_PWM_Duty_Percent(currentInverter, amplitudeFactor_Percent);
 
 			//Update PWM Registers
 			Update_PWM_Register(currentInverter, InverterConfigData[currentInverter].angle_degx10, dutyCyclePercent);
@@ -307,8 +308,12 @@ void Inverter_Routine(unsigned long time_uS)
 	return;
 }
 
-unsigned int Converter_Time_To_Angle(unsigned int currentTime, unsigned int outputPeriod)
+unsigned int Converter_Time_To_Angle_x10(unsigned int currentTime, unsigned int outputPeriod)
 {
+	/* 
+	 Finds the ratio of the current time with the expected time and multiplies it by 360º to get the current angle 
+	 Ex. 200uS since 0º, 360º occurs at 1000uS, then you should get 72º as your answer: (200u/1000u) * 360º 
+	 */
 	unsigned long int temp;
 	temp = ((unsigned long int)currentTime * (unsigned long int)THREE_HUNDRED_SIXTY_DEGREES);
 	temp /= (unsigned long int)outputPeriod;
@@ -317,6 +322,10 @@ unsigned int Converter_Time_To_Angle(unsigned int currentTime, unsigned int outp
 
 int Over_Current_Watch(enum INVERTERS_SUPPORTED currentInverter)
 {
+	/* 
+	 Checks for an over current error condition and sets an error flag appropriately 
+	 Each inverter is checked independently of the other, and each has its own error flag that  can be set 
+	 */
 	int measuredCurrent;
 
 	//Retrieve the circuit currents
@@ -350,9 +359,9 @@ int Over_Current_Watch(enum INVERTERS_SUPPORTED currentInverter)
 int Calculate_Amplitude_Factor(enum INVERTERS_SUPPORTED currentInverter)
 {
 	long supplyVoltage_Vx10;
-	long alpha_percentx10;
+	long amplitudeFactor_percentx10;
 	long gamma = Get_Task_Period(INVERTER_TASK);
-	static long a = 0;	//Alpha from last time through
+	static long oldAmplitudeFactor_Percentx10 = 0;	//Alpha from last time through
 		
 	//Retrieve the circuit voltages
 	switch(currentInverter)
@@ -383,37 +392,37 @@ int Calculate_Amplitude_Factor(enum INVERTERS_SUPPORTED currentInverter)
 	//Check if we need to dump power
 	if((currentInverter == HIGH_CURRENT_INVERTER) && (A2D_Value(A2D_AN12_VDC_BUS_PLUS) < NOMINAL_DC_RAIL_VOLTAGE_Vx10))
 	{
-		alpha_percentx10 = ONE_HUNDRED_PERCENT;
+		amplitudeFactor_percentx10 = ONE_HUNDRED_PERCENT;
 	}
 	else
 	{
 		//Alpha = T/S * 100%
-		alpha_percentx10 = (long)InverterConfigData[currentInverter].targetOutputVoltage_Vx10 * (long)ONE_HUNDRED_PERCENT;
-		alpha_percentx10 /= (long)supplyVoltage_Vx10;
+		amplitudeFactor_percentx10 = (long)InverterConfigData[currentInverter].targetOutputVoltage_Vx10 * (long)ONE_HUNDRED_PERCENT;
+		amplitudeFactor_percentx10 /= (long)supplyVoltage_Vx10;
 	}
 	
 
 	//Check to see if we exceeded max slope
-	if((((alpha_percentx10 - a) * supplyVoltage_Vx10) / gamma) > InverterConfigData[currentInverter].targetOutputVoltage_Vx10)
+	if((((amplitudeFactor_percentx10 - oldAmplitudeFactor_Percentx10) * supplyVoltage_Vx10) / gamma) > InverterConfigData[currentInverter].targetOutputVoltage_Vx10)
 	{
 		inverterErrorFlags[currentInverter].maxSlopeExceeded = 1;
 	}
 
 	//Check if we are exceeding 100%
-	if(alpha_percentx10 > ONE_HUNDRED_PERCENT)
+	if(amplitudeFactor_percentx10 > ONE_HUNDRED_PERCENT)
 	{
-		alpha_percentx10 = ONE_HUNDRED_PERCENT;
+		amplitudeFactor_percentx10 = ONE_HUNDRED_PERCENT;
 		inverterErrorFlags[currentInverter].targetExceededSupply = 1;
 	}
 	
-	a = alpha_percentx10;
+	oldAmplitudeFactor_Percentx10 = amplitudeFactor_percentx10;
 	
-	return (int)alpha_percentx10;
+	return (int)amplitudeFactor_percentx10;
 }
 
 int Calculate_PWM_Duty_Percent(enum INVERTERS_SUPPORTED currentInverter, unsigned int a_percent)
 {
-	long int beta_Percentx10;
+	long int dutyCycle_Percentx10;
 
 	//Variable Sentinels
 	if(a_percent > ONE_HUNDRED_PERCENT)
@@ -422,21 +431,21 @@ int Calculate_PWM_Duty_Percent(enum INVERTERS_SUPPORTED currentInverter, unsigne
 			//TODO - Add debug Terminal code
 		#endif
 	}
-	Nop();
-	beta_Percentx10 = (long int)a_percent * (long int)Sine(InverterConfigData[currentInverter].angle_degx10);
-	beta_Percentx10 /= (long int)1000;//Remove the bonus *1000 used to maintain integer resolution increase
+
+	dutyCycle_Percentx10 = (long int)a_percent * (long int)Sine(InverterConfigData[currentInverter].angle_degx10);
+	dutyCycle_Percentx10 /= (long int)1000;//Remove the bonus *1000 used to maintain integer resolution increase
 	
-	if(beta_Percentx10 < 0)
+	if(dutyCycle_Percentx10 < 0)
 	{
-		beta_Percentx10 *= -1;
+		dutyCycle_Percentx10 *= -1;
 	}
 	
-	if(beta_Percentx10 > ONE_HUNDRED_PERCENT)
+	if(dutyCycle_Percentx10 > ONE_HUNDRED_PERCENT)
 	{
-		beta_Percentx10 = ONE_HUNDRED_PERCENT;
+		dutyCycle_Percentx10 = ONE_HUNDRED_PERCENT;
 	}
 
-	return (int)beta_Percentx10;
+	return (int)dutyCycle_Percentx10;
 }
 
 void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int theta, int dutyCyclePercent)
