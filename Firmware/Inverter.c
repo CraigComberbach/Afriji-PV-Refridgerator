@@ -18,9 +18,9 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 #include "SineFunctionLookup.h"
 
 /*************    Mike & Micah    ***************/
-//const int InputStageFrequency = 60;
-//const int OutputStageFrequency = 20;
-//const int InputStageVp_x10 = 120; //Ensure DC rail does not exceed 200 VDC
+const int InputStageFrequency = 60;
+const int OutputStageFrequency = 20;
+const int InputStageVp_x10 = 120; //Ensure DC rail does not exceed 200 VDC
 
 /************* Library Definition ***************/
 /************* Semantic Versioning***************/
@@ -115,14 +115,14 @@ void Initialize_Inverter(void)
 			InverterConfigData[loop].targetOutputPeriod_uS = NUMBER_OF_uS_IN_ONE_SECOND / InverterConfigData[loop].targetOutputFrequency_Hz;
 		}
 		#endif
-		#ifdef HiVolt_INVERTER_ENABLED
+		#ifdef HiV_INVERTER_ENABLED
 		if(loop == HIGH_VOLTAGE_INVERTER)
 		{
 			InverterConfigData[loop].startupDelay_uS = 1000000;
-			InverterConfigData[loop].targetOutputFrequency_Hz = 16;
-			InverterConfigData[loop].targetOutputPeriod_uS = NUMBER_OF_uS_IN_ONE_SECOND / InverterConfigData[loop].targetOutputFrequency_Hz;
 			InverterConfigData[loop].targetOutputVoltage_Vx10 = 2000;
 			InverterConfigData[loop].maxCurrentTripPickup_Ax10 = 100;
+			InverterConfigData[loop].targetOutputFrequency_Hz = 16;
+			InverterConfigData[loop].targetOutputPeriod_uS = NUMBER_OF_uS_IN_ONE_SECOND / InverterConfigData[loop].targetOutputFrequency_Hz;
 		}
 		#endif
 	}
@@ -190,7 +190,7 @@ void Initialize_Inverter(void)
 	OC5CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC5CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 	
-#ifdef HiVolt_INVERTER_ENABLED
+#ifdef HiV_INVERTER_ENABLED
 	//OC6 - LOA Hi Voltage
 	OC6RS				= 0;		//Ensures it is off until needed
 	OC6R				= PWM_PERIOD_CLOCK_CYCLES+1;	//Ensures it is off until needed
@@ -283,16 +283,16 @@ void Inverter_Routine(unsigned long time_uS)
 				//SetThe new target voltage and frequency for the high current inverter
 				if(currentInverter == HIGH_CURRENT_INVERTER)
 				{
-					//InverterConfigData[HIGH_CURRENT_INVERTER].targetOutputVoltage_Vx10 = InputStageVp_x10;
-					//InverterConfigData[HIGH_CURRENT_INVERTER].targetOutputFrequency_Hz = InputStageFrequency;
+					InverterConfigData[HIGH_CURRENT_INVERTER].targetOutputFrequency_Hz = InputStageFrequency;
+					InverterConfigData[HIGH_CURRENT_INVERTER].targetOutputVoltage_Vx10 = InputStageVp_x10;
 				}
 			#endif
-			#ifdef HiVolt_INVERTER_ENABLED
+			#ifdef HiV_INVERTER_ENABLED
 				//SetThe new target voltage and frequency for the high voltage inverter
 				if(currentInverter == HIGH_VOLTAGE_INVERTER)
 				{
-					//InverterConfigData[HIGH_VOLTAGE_INVERTER].targetOutputVoltage_Vx10 = (InverterConfigData[currentInverter].targetOutputFrequency_Hz * 2 + (60 - InverterConfigData[currentInverter].targetOutputFrequency_Hz) * 3 / 10) * 14;
-					//InverterConfigData[HIGH_VOLTAGE_INVERTER].targetOutputFrequency_Hz = OutputStageFrequency;
+					InverterConfigData[HIGH_VOLTAGE_INVERTER].targetOutputFrequency_Hz = OutputStageFrequency;
+					InverterConfigData[HIGH_VOLTAGE_INVERTER].targetOutputVoltage_Vx10 = (InverterConfigData[currentInverter].targetOutputFrequency_Hz * 2 + (60 - InverterConfigData[currentInverter].targetOutputFrequency_Hz) * 3 / 10) * 14;
 				}
 			#endif
 
@@ -327,7 +327,7 @@ int Over_Current_Watch(enum INVERTERS_SUPPORTED currentInverter)
 			measuredCurrent = A2D_Value(A2D_AN9_INPUT_CURRENT);
 			break;
 		#endif
-		#ifdef HiVolt_INVERTER_ENABLED
+		#ifdef HiV_INVERTER_ENABLED
 		case HIGH_VOLTAGE_INVERTER:
 			measuredCurrent = A2D_Value(A2D_AN10_OUTPUT_CURRENT);
 			break;
@@ -362,7 +362,7 @@ int Calculate_Amplitude_Factor(enum INVERTERS_SUPPORTED currentInverter)
 			supplyVoltage_Vx10 = A2D_Value(A2D_AN2_SOLAR_PLUS);
 			break;
 		#endif
-		#ifdef HiVolt_INVERTER_ENABLED
+		#ifdef HiV_INVERTER_ENABLED
 		case HIGH_VOLTAGE_INVERTER:
 			supplyVoltage_Vx10 = A2D_Value(A2D_AN12_VDC_BUS_PLUS);
 			break;
@@ -518,7 +518,7 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 				break;
 			#endif
 
-			#ifdef HiVolt_INVERTER_ENABLED
+			#ifdef HiV_INVERTER_ENABLED
 			case HIGH_VOLTAGE_INVERTER:
 				//LOA - 100% Low
 				OC6RS	= 0;
@@ -569,7 +569,7 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 				break;
 			#endif
 
-			#ifdef HiVolt_INVERTER_ENABLED
+			#ifdef HiV_INVERTER_ENABLED
 			case HIGH_VOLTAGE_INVERTER:
 				//HOA - Circulating Current
 				OC7R	= DEADBAND;

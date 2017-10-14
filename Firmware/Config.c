@@ -194,7 +194,7 @@ void Configure_For_Afriji(void)
 	#endif
 
 	//Output Inverter (Hi-V Lo-A)
-	#ifdef HiVolt_INVERTER_ENABLED
+	#ifdef HiV_INVERTER_ENABLED
 	RPOR5bits.RP10R		= 23;	//OC6	LOA
 	RPOR8bits.RP16R		= 24;	//OC7	HOA
 	RPOR15bits.RP30R	= 25;	//OC8	HOB

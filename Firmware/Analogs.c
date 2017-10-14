@@ -228,7 +228,7 @@ int HiV_Formating_AN15(int value)
 	return previousMeasurement;
 }
 
-int Hz_Formatting(int value)  //Returns A2D measurement as formatted frequency. return 1 = 0.1 Hz
+int Hz_Formatting(int value)  //Returns A2D measurement as formatted frequency. return 1 = 1 Hz
 {
 	long intermediate = (long)value;
 	
