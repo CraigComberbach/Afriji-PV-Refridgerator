@@ -117,7 +117,7 @@ void Initialize_Inverter(void)
 		#ifdef HiVolt_INVERTER_ENABLED
 		if(loop == HIGH_VOLTAGE_INVERTER)
 		{
-			InverterConfigData[loop].startupDelay_uS = 100000;
+			InverterConfigData[loop].startupDelay_uS = 1000000;
 			InverterConfigData[loop].targetOutputVoltage_Vx10 = 2000;
 			InverterConfigData[loop].maxCurrentTripPickup_mA = 1000;
 		}
