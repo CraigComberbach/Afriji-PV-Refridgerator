@@ -198,10 +198,10 @@
         <property key="INPUT CAPTURE 7" value="true"/>
         <property key="INPUT CAPTURE 8" value="true"/>
         <property key="INPUT CAPTURE 9" value="true"/>
-        <property key="OUTPUT COMPARE 1" value="false"/>
-        <property key="OUTPUT COMPARE 2" value="false"/>
-        <property key="OUTPUT COMPARE 3" value="false"/>
-        <property key="OUTPUT COMPARE 4" value="false"/>
+        <property key="OUTPUT COMPARE 1" value="true"/>
+        <property key="OUTPUT COMPARE 2" value="true"/>
+        <property key="OUTPUT COMPARE 3" value="true"/>
+        <property key="OUTPUT COMPARE 4" value="true"/>
         <property key="OUTPUT COMPARE 5" value="true"/>
         <property key="OUTPUT COMPARE 6" value="true"/>
         <property key="OUTPUT COMPARE 7" value="true"/>

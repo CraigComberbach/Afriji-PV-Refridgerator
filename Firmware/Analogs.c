@@ -245,4 +245,6 @@ int Hz_Formatting(int value)
 		value = 16;
 	if(value > 60)
 		value = 60;
+	
+	return value;
 }
