@@ -130,7 +130,7 @@ int LoV_Formating_AN2(int value)
 	return previousMeasurement;
 }
 
-int HiI_Formating(int value)
+int HiI_Formating(int value)  //Returns A2D measurement as formatted current. return 1 = 0.1 A 
 {
 	static int previousMeasurement = 15;	//Start at 1.5A as that is our minimum measurable current
 	int temp;
@@ -151,7 +151,7 @@ int HiI_Formating(int value)
 	return temp;
 }
 
-int LoI_Formating(int value)
+int LoI_Formating(int value)	//Returns A2D measurement as formatted current. return 1 = 0.1 A
 {
 	static int previousMeasurement = 1;	//Start at 0.1A as that is our minimum measurable current
 	int temp;
@@ -172,7 +172,7 @@ int LoI_Formating(int value)
 	return temp;
 }
 
-int HiV_Formating(int value, int previousMeasurement)
+int HiV_Formating(int value, int previousMeasurement) //Returns A2D measurement as formatted voltage. return 1 = 0.1 V
 {
 	int temp;
 
@@ -192,7 +192,7 @@ int HiV_Formating(int value, int previousMeasurement)
 	return temp;
 }
 
-int HiV_Formating_AN12(int value)
+int HiV_Formating_AN12(int value) 
 {
 	static int previousMeasurement = 0;
 
@@ -228,7 +228,7 @@ int HiV_Formating_AN15(int value)
 	return previousMeasurement;
 }
 
-int Hz_Formatting(int value)
+int Hz_Formatting(int value)  //Returns A2D measurement as formatted frequency. return 1 = 0.1 Hz
 {
 	long intermediate = (long)value;
 	

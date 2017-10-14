@@ -18,9 +18,9 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 #include "SineFunctionLookup.h"
 
 /*************    Mike & Micah    ***************/
-const int InputStageFrequency = 60;
-const int OutputStageFrequency = 20;
-const int InputStageVp_x10 = 120; //Ensure DC rail does not exceed 200 VDC
+//const int InputStageFrequency = 60;
+//const int OutputStageFrequency = 20;
+//const int InputStageVp_x10 = 120; //Ensure DC rail does not exceed 200 VDC
 
 /************* Library Definition ***************/
 /************* Semantic Versioning***************/
@@ -57,7 +57,7 @@ struct INVERTER_VARIABLES
 	int ratedOutputPeriod_us;
 	unsigned long currentTime_uS;	//Time is referenced to the last zero degree crossing
 	int angle_degx10;
-	int maxCurrentTripPickup_mA;
+	int maxCurrentTripPickup_Ax10;
 	int maxCurrentTripDelay_us;
 	int lastPeakPosCurrent_mA;
 	int lastPeakNegCurrent_mA;
@@ -103,24 +103,26 @@ void Initialize_Inverter(void)
 
 	for(loop = 0; loop < NUMBER_OF_INVERTERS_SUPPORTED; ++loop)
 	{
-		InverterConfigData[loop].targetOutputPeriod_uS = 100000;
 		InverterConfigData[loop].currentTime_uS = 0;
-		InverterConfigData[loop].targetOutputFrequency_Hz = 16;
 		
 		#ifdef HiI_INVERTER_ENABLED
 		if(loop == HIGH_CURRENT_INVERTER)
 		{
 			InverterConfigData[loop].startupDelay_uS = 0;
 			InverterConfigData[loop].targetOutputVoltage_Vx10 = 120;
-			InverterConfigData[loop].maxCurrentTripPickup_mA = 10000;
+			InverterConfigData[loop].maxCurrentTripPickup_Ax10 = 800;
+			InverterConfigData[loop].targetOutputFrequency_Hz = 60;
+			InverterConfigData[loop].targetOutputPeriod_uS = NUMBER_OF_uS_IN_ONE_SECOND / InverterConfigData[loop].targetOutputFrequency_Hz;
 		}
 		#endif
 		#ifdef HiVolt_INVERTER_ENABLED
 		if(loop == HIGH_VOLTAGE_INVERTER)
 		{
 			InverterConfigData[loop].startupDelay_uS = 1000000;
+			InverterConfigData[loop].targetOutputFrequency_Hz = 16;
+			InverterConfigData[loop].targetOutputPeriod_uS = NUMBER_OF_uS_IN_ONE_SECOND / InverterConfigData[loop].targetOutputFrequency_Hz;
 			InverterConfigData[loop].targetOutputVoltage_Vx10 = 2000;
-			InverterConfigData[loop].maxCurrentTripPickup_mA = 1000;
+			InverterConfigData[loop].maxCurrentTripPickup_Ax10 = 100;
 		}
 		#endif
 	}
@@ -281,16 +283,16 @@ void Inverter_Routine(unsigned long time_uS)
 				//SetThe new target voltage and frequency for the high current inverter
 				if(currentInverter == HIGH_CURRENT_INVERTER)
 				{
-					InverterConfigData[HIGH_CURRENT_INVERTER].targetOutputVoltage_Vx10 = InputStageVp_x10;
-					InverterConfigData[HIGH_CURRENT_INVERTER].targetOutputFrequency_Hz = InputStageFrequency;
+					//InverterConfigData[HIGH_CURRENT_INVERTER].targetOutputVoltage_Vx10 = InputStageVp_x10;
+					//InverterConfigData[HIGH_CURRENT_INVERTER].targetOutputFrequency_Hz = InputStageFrequency;
 				}
 			#endif
 			#ifdef HiVolt_INVERTER_ENABLED
 				//SetThe new target voltage and frequency for the high voltage inverter
 				if(currentInverter == HIGH_VOLTAGE_INVERTER)
 				{
-					InverterConfigData[HIGH_VOLTAGE_INVERTER].targetOutputVoltage_Vx10 = (InverterConfigData[currentInverter].targetOutputFrequency_Hz * 2 + (60 - InverterConfigData[currentInverter].targetOutputFrequency_Hz) * 3 / 10) * 14;
-					InverterConfigData[HIGH_VOLTAGE_INVERTER].targetOutputFrequency_Hz = OutputStageFrequency;
+					//InverterConfigData[HIGH_VOLTAGE_INVERTER].targetOutputVoltage_Vx10 = (InverterConfigData[currentInverter].targetOutputFrequency_Hz * 2 + (60 - InverterConfigData[currentInverter].targetOutputFrequency_Hz) * 3 / 10) * 14;
+					//InverterConfigData[HIGH_VOLTAGE_INVERTER].targetOutputFrequency_Hz = OutputStageFrequency;
 				}
 			#endif
 
@@ -337,7 +339,7 @@ int Over_Current_Watch(enum INVERTERS_SUPPORTED currentInverter)
 		inverterErrorFlags[currentInverter].overCurrent = 1;
 
 	//Check for an over-current condition
-	if(measuredCurrent >= InverterConfigData[currentInverter].maxCurrentTripPickup_mA)
+	if(measuredCurrent >= InverterConfigData[currentInverter].maxCurrentTripPickup_Ax10)
 	{
 		inverterErrorFlags[currentInverter].overCurrent = 1;
 	}
@@ -715,12 +717,12 @@ int Get_Rated_Output_Period_us (enum INVERTERS_SUPPORTED inverter)
  
 void Set_Max_Current_Trip_Pickup_mA (int input, enum INVERTERS_SUPPORTED inverter)
 {
-	InverterConfigData[inverter].maxCurrentTripPickup_mA = input;
+	InverterConfigData[inverter].maxCurrentTripPickup_Ax10 = input;
 }
  
 int Get_Max_Current_Trip_Pickup_mA(enum INVERTERS_SUPPORTED inverter)
 {
-	return InverterConfigData[inverter].maxCurrentTripPickup_mA;
+	return InverterConfigData[inverter].maxCurrentTripPickup_Ax10;
 }
  
 void Set_Max_Current_Trip_Delay_ms (int input, enum INVERTERS_SUPPORTED inverter)
