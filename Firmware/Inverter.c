@@ -50,7 +50,6 @@ struct INVERTER_VARIABLES
 	int targetOutputVoltage_Vx10;
 	int targetOutputVoltageShadow_Vx10;
 	int targetOutputFrequency_Hz;
-	int targetOutputFrequencyShadow_Hz;
 	unsigned long targetOutputPeriod_uS;
 	int ratedOutputVoltage_Vx10;
 	int ratedOutputFrequency_Hz;
@@ -107,17 +106,22 @@ void Initialize_Inverter(void)
 		InverterConfigData[loop].targetOutputFrequency_Hz = 16;
 		
 		#ifdef HiI_INVERTER_ENABLED
-		InverterConfigData[loop].targetOutputVoltage_Vx10 = 120;
 		if(loop == HIGH_CURRENT_INVERTER)
+		{
+			InverterConfigData[loop].targetOutputVoltage_Vx10 = 120;
 			InverterConfigData[loop].maxCurrentTripPickup_mA = 10000;
+		}
 		#endif
 		#ifdef HiVolt_INVERTER_ENABLED
-		InverterConfigData[loop].targetOutputVoltage_Vx10 = 1700;
 		if(loop == HIGH_VOLTAGE_INVERTER)
+		{
+			InverterConfigData[loop].targetOutputVoltage_Vx10 = 2000;
 			InverterConfigData[loop].maxCurrentTripPickup_mA = 1000;
+		}
 		#endif
 	}
-
+	
+#ifdef HiI_INVERTER_ENABLED
 	//OC1 - LOA Hi Current
 	OC1RS				= 0;		//Ensures it is off until needed
 	OC1R				= PWM_PERIOD_CLOCK_CYCLES+1;	//Ensures it is off until needed
@@ -129,7 +133,7 @@ void Initialize_Inverter(void)
 	OC1CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
 	OC1CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC1CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
-	
+
 	//OC2 - HOA Hi Current
 	OC2RS				= 0;		//Ensures it is off until needed
 	OC2R				= PWM_PERIOD_CLOCK_CYCLES+1;	//Ensures it is off until needed
@@ -165,6 +169,7 @@ void Initialize_Inverter(void)
 	OC4CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
 	OC4CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC4CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
+#endif
 	
 	//OC5 - Master Timer 
 	/* !!! One [reference timer] to rule them all and in the darkness bind them [together] !!! */
@@ -179,6 +184,7 @@ void Initialize_Inverter(void)
 	OC5CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC5CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 	
+#ifdef HiVolt_INVERTER_ENABLED
 	//OC6 - LOA Hi Voltage
 	OC6RS				= 0;		//Ensures it is off until needed
 	OC6R				= PWM_PERIOD_CLOCK_CYCLES+1;	//Ensures it is off until needed
@@ -190,7 +196,7 @@ void Initialize_Inverter(void)
 	OC6CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
 	OC6CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC6CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
-	
+
 	//OC7 - HOA Hi Voltage
 	OC7RS				= 0;		//Ensures it is off until needed
 	OC7R				= PWM_PERIOD_CLOCK_CYCLES+1;	//Ensures it is off until needed
@@ -226,7 +232,8 @@ void Initialize_Inverter(void)
 	OC9CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
 	OC9CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC9CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
-
+#endif
+		
 	return;
 }
 
@@ -257,19 +264,30 @@ void Inverter_Routine(unsigned long time_uS)
 		//Update PWM Registers
 		Update_PWM_Register(currentInverter, InverterConfigData[currentInverter].angle_degx10, dutyCyclePercent);
 			
-		//The big If
+		//Once per cycle update the target frequency and voltage
 		if((InverterConfigData[currentInverter].targetOutputPeriod_uS - InverterConfigData[currentInverter].currentTime_uS) < Get_Task_Period(INVERTER_TASK))
 		{
-			Pin_Toggle(PIN_RG7_SWITCHED_GROUND2);
+		#ifdef HiI_INVERTER_ENABLED
+			//SetThe new target voltage and frequency for the high current inverter
+			if(currentInverter == HIGH_CURRENT_INVERTER)
+			{
+				InverterConfigData[HIGH_CURRENT_INVERTER].targetOutputVoltage_Vx10 = InputStageVp_x10;
+				InverterConfigData[HIGH_CURRENT_INVERTER].targetOutputFrequency_Hz = InputStageFrequency;
+			}
+		#endif
+		#ifdef HiVolt_INVERTER_ENABLED
+			//SetThe new target voltage and frequency for the high voltage inverter
+			if(currentInverter == HIGH_VOLTAGE_INVERTER)
+			{
+				InverterConfigData[HIGH_VOLTAGE_INVERTER].targetOutputVoltage_Vx10 = (InverterConfigData[currentInverter].targetOutputFrequency_Hz * 2 + (60 - InverterConfigData[currentInverter].targetOutputFrequency_Hz) * 3 / 10) * 14;
+				InverterConfigData[HIGH_VOLTAGE_INVERTER].targetOutputFrequency_Hz = OutputStageFrequency;
+			}
+		#endif
+
+			//Housekeeping
+			Pin_Toggle(PIN_RG7_SWITCHED_GROUND2);	//For triggering purposes
 			InverterConfigData[currentInverter].currentTime_uS = 0;
-			InverterConfigData[HIGH_VOLTAGE_INVERTER].targetOutputFrequencyShadow_Hz = OutputStageFrequency;
-			InverterConfigData[HIGH_CURRENT_INVERTER].targetOutputFrequencyShadow_Hz = InputStageFrequency;
-			if(InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz == 0)
-				InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz = 10;				
-			InverterConfigData[currentInverter].targetOutputFrequency_Hz = InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz;
-			InverterConfigData[currentInverter].targetOutputPeriod_uS = 1000000 / InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz;
-			InverterConfigData[currentInverter].targetOutputVoltage_Vx10 = (InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz * 2 + (60 - InverterConfigData[currentInverter].targetOutputFrequencyShadow_Hz) * 3 / 10) * 14;
-			InverterConfigData[HIGH_CURRENT_INVERTER].targetOutputVoltage_Vx10 = InputStageVp_x10;
+			InverterConfigData[currentInverter].targetOutputPeriod_uS = NUMBER_OF_uS_IN_ONE_SECOND / InverterConfigData[currentInverter].targetOutputFrequency_Hz;
 		}
 	}
 
@@ -345,15 +363,19 @@ int Calculate_Amplitude_Factor(enum INVERTERS_SUPPORTED currentInverter)
 
 	//Divide by zero Sentinel
 	if(supplyVoltage_Vx10 == 0)
+	{
 		supplyVoltage_Vx10 = 1;
-	
+	}
+
 	//Alpha = T/S * 100%
 	alpha = (long)InverterConfigData[currentInverter].targetOutputVoltage_Vx10 * (long)ONE_HUNDRED_PERCENT;
 	alpha /= (long)supplyVoltage_Vx10;
 
 	//Check to see if we exceeded max slope
 	if((((alpha - a) * supplyVoltage_Vx10) / gamma) > InverterConfigData[currentInverter].targetOutputVoltage_Vx10)
+	{
 		inverterErrorFlags[currentInverter].maxSlopeExceeded = 1;
+	}
 
 	//Check if we are exceeding 100%
 	if(alpha > ONE_HUNDRED_PERCENT)
@@ -383,10 +405,14 @@ int Calculate_PWM_Duty_Percent(enum INVERTERS_SUPPORTED currentInverter, unsigne
 	beta_Percentx10 /= (long int)1000;//Remove the bonus *1000 used to maintain integer resolution increase
 	
 	if(beta_Percentx10 < 0)
+	{
 		beta_Percentx10 *= -1;
+	}
 	
 	if(beta_Percentx10 > ONE_HUNDRED_PERCENT)
+	{
 		beta_Percentx10 = ONE_HUNDRED_PERCENT;
+	}
 
 	return (int)beta_Percentx10;
 }
@@ -414,7 +440,9 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 
 	//Variable Sentinels
 	if(theta >= THREE_HUNDRED_SIXTY_DEGREES)
+	{
 		theta %= THREE_HUNDRED_SIXTY_DEGREES;
+	}
 
 	//Calculate On Time
 	onTime = PWM_PERIOD_CLOCK_CYCLES;
@@ -593,7 +621,9 @@ int Get_Rated_RMS_Voltage (enum INVERTERS_SUPPORTED inverter)
 void Set_Rated_Voltage(int newTarget, enum INVERTERS_SUPPORTED inverter)
 {
 	if((inverter >= 0) && (inverter < NUMBER_OF_INVERTERS_SUPPORTED))
+	{
 		InverterConfigData[inverter].targetOutputVoltageShadow_Vx10 = newTarget;
+	}
 
 	return;
 }
@@ -620,17 +650,12 @@ int Get_Target_Output_Voltage_Shadow_Vx10(enum INVERTERS_SUPPORTED inverter)
  
 void Set_Target_Output_Frequency_Hz (int input, enum INVERTERS_SUPPORTED inverter)
 {
-	InverterConfigData[inverter].targetOutputFrequencyShadow_Hz = input;
+	InverterConfigData[inverter].targetOutputFrequency_Hz = input;
 }
  
 int Get_Target_Output_Frequency_Hz(enum INVERTERS_SUPPORTED inverter)
 {
 	return InverterConfigData[inverter].targetOutputFrequency_Hz;
-}
- 
-int Get_Target_Output_Frequency_Shadow_Hz(enum INVERTERS_SUPPORTED inverter)
-{
-	return InverterConfigData[inverter].targetOutputFrequencyShadow_Hz;
 }
  
 int Get_Target_Output_Period_us (enum INVERTERS_SUPPORTED inverter)
