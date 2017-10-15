@@ -184,7 +184,6 @@ void Configure_For_Afriji(void)
 	Pin_Initialize(PIN_RG9,								LOW, PUSH_PULL, INPUT);	//RG9
 
 	/************* PeripheralPinSelect***************/
-
 	__builtin_write_OSCCONL(OSCCON & 0xBF); 
 
 	//Input Inverter (Hi-I Lo-V)

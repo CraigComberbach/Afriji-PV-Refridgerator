@@ -530,8 +530,8 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 			#ifdef HiV_INVERTER_ENABLED
 			case HIGH_VOLTAGE_INVERTER:
 				//LOA - 100% Low
-				OC6RS	= 0;
 				OC6R	= PWM_PERIOD_CLOCK_CYCLES+1;
+				OC6RS	= 0;
 
 				//HOA - 100% High
 				OC7R	= 0;
@@ -568,8 +568,8 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 				OC1RS	= PWM_PERIOD_CLOCK_CYCLES;
 
 				//LOB - 100% Low
-				OC4RS	= 0;
 				OC4R	= PWM_PERIOD_CLOCK_CYCLES+1;
+				OC4RS	= 0;
 
 				//HOB - 100% High
 				OC3R	= 0;
@@ -589,8 +589,8 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 				OC6RS	= PWM_PERIOD_CLOCK_CYCLES;
 
 				//LOB - 100% Low
-				OC9RS	= 0;
 				OC9R	= PWM_PERIOD_CLOCK_CYCLES+1;
+				OC9RS	= 0;
 
 				//HOB - 100% High
 				OC8R	= 0;
