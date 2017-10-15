@@ -500,6 +500,9 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 	//Calculate Circulating Period
 	circulatingCurrentPeriod = PWM_PERIOD_CLOCK_CYCLES - ((unsigned int)onTime + DEADBAND);
 
+	//Wait for the current cycle to end
+	while(OC5TMR > 50);
+
 	//Set registers
 	if(theta < ONE_HUNDRED_EIGHTY_DEGREES)
 	{
