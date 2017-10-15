@@ -178,19 +178,6 @@ void Initialize_Inverter(void)
 	OC4CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 #endif
 	
-	//OC5 - Master Timer 
-	/* !!! One [reference timer] to rule them all and in the darkness bind them [together] !!! */
-	OC5R = 0;
-	OC5RS = PWM_PERIOD_CLOCK_CYCLES;
-	OC5CON1				= 0;
-	OC5CON2				= 0;
-	OC5CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
-	OC5CON1bits.OCM		= 0b110;	//110= Edge-Aligned PWM mode on OCx
-	OC5CON2bits.SYNCSEL	= 0b11111;	//11111= This OC module
-	OC5CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
-	OC5CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
-	OC5CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
-	
 #ifdef HiV_INVERTER_ENABLED
 	//OC6 - LOA Hi Voltage
 	OC6RS				= 0;		//Ensures it is off until needed
@@ -240,6 +227,19 @@ void Initialize_Inverter(void)
 	OC9CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
 	OC9CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 #endif
+	
+	//OC5 - Master Timer 
+	/* !!! One [reference timer] to rule them all and in the darkness bind them [together] !!! */
+	OC5R = 0;
+	OC5RS = PWM_PERIOD_CLOCK_CYCLES;
+	OC5CON1				= 0;
+	OC5CON2				= 0;
+	OC5CON1bits.OCTSEL	= 0b111;	//111 = Peripheral Clock (FCY)
+	OC5CON1bits.OCM		= 0b110;	//110= Edge-Aligned PWM mode on OCx
+	OC5CON2bits.SYNCSEL	= 0b11111;	//11111= This OC module
+	OC5CON2bits.OCINV	= 0;		//0 = OCx output is not inverted
+	OC5CON2bits.OCTRIG	= 0;		//0 = Synchronize OCx with source designated by SYNCSELx bits
+	OC5CON2bits.OCTRIS	= 0;		//0 = Output Compare Peripheral x connected to the OCx pin
 		
 	return;
 }
