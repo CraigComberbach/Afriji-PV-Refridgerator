@@ -248,8 +248,8 @@ void Inverter_Routine(unsigned long time_uS)
 {
 	enum INVERTERS_SUPPORTED currentInverter;
 	int current_mA;
-	unsigned int amplitudeFactor_Percent;
-	int dutyCyclePercent;
+	unsigned int amplitudeFactor_Percentx10;
+	int dutyCyclePercentx10;
 
 	for(currentInverter = 0; currentInverter < NUMBER_OF_INVERTERS_SUPPORTED; ++currentInverter)
 	{
@@ -269,13 +269,13 @@ void Inverter_Routine(unsigned long time_uS)
 			current_mA = Over_Current_Watch(currentInverter);
 
 			//Calculate Amplitude Factor
-			amplitudeFactor_Percent = Calculate_Amplitude_Factor(currentInverter);
+			amplitudeFactor_Percentx10 = Calculate_Amplitude_Factor(currentInverter);
 
 			//Calculate PWM Duty Percent
-			dutyCyclePercent = Calculate_PWM_Duty_Percent(currentInverter, amplitudeFactor_Percent);
+			dutyCyclePercentx10 = Calculate_PWM_Duty_Percent(currentInverter, amplitudeFactor_Percentx10);
 
 			//Update PWM Registers
-			Update_PWM_Register(currentInverter, InverterConfigData[currentInverter].angle_degx10, dutyCyclePercent);
+			Update_PWM_Register(currentInverter, InverterConfigData[currentInverter].angle_degx10, dutyCyclePercentx10);
 
 			//Once per cycle update the target frequency and voltage
 			if((InverterConfigData[currentInverter].targetOutputPeriod_uS - InverterConfigData[currentInverter].currentTime_uS) < Get_Task_Period(INVERTER_TASK))
@@ -448,7 +448,7 @@ int Calculate_PWM_Duty_Percent(enum INVERTERS_SUPPORTED currentInverter, unsigne
 	return (int)dutyCycle_Percentx10;
 }
 
-void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int theta, int dutyCyclePercent)
+void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int theta_degx10, int dutyCyclePercentx10)
 {
 	//Sign	++++++++++++...------------
 	//HOA	------------...__/-\_______
@@ -470,14 +470,14 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 	unsigned int conductingCurrentPeriod;
 
 	//Variable Sentinels
-	if(theta >= THREE_HUNDRED_SIXTY_DEGREES)
+	if(theta_degx10 >= THREE_HUNDRED_SIXTY_DEGREES)
 	{
-		theta %= THREE_HUNDRED_SIXTY_DEGREES;
+		theta_degx10 %= THREE_HUNDRED_SIXTY_DEGREES;
 	}
 
 	//Calculate On Time
 	onTime = PWM_PERIOD_CLOCK_CYCLES;
-	onTime *= dutyCyclePercent;
+	onTime *= dutyCyclePercentx10;
 	onTime /= ONE_HUNDRED_PERCENT;
 	if(onTime > (PWM_PERIOD_CLOCK_CYCLES - (3 * DEADBAND)))//Check to see if we have exceeded a maximum duty cycle
 	{
@@ -504,7 +504,7 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 	while(OC5TMR > 50);
 
 	//Set registers
-	if(theta < ONE_HUNDRED_EIGHTY_DEGREES)
+	if(theta_degx10 < ONE_HUNDRED_EIGHTY_DEGREES)
 	{
 		//Set default values for positive waveform
 		switch(currentInverter)
@@ -611,7 +611,6 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 
 void Frequency_Ramp(unsigned long time_mS)
 {
-
 	return;
 }
 
