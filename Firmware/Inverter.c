@@ -611,6 +611,7 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 
 void Frequency_Ramp(unsigned long time_mS)
 {
+	OutputStageFrequency++;
 	return;
 }
 

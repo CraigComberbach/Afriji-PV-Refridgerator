@@ -55,7 +55,7 @@ int main(void)
 	Schedule_Task(HEART_BEAT_TASK,		&Heart_Beat_Task,	1000000/*uS Delay*/,	500000/*uS Period*/,	PERMANENT_TASK);
 	Schedule_Task(INVERTER_TASK,		&Inverter_Routine,	1000000/*uS Delay*/,	500/*uS Period*/,		PERMANENT_TASK);
 	Schedule_Task(A2D_TASK,				&A2D_Routine,		16667/*uS Delay*/,		16667/*uS Period*/,		PERMANENT_TASK);//No longer than once ever 8mS will allow the result to be captured in time to be used with a 60Hz waveform
-	Schedule_Task(FREQUENCY_RAMP_TASK,	&Frequency_Ramp,	1000000/*uS Delay*/,	1000000/*uS Period*/,	60/*Repetitions*/);
+	Schedule_Task(FREQUENCY_RAMP_TASK,	&Frequency_Ramp,	2500000/*uS Delay*/,	500000/*uS Period*/,	40/*Repetitions*/);
 	Schedule_Task(TERMINAL_TASK,		&Debug_Routine,		200000/*uS Delay*/,		100000/*uS Period*/,	1);
 
 	while(1)
