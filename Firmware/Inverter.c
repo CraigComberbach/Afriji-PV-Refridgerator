@@ -21,11 +21,7 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 /*************    Mike & Micah    ***************/
 const int InputStageFrequency = 60;
 const int OutputStageFrequency = 20;
-<<<<<<< HEAD
 //const int InputStageTargetVp_x10 = 120; //Ensure DC rail does not exceed 200 VDC
-=======
-const int InputStageVp_x10 = 120; //Ensure DC rail does not exceed 200 VDC
->>>>>>> parent of 6b82929... Added 1st Stage Inverter Startup
 
 /************* Library Definition ***************/
 /************* Semantic Versioning***************/
