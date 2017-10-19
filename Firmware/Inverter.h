@@ -31,7 +31,6 @@ enum INVERTERS_SUPPORTED
 /*************Function  Prototypes***************/
 void Initialize_Inverter(void);
 void Inverter_Routine(unsigned long time_mS);
-void Energize(unsigned long time_mS);
 void Frequency_Ramp(unsigned long time_mS);
 void Set_Output_Hz(int newFrequency_Hz, enum INVERTERS_SUPPORTED inverter);
 int Get_Output_Hz(enum INVERTERS_SUPPORTED inverter);

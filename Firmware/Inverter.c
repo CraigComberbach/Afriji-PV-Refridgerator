@@ -21,7 +21,11 @@ Compiler: XC16 v1.26	IDE: MPLABx 3.30	Tool: ICD3	Computer: Intel Core2 Quad CPU 
 /*************    Mike & Micah    ***************/
 const int InputStageFrequency = 60;
 const int OutputStageFrequency = 20;
+<<<<<<< HEAD
 //const int InputStageTargetVp_x10 = 120; //Ensure DC rail does not exceed 200 VDC
+=======
+const int InputStageVp_x10 = 120; //Ensure DC rail does not exceed 200 VDC
+>>>>>>> parent of 6b82929... Added 1st Stage Inverter Startup
 
 /************* Library Definition ***************/
 /************* Semantic Versioning***************/
@@ -64,9 +68,7 @@ struct INVERTER_VARIABLES
 	int lastPeakNegCurrent_mA;
 	int targetOutputPeriod_cycles;
 	int ratedOutputPeriod_cycles;
-	int StartupComplete;
 	int32_t startupDelay_uS;
-	
 } InverterConfigData[NUMBER_OF_INVERTERS_SUPPORTED];
  
 /***********State Machine Definitions************/
@@ -111,9 +113,8 @@ void Initialize_Inverter(void)
 		#ifdef HiI_INVERTER_ENABLED
 		if(loop == HIGH_CURRENT_INVERTER)
 		{
-			InverterConfigData[loop].StartupComplete = 0;
 			InverterConfigData[loop].startupDelay_uS = 0;
-			InverterConfigData[loop].targetOutputVoltage_Vx10 = 0;
+			InverterConfigData[loop].targetOutputVoltage_Vx10 = 120;
 			InverterConfigData[loop].maxCurrentTripPickup_Ax10 = 800;
 			InverterConfigData[loop].targetOutputFrequency_Hz = 60;
 			InverterConfigData[loop].targetOutputPeriod_uS = NUMBER_OF_uS_IN_ONE_SECOND / InverterConfigData[loop].targetOutputFrequency_Hz;
@@ -122,7 +123,6 @@ void Initialize_Inverter(void)
 		#ifdef HiV_INVERTER_ENABLED
 		if(loop == HIGH_VOLTAGE_INVERTER)
 		{
-			InverterConfigData[loop].StartupComplete = 0;
 			InverterConfigData[loop].startupDelay_uS = 1000000;
 			InverterConfigData[loop].targetOutputVoltage_Vx10 = 2000;
 			InverterConfigData[loop].maxCurrentTripPickup_Ax10 = 100;
@@ -131,7 +131,7 @@ void Initialize_Inverter(void)
 		}
 		#endif
 	}
-		
+	
 #ifdef HiI_INVERTER_ENABLED
 	//OC1 - LOA Hi Current
 	OC1RS				= 0;		//Ensures it is off until needed
@@ -248,12 +248,6 @@ void Initialize_Inverter(void)
 	return;
 }
 
-void Energize(unsigned long time_mS)
-{
-	InverterConfigData[HIGH_CURRENT_INVERTER].targetOutputVoltage_Vx10++;
-	return;
-}
-
 void Inverter_Routine(unsigned long time_uS)
 {
 	enum INVERTERS_SUPPORTED currentInverter;
@@ -295,6 +289,7 @@ void Inverter_Routine(unsigned long time_uS)
 				if(currentInverter == HIGH_CURRENT_INVERTER)
 				{
 					InverterConfigData[HIGH_CURRENT_INVERTER].targetOutputFrequency_Hz = InputStageFrequency;
+					InverterConfigData[HIGH_CURRENT_INVERTER].targetOutputVoltage_Vx10 = InputStageVp_x10;
 				}
 			#endif
 			#ifdef HiV_INVERTER_ENABLED
@@ -399,8 +394,7 @@ int Calculate_Amplitude_Factor(enum INVERTERS_SUPPORTED currentInverter)
 	}
 
 	//Check if we need to dump power
-	if((currentInverter == HIGH_CURRENT_INVERTER) && (A2D_Value(A2D_AN12_VDC_BUS_PLUS) < NOMINAL_DC_RAIL_VOLTAGE_Vx10) && 
-		(InverterConfigData[HIGH_CURRENT_INVERTER].StartupComplete==1) )
+	if((currentInverter == HIGH_CURRENT_INVERTER) && (A2D_Value(A2D_AN12_VDC_BUS_PLUS) < NOMINAL_DC_RAIL_VOLTAGE_Vx10))
 	{
 		amplitudeFactor_percentx10 = ONE_HUNDRED_PERCENT;
 	}
@@ -618,7 +612,7 @@ void Update_PWM_Register(enum INVERTERS_SUPPORTED currentInverter, unsigned int 
 
 void Frequency_Ramp(unsigned long time_mS)
 {
-	InverterConfigData[HIGH_VOLTAGE_INVERTER].targetOutputFrequency_Hz++;
+	OutputStageFrequency++;
 	return;
 }
 
