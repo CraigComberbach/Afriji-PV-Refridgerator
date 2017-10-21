@@ -220,3 +220,4 @@ pip-log.txt
 .DS_Store
 *.PCBDOCPreview
 *.properties
+*.PCBDOCPreview
