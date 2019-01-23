@@ -130,7 +130,7 @@ int LoV_Formating_AN2(int value)
 	return previousMeasurement;
 }
 
-int HiI_Formating(int value)
+int HiI_Formating(int value)  //Returns A2D measurement as formatted current. return 1 = 0.1 A 
 {
 	static int previousMeasurement = 15;	//Start at 1.5A as that is our minimum measurable current
 	int temp;
@@ -151,7 +151,7 @@ int HiI_Formating(int value)
 	return temp;
 }
 
-int LoI_Formating(int value)
+int LoI_Formating(int value)	//Returns A2D measurement as formatted current. return 1 = 0.1 A
 {
 	static int previousMeasurement = 1;	//Start at 0.1A as that is our minimum measurable current
 	int temp;
@@ -172,7 +172,7 @@ int LoI_Formating(int value)
 	return temp;
 }
 
-int HiV_Formating(int value, int previousMeasurement)
+int HiV_Formating(int value, int previousMeasurement) //Returns A2D measurement as formatted voltage. return 1 = 0.1 V
 {
 	int temp;
 
@@ -192,7 +192,7 @@ int HiV_Formating(int value, int previousMeasurement)
 	return temp;
 }
 
-int HiV_Formating_AN12(int value)
+int HiV_Formating_AN12(int value) 
 {
 	static int previousMeasurement = 0;
 
@@ -228,23 +228,23 @@ int HiV_Formating_AN15(int value)
 	return previousMeasurement;
 }
 
-int Hz_Formatting(int value)
+int Hz_Formatting(int value)  //Returns A2D measurement as formatted frequency. return 1 = 1 Hz
 {
-//	return value;
-	//Hz = 60 @ A2D = 1000
-	value *= 6;
-	value /= 77;
+	long intermediate = (long)value;
 	
-	//The pot is reverse acting :(
-	value = 60 - value;
+	intermediate *= 100;
+	intermediate += 20460;
+	intermediate /= 2046;
+	value = (int)intermediate;
+	value = 70 - value;
 	
-	//Don't dip below 10.0Hz
+	//Don't dip below 10Hz
 	if(value < 10)
 		value = 10;
 	if(value == 15)	//There is a an address error on 15 (only...weird, I know!) that I don't want to debug right now, so this kludge is included!
 		value = 16;
 	if(value > 60)
 		value = 60;
-
+	
 	return value;
 }

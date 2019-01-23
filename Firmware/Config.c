@@ -184,6 +184,7 @@ void Configure_For_Afriji(void)
 	Pin_Initialize(PIN_RG9,								LOW, PUSH_PULL, INPUT);	//RG9
 
 	/************* PeripheralPinSelect***************/
+	__builtin_write_OSCCONL(OSCCON & 0xBF); 
 
 	//Input Inverter (Hi-I Lo-V)
 	#ifdef HiI_INVERTER_ENABLED
@@ -194,7 +195,7 @@ void Configure_For_Afriji(void)
 	#endif
 
 	//Output Inverter (Hi-V Lo-A)
-	#ifdef HiVolt_INVERTER_ENABLED
+	#ifdef HiV_INVERTER_ENABLED
 	RPOR5bits.RP10R		= 23;	//OC6	LOA
 	RPOR8bits.RP16R		= 24;	//OC7	HOA
 	RPOR15bits.RP30R	= 25;	//OC8	HOB
@@ -218,7 +219,7 @@ void Configure_For_Afriji(void)
 	A2D_Channel_Settings(A2D_AN0_TRANSFORMER_PRIMARY_MINUS,		RESOLUTION_10_BIT,	1,	&LoV_Formating_AN0);
 	A2D_Channel_Settings(A2D_AN1_TRANSFORMER_PRIMARY_PLUS,		RESOLUTION_10_BIT,	1,	&LoV_Formating_AN1);
 	A2D_Channel_Settings(A2D_AN2_SOLAR_PLUS,					RESOLUTION_10_BIT,	1,	&LoV_Formating_AN2);
-	A2D_Channel_Settings(A2D_AN3_TEMP2,							RESOLUTION_10_BIT,	1,	&Afriji_Celcius_Formating);
+	A2D_Channel_Settings(A2D_AN3_TEMP2,							RESOLUTION_10_BIT,	1,	&Hz_Formatting);
 //	A2D_Channel_Settings(A2D_AN4_UNUSED,						RESOLUTION_10_BIT,	1,	&);//Unused
 //	A2D_Channel_Settings(A2D_AN5_UNUSED,						RESOLUTION_10_BIT,	1,	&);//Unused
 	A2D_Channel_Settings(A2D_AN6_TEMP1,							RESOLUTION_10_BIT,	1,	&Afriji_Celcius_Formating);
