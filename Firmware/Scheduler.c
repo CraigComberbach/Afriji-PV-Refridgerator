@@ -198,6 +198,19 @@ void Schedule_Task(enum SCHEDULER_DEFINITIONS taskName, void (*newTask)(uint32_t
 	return;
 }
 
+uint32_t Get_Task_Period(enum SCHEDULER_DEFINITIONS taskName)
+{
+	return scheduledTasks[taskName].period_uS;
+}
+
+void Set_Task_Period(enum SCHEDULER_DEFINITIONS taskName, uint32_t newPeriod_uS)
+{
+	//Timing Information
+	scheduledTasks[taskName].period_uS = newPeriod_uS;
+
+	return;
+}
+
 int8_t Waiting_To_Run_Tasks(void)
 {
 	return delayFlag;

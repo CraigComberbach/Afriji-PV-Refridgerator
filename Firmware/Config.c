@@ -17,6 +17,7 @@ v0.0.0	2013-07-11  Craig Comberbach
 #include "Scheduler.h"
 #include "Analogs.h"
 #include "Inverter.h"
+#include "Debug.h"
 
 /*************Semantic  Versioning***************/
 /*************Library Dependencies***************/
@@ -178,7 +179,7 @@ void Configure_For_Afriji(void)
 	Pin_Initialize(PIN_RG2,								LOW, PUSH_PULL, INPUT);	//RG2
 	Pin_Initialize(PIN_RG3,								LOW, PUSH_PULL, INPUT);	//RG3
 	Pin_Initialize(PIN_RG6_SWITCHED_GROUND1,			LOW, OPEN_DRAIN, OUTPUT);//RG6
-	Pin_Initialize(PIN_RG7_SWITCHED_GROUND2,			LOW, OPEN_DRAIN, OUTPUT);//RG7
+	Pin_Initialize(PIN_RG7_SWITCHED_GROUND2,			LOW, PUSH_PULL, OUTPUT);//RG7
 	Pin_Initialize(PIN_RG8,								LOW, PUSH_PULL, INPUT);	//RG8
 	Pin_Initialize(PIN_RG9,								LOW, PUSH_PULL, INPUT);	//RG9
 
@@ -204,10 +205,15 @@ void Configure_For_Afriji(void)
 	RPOR1bits.RP3R		= 23;	//Red LED (Green on Schematic)
 	RPOR6bits.RP12R		= 18;	//Blue LED (Blue on schematic)
 
-//	RPOR12bits.RP24R 	= 3;	//UART1 - Terminal Tx 
+	//Feedback UART
+	RPOR12bits.RP24R 	= 3;	//UART1 - Terminal Tx 
+
 	__builtin_write_OSCCONL(OSCCON | 0x40);
 
-//	/*************        A2D         ***************/
+	/*************  Terminal Window   ***************/
+	Debug_Initialize();
+	
+	/*************        A2D         ***************/
 	A2D_Initialize();
 	A2D_Channel_Settings(A2D_AN0_TRANSFORMER_PRIMARY_MINUS,		RESOLUTION_10_BIT,	1,	&LoV_Formating_AN0);
 	A2D_Channel_Settings(A2D_AN1_TRANSFORMER_PRIMARY_PLUS,		RESOLUTION_10_BIT,	1,	&LoV_Formating_AN1);
@@ -220,7 +226,7 @@ void Configure_For_Afriji(void)
 	A2D_Channel_Settings(A2D_AN8_TEMP4,							RESOLUTION_10_BIT,	1,	&Afriji_Celcius_Formating);
 	A2D_Channel_Settings(A2D_AN9_INPUT_CURRENT,					RESOLUTION_10_BIT,	1,	&HiI_Formating);
 	A2D_Channel_Settings(A2D_AN10_OUTPUT_CURRENT,				RESOLUTION_10_BIT,	1,	&LoI_Formating);
-	A2D_Channel_Settings(A2D_AN11_TEMP5,						RESOLUTION_10_BIT,	1,	&Afriji_Celcius_Formating);
+	A2D_Channel_Settings(A2D_AN11_TEMP5,						RESOLUTION_10_BIT,	1,	&Hz_Formatting);
 	A2D_Channel_Settings(A2D_AN12_VDC_BUS_PLUS,					RESOLUTION_10_BIT,	1,	&HiV_Formating_AN12);
 	A2D_Channel_Settings(A2D_AN13_TRANSFORMER_SECONDARY_PLUS,	RESOLUTION_10_BIT,	1,	&HiV_Formating_AN13);
 	A2D_Channel_Settings(A2D_AN14_VOUT_PLUS,					RESOLUTION_10_BIT,	1,	&HiV_Formating_AN14);
